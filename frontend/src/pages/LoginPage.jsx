@@ -39,7 +39,7 @@ function LoginPage() {
   return (
 
     <div className="page">
-      <h1>Log into X</h1>
+      <h1>Log into Neighborhood Noise</h1>
       <form onSubmit={handleSubmit}>
 
 

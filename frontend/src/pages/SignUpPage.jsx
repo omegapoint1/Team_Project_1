@@ -69,7 +69,7 @@ function LoginPage() {
   return (
 
     <div className="page">
-      <h1>Sign up to X</h1>
+      <h1>Sign up to Neighborhood Noise</h1>
       <form onSubmit={handleSubmit}>
 
 

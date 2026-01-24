@@ -1,32 +1,97 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.navbar {
+  height: 72px;
+  padding: 0 28px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: white;
+  border-bottom: 1px solid rgba(15,23,42,0.12);
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
 }
 
-body {
-  font-family:Arial, sans-serif;
-  background-color: white;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.websiteLogo {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  
+  object-fit: contain;
+
+  cursor: pointer;
+}
+
+.nav-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   color: black;
 }
 
-.navbar {
-  display: flex;
-  gap: 2rem;
-  padding: 1rem 3rem;
-  background-color: black;
-  border-bottom: grey;
-}
-
 .nav-link {
-  color: white;
-  padding: 0.75rem 1rem;
-  border-radius: 0.4rem;
-  font-weight: 800;
-  background-color: grey;
   text-decoration: none;
+  color: rgba(15,23,42,0.92);
+  font-size: 18px;
+  font-weight: 500;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  background: rgba(15,23,42,0.1);
+  border: 1px solid rgba(15,23,42,0.08);
+
+  transition: transform 140ms ease, background 140ms ease, border 140ms ease;
 }
 
 .nav-link:hover {
-  background-color: darkgrey;
+  background: rgba(15,23,42,0.07);
+  border: 1px solid rgba(15,23,42,0.12);
+  transform: translateY(-1px);
+}
+
+.nav-link:active {
+  transform: translateY(0px);
+}
+
+.nav-link-icon {
+  text-decoration: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(15,23,43,0.1);
+  border: 1px solid rgba(15,23,42,0.12);
+
+  transition: background 140ms ease, transform 140ms ease, border 140ms ease;
+}
+
+.nav-link-icon:hover {
+  background: rgba(15,23,42,0.07);
+  border: 1px solid rgba(15,23,42,0.14);
+  transform: translateY(-1px);
+}
+
+.nav-link-icon:active {
+  transform: translateY(0px);
+}
+
+.nav-user-icon {
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(15,23,42,0.85);
 }
