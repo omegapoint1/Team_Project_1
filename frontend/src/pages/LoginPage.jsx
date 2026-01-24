@@ -7,7 +7,7 @@ function LoginPage() {
   const[email, setEmail] = useState('');
   const[password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -18,7 +18,7 @@ function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
+          username: email,
           password: password
         })
       });
