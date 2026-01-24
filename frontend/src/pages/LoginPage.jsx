@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './LoginPage.css';
+import { Link } from 'react-router-dom';
 
 function LoginPage() {
 
@@ -13,7 +14,7 @@ function LoginPage() {
   return (
 
     <div className="page">
-      <h1>Login or sign up</h1>
+      <h1>Log into X</h1>
       <form onSubmit={handleSubmit}>
 
 
@@ -43,6 +44,16 @@ function LoginPage() {
 
         <button type = "submit">Login</button>
       </form>
+
+      <div className="signup-section">
+        <p> Don't have an account? </p>
+        
+        <Link to="/signup">
+          <button type ="button" className="signup-button">
+            Sign Up
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

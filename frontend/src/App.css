@@ -14,18 +14,19 @@ body {
   display: flex;
   gap: 2rem;
   padding: 1rem 3rem;
-  background-color: red;
-  border-bottom: red;
+  background-color: black;
+  border-bottom: grey;
 }
 
 .nav-link {
-  color: purple;
+  color: white;
   padding: 0.75rem 1rem;
   border-radius: 0.4rem;
   font-weight: 800;
-  background-color: yellow;
+  background-color: grey;
+  text-decoration: none;
 }
 
 .nav-link:hover {
-  background-color: green;
+  background-color: darkgrey;
 }
