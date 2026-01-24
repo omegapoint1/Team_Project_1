@@ -104,7 +104,7 @@ function LoginPage() {
         <div className="form-group">
           <label htmlFor="confirm-password">Confirm Password:</label>
           <input
-            type="confirm-password"
+            type="password"
             id="confirm-password"
             value={confirmPassword}
             onChange={(e) => {
@@ -124,7 +124,7 @@ function LoginPage() {
             ))}
           </ul>
         )}
-        
+
         {matchError && (
           <div className="password-errors">
             {matchError}

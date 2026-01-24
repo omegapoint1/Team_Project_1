@@ -6,9 +6,34 @@ function LoginPage() {
 
   const[email, setEmail] = useState('');
   const[password, setPassword] = useState('');
-
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('');
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // data to be used later
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Invalid email or password');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Error. Please try again.');
+    }
   };
 
   return (
@@ -41,6 +66,12 @@ function LoginPage() {
             required
           />
         </div>
+
+        {error && (
+          <div className="password-errors">
+            {error}
+          </div>
+        )}
 
         <button type = "submit">Login</button>
       </form>
