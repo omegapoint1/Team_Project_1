@@ -13,7 +13,7 @@ import Dashboard from './pages/Dashboard';
 import GamePage from './pages/GamePage';
 function App() {
   return (
-    <BrowserRouter>
+<BrowserRouter>
       <nav className="navbar">
         
         <div className="navbar-left">
@@ -24,44 +24,18 @@ function App() {
         </div>
       
         <div className = "navbar-right">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Dashboard
-          </NavLink>
-          <NavLink
-            to="/planner"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Planner
-          </NavLink>
+          <Link to="/planner" className="nav-link">Planner Screen</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
           </Link>
         </div>
       </nav>
-      
+
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
         <Route path="/planner"  element={<PlannerPage/>} />
-        <Route path="/signup"   element={<SignUpPage/>} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/game" element={<GamePage/>} />
-        
-        <Route path="/dashboard" element={<Dashboard />}>
-          <Route index element={<Overview />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="mitigation" element={<MitigationPlans />} />
-          <Route path="comparison" element={<ScenarioComparison />} />
-          <Route path="tracker" element={<ImplementationTracker />} />
-          <Route path="report" element={<GenerateReport />} />
-          <Route path="hotspots" element={<HotspotAnalytics />} />
-        </Route>
-
-
-        {/*<Route path="*" element={<NotFoundPage />} />*/}
       </Routes>
     </BrowserRouter>
   );
