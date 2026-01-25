@@ -9,7 +9,7 @@ import Hotspots from './Hotspots';
 import Plans from './PlanBuilder';
 import Scenarios from './Scenarios';
 import Reports from './Reports';
-
+import IncidentList from './Incidents/IncidentList';
 function PlannerScreenTabManager() {
   //states track active tab
   const [activeTab, setActiveTab] = useState('overview');
@@ -23,7 +23,7 @@ function PlannerScreenTabManager() {
     { 
       id: 'incidents', 
       label: '🚨INCIDENTS', 
-      component: <Incidents />,
+      component: <IncidentList />,
     },
     { 
       id: 'hotspots', 

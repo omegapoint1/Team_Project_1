@@ -5,15 +5,29 @@ import PlannerPage from './pages/PlannerPage';
 
 function App() {
   return (
-    <BrowserRouter>
-      <nav>
-        <Link to="/">Login</Link>
-        <Link to="/planner">Planner Screen</Link>
+<BrowserRouter>
+      <nav className="navbar">
+        
+        <div className="navbar-left">
+          <Link to="/dashboard">
+            <img src="/logo.png" alt="Website Logo" className="websiteLogo" />
+          </Link>
+          <span className="nav-title">Neighborhood Noise</span>
+        </div>
+      
+        <div className = "navbar-right">
+          <Link to="/planner" className="nav-link">Planner Screen</Link>
+
+          <Link to="/"        className = "nav-link-icon">
+            <span className="nav-user-icon">👤</span>
+          </Link>
+        </div>
       </nav>
+
       <Routes>
-        <Route path="/" element={<LoginPage/>} />
-        <Route path="/planner" element={<PlannerPage/>} />
-        {/*<Route path="*" element={<NotFoundPage />} />*/}
+        <Route path="/"         element={<LoginPage/>} />
+        <Route path="/planner"  element={<PlannerPage/>} />
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </BrowserRouter>
   );

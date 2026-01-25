@@ -5,7 +5,7 @@ function Reports() {
 
   return (
     <div>
-      <h2>📄 REPORTS</h2>
+      <h2>📄 GENERATE REPORTS</h2>
 
     </div>
   );
