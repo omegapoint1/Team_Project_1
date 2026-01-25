@@ -1,3 +1,4 @@
+import gleam/io
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 import pog
@@ -7,6 +8,9 @@ import gleam/http.{Get, Post}
 import gleam/dynamic/decode
 import argus
 import shared/login
+import lustre/attribute
+import lustre/element
+import lustre/element/html
 
 
 
@@ -18,6 +22,7 @@ pub fn main() {
   let assert Ok(priv_directory) = wisp.priv_directory("backend")
   let static_directory = priv_directory <> "/static"
   let pool_name = process.new_name("db_name")
+  io.print(static_directory)
 
   let pool_child = 
     pog.default_config(pool_name)
@@ -60,6 +65,30 @@ fn handle_request(
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
+    
+    Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
+}
+
+
+fn serve_index() -> Response {
+  let html =
+    html.html([], [
+      html.head([], [
+        html.title([], "HTML migrator"),
+        html.script(
+          [attribute.type_("module"), attribute.src("/static/LoginPage.jsx")],
+          "",
+        ),
+        html.link([
+          attribute.href("/static/LoginPage.css"),
+          attribute.rel("stylesheet"),
+        ]),
+      ]),
+      html.body([], [html.div([attribute.id("app")], [])]),
+    ])
+      html
+  |> element.to_document_string
+  |> wisp.html_response(200)
 }
