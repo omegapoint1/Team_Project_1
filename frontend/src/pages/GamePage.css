@@ -1,0 +1,115 @@
+/* Page Background */
+.quests-page{
+    background: #cfcfcf;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Top Bar */
+.quests-topbar{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #bdbdbd;
+}
+
+.quests-logo{
+    font-weight: 700;
+    font-size: 20px;
+}
+.quests-nav{
+    display: flex;
+    gap: 20px;
+    font-weight: 600;
+}
+/* controls */
+.quests-controls {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+}
+
+.quests-search {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #bdbdbd;
+}
+
+.quests-btn{
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid #bdbdbd;
+    background: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.quests-aply {
+    background: #7ed37e;
+    border-color: #5fb85f;
+    font-weight:700;
+}
+
+/*section title*/
+.quests-title {
+    margin:10px auto 20px;
+    padding: 10px 40px;
+    width: fit-content;
+    background: #e5e5e5;
+    border-radius: 12px;
+    font-weight: 700;
+}
+/*quest list*/
+.quests-list{
+    padding: 0 20px;
+}
+.quest-card{
+    display:grid;
+    grid-template-columns: 160px 1fr 160px;
+    align-items: center;
+    background: #dedede;
+    border-radius: 14px;
+    padding: 10px 20px;
+    margin-bottom: 14px;
+    box-shadow: inset 0 0 0 1px #bdbdbd;
+}
+
+.quest-meta {
+    font-size: 14px;
+    line-height: 1.6;
+}
+.quest-main{
+    text-align: center;
+}
+.quest-main h3{
+    margin:0;
+}
+
+.quest-main p{
+    margin-top:6px;
+}
+
+/* accept button */
+.quest-accept {
+    justify-self: end;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1px solid #5fb85f;
+    background: #7ED37E;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/*load more*/
+.quests-load-more {
+    display:block;
+    margin: 30px auto;
+    padding: 14px 50px;
+    border-radius: 14px;
+    border: none;
+    background: #7ed37e;
+    font-weight: 700;
+    cursor: pointer;
+}
