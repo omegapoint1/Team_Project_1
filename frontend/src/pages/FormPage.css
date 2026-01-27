@@ -13,10 +13,71 @@
 }
 
 .alittlegap {
-    gap: 5vw;
+    gap: 10px;
+}
+.abiggergap {
+    gap: 30px;
 }
 
 .center {
     align-items: center;
     justify-content: center;
+}
+
+.verticalcenter {
+    align-items: center;
+}
+.horizontalcenter {
+    justify-content: center;
+}
+
+.zeropadding {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.zeromargin {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.whitebox {
+    background-color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.lightgreybox {
+    background-color: rgba(211, 211, 211, 0.966);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.navbar {
+    background-color: white;
+    padding: 10px;
+}
+
+.lightboxshadow {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    background-color: rgb(199, 199, 199);
+    padding: 0;
+    margin: 0;
+}
+
+form {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+div {
+    max-width: 100%;
+    max-height: 100%;
 }
