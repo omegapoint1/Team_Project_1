@@ -2,10 +2,12 @@ import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import LoginPage from './pages/LoginPage'; 
 import PlannerPage from './pages/PlannerPage';  
+import SignUpPage from './pages/SignUpPage';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
-<BrowserRouter>
+    <BrowserRouter>
       <nav className="navbar">
         
         <div className="navbar-left">
@@ -23,11 +25,14 @@ function App() {
           </Link>
         </div>
       </nav>
-
+      
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
         <Route path="/planner"  element={<PlannerPage/>} />
+        <Route path="/signup"   element={<SignUpPage/>} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/*<Route path="*" element={<NotFoundPage />} />*/}
       </Routes>
     </BrowserRouter>
   );

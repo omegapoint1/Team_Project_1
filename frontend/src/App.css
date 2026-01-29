@@ -1,38 +1,97 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.navbar {
+  height: 72px;
+  padding: 0 28px;
+  
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
+
+  background-color: white;
+  border-bottom: 1px solid rgba(15,23,42,0.12);
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
 }
 
-.App-link {
-  color: #61dafb;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.websiteLogo {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  
+  object-fit: contain;
+
+  cursor: pointer;
+}
+
+.nav-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: black;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: rgba(15,23,42,0.92);
+  font-size: 18px;
+  font-weight: 500;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  background: rgba(15,23,42,0.1);
+  border: 1px solid rgba(15,23,42,0.08);
+
+  transition: transform 140ms ease, background 140ms ease, border 140ms ease;
+}
+
+.nav-link:hover {
+  background: rgba(15,23,42,0.07);
+  border: 1px solid rgba(15,23,42,0.12);
+  transform: translateY(-1px);
+}
+
+.nav-link:active {
+  transform: translateY(0px);
+}
+
+.nav-link-icon {
+  text-decoration: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(15,23,43,0.1);
+  border: 1px solid rgba(15,23,42,0.12);
+
+  transition: background 140ms ease, transform 140ms ease, border 140ms ease;
+}
+
+.nav-link-icon:hover {
+  background: rgba(15,23,42,0.07);
+  border: 1px solid rgba(15,23,42,0.14);
+  transform: translateY(-1px);
+}
+
+.nav-link-icon:active {
+  transform: translateY(0px);
+}
+
+.nav-user-icon {
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(15,23,42,0.85);
 }
