@@ -1,0 +1,180 @@
+.saved-reports-container {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+  box-shadow: 0 1px 3px black;
+  display: flex;
+  flex-direction: column;
+  height: 500px; 
+}
+
+.reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.reports-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: grey;
+}
+
+.reports-count {
+  font-size: 14px;
+  color: #666;
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid white;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-select {
+  padding: 8px;
+  border: 1px solid white;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+}
+
+.reports-table-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid white;
+  border-radius: 4px;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th {
+  background: #f8f9fa;
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+  color: grey;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  top: 0;
+}
+
+.reports-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.report-row:hover {
+  background: #f8f9fa;
+}
+
+.select-col {
+  width: 40px;
+}
+
+.name-col {
+  width: 200px;
+}
+
+.report-name {
+  font-weight: bold;
+  color: grey;
+  margin-bottom: 4px;
+}
+
+.report-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.report-size {
+  background: #f8f9fa;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 8px;
+}
+
+.type-col {
+  width: 80px;
+}
+
+.type-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.badge-blue {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-green {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.badge-red {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.date-col {
+  width: 100px;
+}
+
+.report-date {
+  font-size: 13px;
+  color: grey;
+}
+
+.actions-col {
+  width: 80px;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.load-btn {
+  background: #007bff;
+  color: white;
+}
+
+.delete-btn {
+  background: #f8f9fa;
+  color: #666;
+}
+
+.no-reports {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
