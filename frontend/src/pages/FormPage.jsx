@@ -65,7 +65,7 @@ function FormPage() {
                         </div>
                         <div class="flexcolumn alittlegap">
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d38952.06011810312!2d-3.53830575!3d50.7400822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x486da4113c8130b1%3A0x7f3efd04b3287246!2sUniversity%20of%20Exeter!5e1!3m2!1sen!2suk!4v1769360134256!5m2!1sen!2suk"
+                                src="https://www.google.com/maps/embed?q=GU3+3QE"
                                 width="600" height="450" style="border:0;"
                                 allowfullscreen loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade"></iframe>
