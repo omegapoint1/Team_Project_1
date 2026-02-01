@@ -1,0 +1,85 @@
+.overviewPage {
+  width: 100%;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+
+  padding: 12px 14px;
+  background: #f3f3f3;
+
+  border: 2px solid rgb(119, 119, 119);
+  border-radius: 12px;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.searchWrap {
+  width: 320px;
+  max-width: 55vw;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px;
+
+  border-radius: 10px;
+  border: 2px solid rgb(119, 119, 119);
+
+  font-size: 16px;
+  outline: none;
+  background: white;
+}
+
+.searchInput:focus {
+  border-color: rgb(75, 85, 99);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.filterRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  padding: 9px 34px 9px 12px;
+
+  border-radius: 10px;
+  border: 2px solid rgb(119, 119, 119);
+
+  background: rgb(222, 222, 222);
+  font-size: 15px;
+  font-weight: 600;
+
+  outline: none;
+
+  appearance: none;
+}
+
+.selectWrap::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0.8;
+}

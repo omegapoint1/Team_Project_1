@@ -1,0 +1,74 @@
+.dashboardLayout {
+  min-height: 100vh;
+  background: rgb(207, 207, 207);
+}
+
+.DashBar {
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px;
+  align-items: center;
+  margin: 0;
+  justify-content: space-between;
+
+  width: 100%;
+  box-sizing: border-box;
+  
+  background: white;
+  border-bottom: 2px solid rgb(122, 122, 122);
+  border-radius: 1px;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.dashboardTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 22px;
+  min-height: 42px;
+
+  background: rgb(213, 213, 213);
+  color: rgb(17, 17, 17);
+  text-decoration: none;
+
+  border: 2px solid rgb(102, 102, 102);
+  border-radius: 10px;
+
+  font-weight: 700;
+  font-size: 14px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 0 rgba(0, 0, 0, 0.25);
+
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+
+.dashboardTab.active {
+  background: rgb(130, 224, 130);
+  border-color: rgb(62, 122, 62);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.dashboardTab:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+}
+
+.dashboardTab:active {
+  transform: translateY(0px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 0 rgba(0, 0, 0, 0.22);
+}
+
+.DashBar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
