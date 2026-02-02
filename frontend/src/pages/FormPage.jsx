@@ -1,17 +1,6 @@
 function FormPage() {
   return (
      <div class="flexcolumn center alittlegap">
-        <div class="flexrow spacebetween verticalcenter navbar" style="width:100%;">
-            <div>
-                <h1>Neighbourhood Noise</h1>
-            </div>
-            <div class="flexrow spacebetween alittlegap verticalcenter">
-                <a href="#">Dashboard</a>
-                <a href="#">Quests</a>
-                <a href="#">Report</a>
-                <a href="#">Profile</a>
-            </div>
-        </div>
         <form style="width:60%;">
             <div class="flexcolumn abiggergap center">
                 <div class="flexcolumn verticalcenter whitebox lightboxshadow">
