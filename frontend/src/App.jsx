@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
   import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
+  import FormPage from './pages/FormPage';
 
 function App() {
   return (
@@ -55,7 +56,7 @@ function App() {
           <Route path="mitigation" element={<MitigationPlans />} />
           <Route path="comparison" element={<ScenarioComparison />} />
           <Route path="tracker" element={<ImplementationTracker />} />
-          <Route path="report" element={<GenerateReport />} />
+          <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>
 
