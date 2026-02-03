@@ -11,6 +11,7 @@ import shared/login
 import lustre/attribute
 import lustre/element
 import lustre/element/html
+//import login
 
 
 
@@ -26,9 +27,10 @@ pub fn main() {
 
   let pool_child = 
     pog.default_config(pool_name)
-    |> pog.user("alex")
-    |> pog.database("user_db")
+    |> pog.user("admin")
+    |> pog.database("testdb")
     |> pog.pool_size(15)
+    |> pog.port(5432)
     |> pog.start
   let db = pog.named_connection(pool_name)
 
@@ -65,7 +67,8 @@ fn handle_request(
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
-    
+//    Post, ["api", "login"] -> handle_login_check(req, db)
+//    Post, ["api", "register"] -> handle_register(req, db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
@@ -92,3 +95,5 @@ fn serve_index() -> Response {
   |> element.to_document_string
   |> wisp.html_response(200)
 }
+
+
