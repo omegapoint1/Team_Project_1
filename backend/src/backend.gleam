@@ -7,11 +7,10 @@ import mist
 import gleam/http.{Get, Post}
 import gleam/dynamic/decode
 import argus
-import shared/login
 import lustre/attribute
 import lustre/element
 import lustre/element/html
-//import login
+import login
 
 
 
@@ -67,8 +66,8 @@ fn handle_request(
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
-//    Post, ["api", "login"] -> handle_login_check(req, db)
-//    Post, ["api", "register"] -> handle_register(req, db)
+    Post, ["api", "login"] -> login.handle_login_check(req, db)
+    Post, ["api", "register"] -> login.handle_register(req, db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }

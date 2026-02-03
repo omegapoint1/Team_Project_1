@@ -1,17 +1,15 @@
-import gleam/io
 import wisp.{type Request, type Response}
 import pog
 import gleam/http.{Get, Post}
 import gleam/dynamic/decode
 import argus
-import shared/login
+import shared/login_json
 import server_app/sql
-import gleam/option
 
-fn handle_login_check(req: Request, db: pog.Connection) -> Response {
+pub fn handle_login_check(req: Request, db: pog.Connection) -> Response {
 
   use json <- wisp.require_json(req)
-  let assert Ok(item) = decode.run(json, login.login_item_decoder())
+  let assert Ok(item) = decode.run(json, login_json.login_item_decoder())
 
   let password = item.password
   let username = item.username
@@ -21,7 +19,6 @@ fn handle_login_check(req: Request, db: pog.Connection) -> Response {
     [row] -> row.password
     _ -> ""
   }
-
 
   case argus.verify(db_password, password)
   {
@@ -34,9 +31,9 @@ fn handle_login_check(req: Request, db: pog.Connection) -> Response {
 }
 
 
-fn handle_register(req: Request, db: pog.Connection) -> Response {
+pub fn handle_register(req: Request, db: pog.Connection) -> Response {
   use json <- wisp.require_json(req)
-  let assert Ok(item) = decode.run(json, login.login_item_decoder())
+  let assert Ok(item) = decode.run(json, login_json.login_item_decoder())
 
   let password = item.password
   let username = item.username
