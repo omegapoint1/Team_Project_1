@@ -1,6 +1,6 @@
 import React from "react";
 import "./GamePage.css";
-
+import { Link } from "react-router-dom";
 
 export default function GamePage() {
     const quests = Array.from({length:6}).map(() => ({
