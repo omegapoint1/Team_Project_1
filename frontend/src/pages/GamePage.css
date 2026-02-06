@@ -9,35 +9,52 @@
 
 
 /* controls */
-.game-controls {
+.game-controls-full {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 12px 20px;
     background: #f3f3f3;
     border: 2px solid rgb(119,119,119);
     border-radius: 12px;
     margin: 16px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    width: calc(100%-72px);
+    width: calc(100% - 72px);
 }
 
-.game-search {
+.search-section {
     flex: 1;
-    padding: 10px 12px;
+    max-width: 400px;
+}
+
+.search-full-input {
+    width: 100%;
+    padding: 10px 12px; 
     border-radius: 10px;
     border: 2px solid rgb(119, 119, 119);
     font-size: 16px;
     outline: none;
-    background:white;
-    min-width: 200px;
+    background: white;
+
 }
 
-.game-search:focus{
-    border-color: rgb(75, 85, 99);
+.filter-section{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
 }
 
-.game-btn{
+.apply-section{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+}
+
+.quests-btn, .game-btn {
     padding: 10px 16px;
     border-radius: 10px;
     border: 2px solid rgb(119, 119, 119);
@@ -49,12 +66,12 @@
     white-space: nowrap;
 }
 
-.game-btn:hover {
+.quests-btn:hover, .game-btn:hover {
     filter: brightness(0.98);
     transform: translateY(-1px);
 }
 
-.game-btn:active{
+.quests-btn:active, .game-btn:active{
     transform: translateY(0px);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
                 0 1px 0 rgba(0, 0, 0, 0.22);
@@ -148,27 +165,3 @@
     transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
 }
 
-.search-section {
-    flex: 1;
-    max-width: 400px;
-}
-.game-search-full {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 2px solid rgb(119,119,119);
-    font-size: 16px;
-    outline: none;
-    background:white;
-}
-
-.filter-section {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.apply-section {
-    display:flex;
-    align-items: center;
-}

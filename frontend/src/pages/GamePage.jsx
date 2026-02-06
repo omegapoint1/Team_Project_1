@@ -21,9 +21,9 @@ export default function GamePage() {
                     />
                 </div>
                 <div className="filter-section">
-                    <button className="quests-btn">Filter ▼</button>
-                    <button className="quests-btn">Difficulty ▼</button>
-                    <button className="quests-btn">Sort ▼</button>
+                    <button className="game-btn">Filter ▼</button>
+                    <button className="game-btn">Difficulty ▼</button>
+                    <button className="game-btn">Sort ▼</button>
                 </div>
                 <div className="apply-section">
                     <button className="game-btn game-apply">Apply</button>
