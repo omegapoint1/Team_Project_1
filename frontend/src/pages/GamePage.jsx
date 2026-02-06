@@ -14,25 +14,6 @@ export default function GamePage() {
     return (
         <div className="game-page">
             {/* Top Bar */}
-            <div className="navbar">
-                <div className="navbar-left'">
-                    <Link to="/dashboard">
-                        <img src="/logo.png" alt="Website Logo" className="websiteLogo"/>
-                    </Link>
-                    <span className="nav-title">Neighbourhood Noise</span>
-                </div>        
-                <div className="navbar-right">
-                    <Link to="/dashboard" className="nav-link">
-                        Dashboard
-                    </Link>
-                    <Link to="/planner" className="nav-link">
-                        Planner
-                    </Link>
-                    <Link to="/" className="nav-link-icon">
-                        <span className="nav-user-icon">👤</span>
-                    </Link>
-                </div>
-            </div>
 
             {/*Controls*/}
             <div className="game-control">
