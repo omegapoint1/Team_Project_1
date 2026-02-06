@@ -13,12 +13,14 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
+    padding: 16px 20px;
     background: #f3f3f3;
     border: 2px solid rgb(119,119,119);
     border-radius: 12px;
     margin: 16px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    flex-wrap: nowrap;
+    width: calc(100%-72px);
 }
 
 .game-search {
@@ -26,6 +28,10 @@
     padding: 10px 12px;
     border-radius: 10px;
     border: 2px solid rgb(119, 119, 119);
+    font-size: 16px;
+    outline: none;
+    background:white;
+    min-width: 200px;
 }
 
 .game-search:focus{
@@ -41,6 +47,7 @@
     cursor: pointer;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+    white-space: nowrap;
 }
 
 .game-btn:hover {
@@ -100,7 +107,7 @@
     font-weight: 800;
 }
 
-.quest-main p{
+.game-main p{
     margin-top:6px;
     opacity: 0.85;
 }
