@@ -13,14 +13,13 @@ export default function GamePage() {
 
     return (
         <div className="game-page">
-            {/* Top Bar */}
-
-            {/*Controls*/}
-            <div className="game-control">
+            <div className="search-full-bar">
                 <input
-                    className="game-search"
-                    placeholder = "Search"
+                    className="search-full-input"
+                    placeholder="Search"
                 />
+            </div>
+            <div className="filter-controls">
                 <button className="quests-btn">Filter ▼</button>
                 <button className="quests-btn">Difficulty ▼</button>
                 <button className="quests-btn">Sort ▼</button>
