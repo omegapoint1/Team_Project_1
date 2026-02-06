@@ -13,17 +13,21 @@ export default function GamePage() {
 
     return (
         <div className="game-page">
-            <div className="search-full-bar">
-                <input
-                    className="search-full-input"
-                    placeholder="Search"
-                />
-            </div>
-            <div className="filter-controls">
-                <button className="quests-btn">Filter ▼</button>
-                <button className="quests-btn">Difficulty ▼</button>
-                <button className="quests-btn">Sort ▼</button>
-                <button className="quests-btn game-apply">Apply</button>
+            <div className="game-controls-full">
+                <div className="search-section">
+                    <input
+                        className="search-full-input"
+                        placeholder="Search"
+                    />
+                </div>
+                <div className="filter-section">
+                    <button className="quests-btn">Filter ▼</button>
+                    <button className="quests-btn">Difficulty ▼</button>
+                    <button className="quests-btn">Sort ▼</button>
+                </div>
+                <div className="apply-section">
+                    <button className="game-btn game-apply">Apply</button>
+                </div>
             </div>
             {/* Section Title */}
             <div className="game-title">Quests</div>
