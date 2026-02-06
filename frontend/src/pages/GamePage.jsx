@@ -1,5 +1,7 @@
 import React from "react";
 import "./GamePage.css";
+
+
 export default function GamePage() {
     const quests = Array.from({length:6}).map(() => ({
         status:"Status",
