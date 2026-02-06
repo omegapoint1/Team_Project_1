@@ -48,6 +48,7 @@ function App() {
         <Route path="/planner"  element={<PlannerPage/>} />
         <Route path="/signup"   element={<SignUpPage/>} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/game" element={<GamePage/>} />
         
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
