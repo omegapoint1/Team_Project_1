@@ -1,6 +1,6 @@
 import React from "react";
 import "./GamePage.css";
-export default function Quests() {
+export default function GamePage() {
     const quests = Array.from({length:6}).map(() => ({
         status:"Status",
         difficulty:"Difficulty",
@@ -8,52 +8,64 @@ export default function Quests() {
         name:"Quest Name",
         description:"brief description of quest"
     }));
+
     return (
-        <div className="quest-page">
+        <div className="game-page">
             {/* Top Bar */}
-            <div className="quest-topbar">
-                <div className="quest-logo'">📣 Neighborhood Noise </div>
-                <div className="quest-nav">
-                    <span>Dashboard</span>
-                    <span><strong>Quests</strong></span>
-                    <span>Report</span>
+            <div className="navbar">
+                <div className="navbar-left'">
+                    <Link to="/dashboard">
+                        <img src="/logo.png" alt="Website Logo" className="websiteLogo"/>
+                    </Link>
+                    <span className="nav-title">Neighbourhood Noise</span>
+                </div>        
+                <div className="navbar-right">
+                    <Link to="/dashboard" className="nav-link">
+                        Dashboard
+                    </Link>
+                    <Link to="/planner" className="nav-link">
+                        Planner
+                    </Link>
+                    <Link to="/" className="nav-link-icon">
+                        <span className="nav-user-icon">👤</span>
+                    </Link>
                 </div>
             </div>
-            {/*Controls*/}
-            <div className="quests-control">
-                <input
-                    className="quests-search"
-                    placeholder = "Search"
 
+            {/*Controls*/}
+            <div className="game-control">
+                <input
+                    className="game-search"
+                    placeholder = "Search"
                 />
-                <button className="quests-brn">Filter ▼</button>
-                <button className="quests-brn">Difficulty ▼</button>
-                <button className="quests-brn">Sort ▼</button>
-                <button className="quests-brn quests-apply">Apply</button>
+                <button className="quests-btn">Filter ▼</button>
+                <button className="quests-btn">Difficulty ▼</button>
+                <button className="quests-btn">Sort ▼</button>
+                <button className="quests-btn game-apply">Apply</button>
             </div>
             {/* Section Title */}
-            <div className="quests-title">Quests</div>
+            <div className="game-title">Quests</div>
             {/*Quest List*/}
-            <div className="quests-list">
+            <div className="game-list">
                 {quests.map((q,i) =>(
-                    <div key={i} className="quest-card">
-                        <div className="quest-meta">
+                    <div key={i} className="game-card">
+                        <div className="game-meta">
                             {q.status}<br />
                             {q.difficulty}< br/>
                             {q.xp}
                         </div>
-                        <div className="quest-main">
+                        <div className="game-main">
                             <h3>{q.name}</h3>
                             <p>{q.description}</p>
                         </div>
-                        <button className= "quest-accept">
+                        <button className= "game-accept">
                             Accept<br /> Quest
                         </button>
                     </div>    
                 ))}
             </div>
             {/* Load More */}
-            <button className="quests-load-more">Loadmore</button>
+            <button className="game-load-more">Loadmore</button>
         </div>
     );
 }
