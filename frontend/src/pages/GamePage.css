@@ -1,115 +1,144 @@
 /* Page Background */
-.quests-page{
-    background: #cfcfcf;
+.game-page{
+    background: rgb(207,207,207);
     min-height: 100vh;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:  -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Top Bar */
-.quests-topbar{
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #bdbdbd;
-}
 
-.quests-logo{
-    font-weight: 700;
-    font-size: 20px;
-}
-.quests-nav{
-    display: flex;
-    gap: 20px;
-    font-weight: 600;
-}
 /* controls */
-.quests-controls {
+.game-controls {
     display: flex;
+    align-items: center;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 12px 14px;
+    background: #f3f3f3;
+    border: 2px solid rgb(119,119,119);
+    border-radius: 12px;
+    margin: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-.quests-search {
+.game-search {
     flex: 1;
-    padding: 10px 14px;
-    border-radius: 20px;
-    border: 1px solid #bdbdbd;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 2px solid rgb(119, 119, 119);
 }
 
-.quests-btn{
+.game-search:focus{
+    border-color: rgb(75, 85, 99);
+}
+
+.game-btn{
     padding: 10px 16px;
     border-radius: 10px;
-    border: 1px solid #bdbdbd;
-    background: #ffffff;
+    border: 2px solid rgb(119, 119, 119);
+    background: rgb(222, 222, 222);
     font-weight: 600;
     cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
 }
-.quests-aply {
-    background: #7ed37e;
-    border-color: #5fb85f;
-    font-weight:700;
+
+.game-btn:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+}
+
+.game-btn:active{
+    transform: translateY(0px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                0 1px 0 rgba(0, 0, 0, 0.22);
+}
+
+.game-apply {
+    background: rgba(34, 197, 34, 55%)
 }
 
 /*section title*/
-.quests-title {
-    margin:10px auto 20px;
-    padding: 10px 40px;
+.game-title {
+    margin: 20px auto ;
+    padding: 12px 24px;
     width: fit-content;
     background: #e5e5e5;
+    border: 2px solid rgb(119, 119, 119);
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 24px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
+
 /*quest list*/
-.quests-list{
+.game-list{
     padding: 0 20px;
 }
-.quest-card{
+.game-card{
     display:grid;
     grid-template-columns: 160px 1fr 160px;
     align-items: center;
-    background: #dedede;
+    background: white;
     border-radius: 14px;
-    padding: 10px 20px;
+    padding: 16px 20px;
     margin-bottom: 14px;
-    box-shadow: inset 0 0 0 1px #bdbdbd;
+    border: 2px solid rgb(119, 119, 119);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
-.quest-meta {
+.game-meta {
     font-size: 14px;
     line-height: 1.6;
+    font-weight: 600;
 }
-.quest-main{
+.game-main{
     text-align: center;
 }
-.quest-main h3{
+.game-main h3{
     margin:0;
+    font-weight: 800;
 }
 
 .quest-main p{
     margin-top:6px;
+    opacity: 0.85;
 }
 
 /* accept button */
-.quest-accept {
+.game-accept {
     justify-self: end;
     padding: 14px 20px;
     border-radius: 12px;
-    border: 1px solid #5fb85f;
-    background: #7ED37E;
-    font-weight: 700;
+    border: 2px solid rgb(62, 122, 62);
+    background: rgba(34, 197, 34, 55%);
+    font-weight: 800;
     cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 0 rgba(0, 0, 0, 0.25);
+    transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+
+.game-accept:hover{
+    filter: brightness(0.98);
+    transform: translateY(-1px)
+}
+.game-accept:active{
+    transform: translateY(0px);
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 rgba(0, 0, 0, 0.22);
 }
 
 /*load more*/
-.quests-load-more {
+.game-load-more {
     display:block;
     margin: 30px auto;
     padding: 14px 50px;
     border-radius: 14px;
-    border: none;
-    background: #7ed37e;
-    font-weight: 700;
+    border: 2px solid rgb(62, 122, 62);
+    background: rgba(34, 197, 34, 55%);
+    font-weight: 800;
     cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 0 rgba(0, 0, 0, 0.25);
+    transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
 }
+
+
