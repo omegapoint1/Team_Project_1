@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import MapBackground from '../components/MapBackground'; // Adjust path!
 import './Dashboard.css'
 
 const tabs = [
@@ -13,6 +14,11 @@ const tabs = [
 function DashboardPage() {
   return (
     <div className="dashboardLayout">
+
+      <div className="mapBackground">
+        <MapBackground />
+      </div>
+
       <div className="DashBar">
         {tabs.map((tab) => (
           <NavLink
