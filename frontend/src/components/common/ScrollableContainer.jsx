@@ -2,7 +2,8 @@ import React from 'react';
 /*
 This section of the code is the generic scrollable container that wraps around grid components 
 */
-const ScrollableContainer = ({ 
+const ScrollableContainer = ({
+  //parameters passed to container 
   children, 
   maxHeight = '600px',
   columns = 3,
@@ -51,7 +52,7 @@ const ScrollableContainer = ({
         )}
       </div>
 
-      {/*Footr*/}
+      {/*Footer*/}
       {footer && (
         <div className="scrollable-footer">
           {footer}
