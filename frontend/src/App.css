@@ -44,6 +44,16 @@
 
 .nav-link {
   text-decoration: none;
+  color: black;
+  font-weight: normal;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+.nav-link {
+  text-decoration: none;
   color: rgba(15,23,42,0.92);
   font-size: 18px;
   font-weight: 500;
