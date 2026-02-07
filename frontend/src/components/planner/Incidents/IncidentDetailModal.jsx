@@ -4,6 +4,8 @@ import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
 import './IncidentDetailModal.css';
+
+
 /*Modal for the expanded details of each incident card*/
 const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   const [selectedStatus, setSelectedStatus] = useState(incident?.status || 'pending');
