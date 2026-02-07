@@ -97,14 +97,6 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
         });
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0
-        }).format(amount);
-    };
-
     const calculateBudgetUtilization = (totalCost, budget) => {
         return Math.min(Math.round((totalCost / budget) * 100), 100);
     };
@@ -250,11 +242,11 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                                     <div className="plan-stats">
                                         <div className="stat-item">
                                             <div className="stat-label">Budget</div>
-                                            <div className="stat-value">{formatCurrency(plan.budget)}</div>
+                                            <div className="stat-value">£{plan.budget.toLocaleString('en-GB')}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Total Cost</div>
-                                            <div className="stat-value">{formatCurrency(plan.totalCost)}</div>
+                                            <div className="stat-value">£{plan.totalCost.toLocaleString('en-GB')}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Interventions</div>
@@ -329,7 +321,7 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                             <div className="summary-stat">
                                 <span className="stat-label">Total Investment</span>
                                 <span className="stat-value">
-                                    {formatCurrency(plans.reduce((sum, plan) => sum + plan.totalCost, 0))}
+                                    £{plans.reduce((sum, plan) => sum + plan.totalCost, 0).toLocaleString('en-GB')}
                                 </span>
                             </div>
                             <div className="summary-stat">
