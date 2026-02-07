@@ -1,64 +1,62 @@
-import React, { useState } from 'react';
+import ReactModal from 'react-modal';
+import { useState } from 'react';
 import './PlanDetailModal.css';
 
-const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
+/*Modal which shows plan details in a modal window with 3 tabbed sections
+ */
+
+const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(plan.name);
 
     const statusOptions = {
-        draft: { label: 'Draft', color: '#f59e0b', bgColor: '#fef3c7' },
-        submitted: { label: 'Submitted', color: '#3b82f6', bgColor: '#dbeafe' },
-        approved: { label: 'Approved', color: '#8b5cf6', bgColor: '#ede9fe' },
-        implemented: { label: 'Implemented', color: '#10b981', bgColor: '#d1fae5' },
-        rejected: { label: 'Rejected', color: '#ef4444', bgColor: '#fee2e2' }
+        draft: { label: 'Draft', color: 'orange', bgColor: 'lightyellow' },
+        submitted: { label: 'Submitted', color: 'blue', bgColor: 'lightblue' },
+        approved: { label: 'Approved', color: 'purple', bgColor: 'lavender' },
+        implemented: { label: 'Implemented', color: 'green', bgColor: 'lightgreen' },
+        rejected: { label: 'Rejected', color: 'red', bgColor: 'lightpink' }
     };
 
-    const formatNumber = (amount) => {
-        return new Intl.NumberFormat('en-GB').format(amount);
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    const modalStyles = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: '1200px',
+            maxHeight: '90vh',
+            borderRadius: '16px',
+            padding: '0',
+            border: 'none',
+            boxShadow: '0 25px 50px -12px white',
+            overflow: 'hidden'
+        },
+        overlay: {
+            backgroundColor: 'white',
+            zIndex: 1000
+        }
     };
 
     const getNextStatusOptions = () => {
         switch(plan.status) {
-            case 'draft':
-                return [
-                    { value: 'submitted', label: 'Submit for Review', color: '#3b82f6' }
-                ];
-            case 'submitted':
-                return [
-                    { value: 'approved', label: 'Approve Plan', color: '#8b5cf6' },
-                    { value: 'rejected', label: 'Reject Plan', color: '#ef4444' }
-                ];
-            case 'approved':
-                return [
-                    { value: 'implemented', label: 'Mark as Implemented', color: '#10b981' }
-                ];
-            case 'rejected':
-                return [
-                    { value: 'draft', label: 'Return to Draft', color: '#f59e0b' }
-                ];
-            case 'implemented':
-                return [
-                    { value: 'submitted', label: 'Re-open for Review', color: '#3b82f6' }
-                ];
-            default:
-                return [];
+            case 'draft': return [{ value: 'submitted', label: 'Submit for Review', color: 'blue' }];
+            case 'submitted': return [
+                { value: 'approved', label: 'Approve Plan', color: 'purple' },
+                { value: 'rejected', label: 'Reject Plan', color: 'red' }
+            ];
+            case 'approved': return [{ value: 'implemented', label: 'Mark as Implemented', color: 'green' }];
+            case 'rejected': return [{ value: 'draft', label: 'Return to Draft', color: 'orange' }];
+            case 'implemented': return [{ value: 'submitted', label: 'Re-open for Review', color: 'blue' }];
+            default: return [];
         }
     };
 
     const handleStatusUpdate = (newStatus) => {
-        if (window.confirm(`Are you sure you want to change the status to "${statusOptions[newStatus].label}"?`)) {
+        if (window.confirm(`Change status to "${statusOptions[newStatus].label}"?`)) {
             onUpdateStatus(plan.id, newStatus);
             onClose();
         }
@@ -70,9 +68,9 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
 
     const getBudgetStatus = () => {
         const utilization = calculateBudgetUtilization();
-        if (utilization > 100) return { color: '#ef4444', label: 'Over Budget' };
-        if (utilization > 90) return { color: '#f59e0b', label: 'Near Limit' };
-        return { color: '#10b981', label: 'Within Budget' };
+        if (utilization > 100) return { color: 'red', label: 'Over Budget' };
+        if (utilization > 90) return { color: 'orange', label: 'Near Limit' };
+        return { color: 'green', label: 'Within Budget' };
     };
 
     const renderOverview = () => (
@@ -82,19 +80,17 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                     <h4>Budget Summary</h4>
                     <div className="budget-summary">
                         <div className="budget-item">
-                            <span className="budget-label">Total Budget</span>
-                            <span className="budget-value">£{formatNumber(plan.budget)}</span>
+                            <span>Total Budget</span>
+                            <span>£{plan.budget.toLocaleString('en-GB')}</span>
                         </div>
                         <div className="budget-item">
-                            <span className="budget-label">Plan Cost</span>
-                            <span className="budget-value">£{formatNumber(plan.totalCost)}</span>
+                            <span>Plan Cost</span>
+                            <span>£{plan.totalCost.toLocaleString('en-GB')}</span>
                         </div>
                         <div className="budget-item">
-                            <span className="budget-label">Remaining</span>
-                            <span className="budget-value" style={{ 
-                                color: plan.budget - plan.totalCost >= 0 ? '#10b981' : '#ef4444'
-                            }}>
-                                £{formatNumber(plan.budget - plan.totalCost)}
+                            <span>Remaining</span>
+                            <span style={{ color: plan.budget - plan.totalCost >= 0 ? 'green' : 'red' }}>
+                                £{(plan.budget - plan.totalCost).toLocaleString('en-GB')}
                             </span>
                         </div>
                     </div>
@@ -122,20 +118,20 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                     <h4>Timeline & Impact</h4>
                     <div className="timeline-impact">
                         <div className="timeline-info">
-                            <div className="timeline-label">Implementation Timeline</div>
-                            <div className="timeline-value">
-                                <span className="timeline-weeks">{plan.timeline} weeks</span>
-                                <span className="timeline-status">
+                            <div>Implementation Timeline</div>
+                            <div>
+                                <span>{plan.timeline} weeks</span>
+                                <span>
                                     {plan.timeline <= 4 ? 'Fast' : plan.timeline <= 8 ? 'Medium' : 'Long'}
                                 </span>
                             </div>
                         </div>
                         <div className="impact-info">
-                            <div className="impact-label-modal">Estimated Noise Reduction</div>
-                            <div className="impact-value-modal">
+                            <div>Estimated Noise Reduction</div>
+                            <div>
                                 {plan.impact?.min || 0}-{plan.impact?.max || 0} dB
                             </div>
-                            <div className="impact-description">
+                            <div>
                                 Expected reduction in noise levels after implementation
                             </div>
                         </div>
@@ -146,16 +142,32 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                     <h4>Zone Information</h4>
                     <div className="zone-details">
                         <div className="zone-info">
-                            <span className="zone-label">Target Zone</span>
-                            <span className="zone-value">{plan.zone}</span>
+                            <span>Target Zone</span>
+                            <span>{plan.zone}</span>
                         </div>
                         <div className="zone-info">
-                            <span className="zone-label">Plan Created</span>
-                            <span className="zone-value">{formatDate(plan.createdAt)}</span>
+                            <span>Plan Created</span>
+                            <span>
+                                {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </span>
                         </div>
                         <div className="zone-info">
-                            <span className="zone-label">Last Updated</span>
-                            <span className="zone-value">{formatDate(plan.createdAt)}</span>
+                            <span>Last Updated</span>
+                            <span>
+                                {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -168,12 +180,8 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
             <div className="interventions-header">
                 <h4>Selected Interventions ({plan.interventions.length})</h4>
                 <div className="interventions-summary">
-                    <span className="summary-item">
-                        Total Cost: £{formatNumber(plan.totalCost)}
-                    </span>
-                    <span className="summary-item">
-                        Total Impact: {plan.impact?.min || 0}-{plan.impact?.max || 0} dB
-                    </span>
+                    <span>Total Cost: £{plan.totalCost.toLocaleString('en-GB')}</span>
+                    <span>Total Impact: {plan.impact?.min || 0}-{plan.impact?.max || 0} dB</span>
                 </div>
             </div>
             
@@ -182,33 +190,33 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                     <div key={index} className="intervention-detail">
                         <div className="intervention-header-detail">
                             <h5>{intervention.name}</h5>
-                            <span className="intervention-category">{intervention.category}</span>
+                            <span>{intervention.category}</span>
                         </div>
                         
-                        <p className="intervention-description-detail">{intervention.description}</p>
+                        <p>{intervention.description}</p>
                         
                         <div className="intervention-stats-detail">
                             <div className="stat-box">
-                                <span className="stat-label-detail">Cost Range</span>
-                                <span className="stat-value-detail">
-                                    £{formatNumber(intervention.costRange.min)} - £{formatNumber(intervention.costRange.max)}
+                                <span>Cost Range</span>
+                                <span>
+                                    £{intervention.costRange.min.toLocaleString('en-GB')} - £{intervention.costRange.max.toLocaleString('en-GB')}
                                 </span>
                             </div>
                             <div className="stat-box">
-                                <span className="stat-label-detail">Impact Range</span>
-                                <span className="stat-value-detail">
+                                <span>Impact Range</span>
+                                <span>
                                     {intervention.impactRange.min}-{intervention.impactRange.max} dB
                                 </span>
                             </div>
                             <div className="stat-box">
-                                <span className="stat-label-detail">Feasibility</span>
-                                <span className="stat-value-detail">
+                                <span>Feasibility</span>
+                                <span>
                                     {Math.round(intervention.feasibility * 100)}%
                                 </span>
                             </div>
                             <div className="stat-box">
-                                <span className="stat-label-detail">Time Required</span>
-                                <span className="stat-value-detail">{intervention.implementationTime}</span>
+                                <span>Time Required</span>
+                                <span>{intervention.implementationTime}</span>
                             </div>
                         </div>
                     </div>
@@ -221,7 +229,7 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
         <div className="actions-section">
             <div className="status-actions">
                 <h4>Update Plan Status</h4>
-                <p className="current-status">
+                <p>
                     Current Status: 
                     <span 
                         className="status-badge-modal"
@@ -239,7 +247,6 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                     {getNextStatusOptions().map(option => (
                         <button
                             key={option.value}
-                            className="status-action-btn"
                             onClick={() => handleStatusUpdate(option.value)}
                             style={{ backgroundColor: option.color }}
                         >
@@ -252,41 +259,33 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
             <div className="additional-actions">
                 <h4>Additional Actions</h4>
                 <div className="action-buttons-grid">
-                    <button className="action-btn secondary">
-                        <span className="btn-icon">📄</span>
-                        Generate Report
-                    </button>
-                    <button className="action-btn secondary">
-                        <span className="btn-icon">📧</span>
-                        Share Plan
-                    </button>
-                    <button className="action-btn secondary">
-                        <span className="btn-icon">🔄</span>
-                        Duplicate Plan
-                    </button>
-                    <button className="action-btn danger">
-                        <span className="btn-icon">🗑️</span>
-                        Delete Plan
-                    </button>
+                    <button className="secondary">📄 Generate Report</button>
+                    <button className="secondary">📧 Share Plan</button>
+                    <button className="secondary">🔄 Duplicate Plan</button>
+                    <button className="danger">🗑️ Delete Plan</button>
                 </div>
             </div>
 
             <div className="plan-notes">
                 <h4>Notes & Comments</h4>
                 <textarea
-                    className="notes-textarea"
                     placeholder="Add notes or comments about this plan..."
                     rows={4}
                     defaultValue={plan.notes || ''}
                 />
-                <button className="save-notes-btn">Save Notes</button>
+                <button>Save Notes</button>
             </div>
         </div>
     );
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <ReactModal
+            isOpen={isOpen}
+            onRequestClose={onClose}
+            style={modalStyles}
+            ariaHideApp={false}
+        >
+            <div className="modal-content">
                 <div className="modal-header">
                     <div className="modal-title-section">
                         {isEditingName ? (
@@ -294,7 +293,6 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                                 type="text"
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
-                                className="name-edit-input"
                                 autoFocus
                                 onBlur={() => setIsEditingName(false)}
                                 onKeyPress={(e) => {
@@ -303,7 +301,6 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                             />
                         ) : (
                             <h2 
-                                className="modal-title"
                                 onDoubleClick={() => setIsEditingName(true)}
                                 title="Double click to edit"
                             >
@@ -311,34 +308,39 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                             </h2>
                         )}
                         <div className="modal-subtitle">
-                            <span className="plan-id">ID: {plan.id}</span>
-                            <span className="plan-date">Created: {formatDate(plan.createdAt)}</span>
+                            <span>ID: {plan.id}</span>
+                            <span>
+                                Created: {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </span>
                         </div>
                     </div>
-                    <button className="close-button" onClick={onClose}>×</button>
+                    <button onClick={onClose}>×</button>
                 </div>
 
                 <div className="modal-tabs">
                     <button 
-                        className={`modal-tab ${activeTab === 'overview' ? 'active' : ''}`}
+                        className={activeTab === 'overview' ? 'active' : ''}
                         onClick={() => setActiveTab('overview')}
                     >
-                        <span className="tab-icon">📊</span>
-                        Overview
+                        📊 Overview
                     </button>
                     <button 
-                        className={`modal-tab ${activeTab === 'interventions' ? 'active' : ''}`}
+                        className={activeTab === 'interventions' ? 'active' : ''}
                         onClick={() => setActiveTab('interventions')}
                     >
-                        <span className="tab-icon">🛠️</span>
-                        Interventions ({plan.interventions.length})
+                        🛠️ Interventions ({plan.interventions.length})
                     </button>
                     <button 
-                        className={`modal-tab ${activeTab === 'actions' ? 'active' : ''}`}
+                        className={activeTab === 'actions' ? 'active' : ''}
                         onClick={() => setActiveTab('actions')}
                     >
-                        <span className="tab-icon">⚡</span>
-                        Actions
+                        ⚡ Actions
                     </button>
                 </div>
 
@@ -349,22 +351,24 @@ const PlanDetailModal = ({ plan, onClose, onUpdateStatus }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <div className="footer-left">
-                        <span className="last-updated">
-                            Last updated: {formatDate(plan.createdAt)}
+                    <div>
+                        <span>
+                            Last updated: {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
                         </span>
                     </div>
-                    <div className="footer-right">
-                        <button className="footer-btn secondary" onClick={onClose}>
-                            Close
-                        </button>
-                        <button className="footer-btn primary">
-                            Save Changes
-                        </button>
+                    <div>
+                        <button onClick={onClose}>Close</button>
+                        <button>Save Changes</button>
                     </div>
                 </div>
             </div>
-        </div>
+        </ReactModal>
     );
 };
 
