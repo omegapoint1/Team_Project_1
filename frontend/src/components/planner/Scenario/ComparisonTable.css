@@ -1,0 +1,59 @@
+.table-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-card h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  color: #333;
+  font-weight: 600;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.metric-cost {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.metric-impact {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.metric-feasibility {
+  color: #6f42c1;
+  font-weight: 600;
+}
+
+.metric-timeline {
+  color: #fd7e14;
+  font-weight: 600;
+}
