@@ -5,7 +5,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
   const [savedReports, setSavedReports] = useState([
     {
       id: 1,
-      name: 'Monthly Noise Report - Jan 2025',
+      name: 'Monthly moise report - Jan 2025',
       type: 'monthly-summary',
       dateCreated: '2025-01-31',
       size: '2.4 MB',
@@ -15,7 +15,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
     },
     {
       id: 2,
-      name: 'Campus Zone Analysis',
+      name: 'Campus zone analysis',
       type: 'hotspot-analysis',
       dateCreated: '2025-01-28',
       size: '1.8 MB',
@@ -25,7 +25,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
     },
     {
       id: 3,
-      name: 'Incident Review - Week 3',
+      name: 'Incident review - Week 3',
       type: 'incident-review',
       dateCreated: '2025-01-22',
       size: '1.2 MB',
@@ -35,7 +35,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
     },
     {
       id: 4,
-      name: 'Mitigation Proposal - Barriers',
+      name: 'Mitigation proposal - Barriers',
       type: 'mitigation-proposal',
       dateCreated: '2025-01-20',
       size: '3.2 MB',
@@ -45,7 +45,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
     },
     {
       id: 5,
-      name: 'Community Update Report',
+      name: 'Community update report',
       type: 'community-update',
       dateCreated: '2025-01-15',
       size: '1.5 MB',
@@ -157,7 +157,7 @@ const SavedReportsTable = ({ onSelectReport }) => {
         </div>
       </div>
 
-      {/* Saved reports TABLE*/}
+      {/* Saved reports table*/}
       <div className="reports-table-container">
         {filteredReports.length === 0 ? (
           <div className="no-reports-message">
