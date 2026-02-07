@@ -43,9 +43,8 @@ const ScenarioTab = () => {
         <p>Compare intervention strategies side by side</p>
       </div>
 
-      {/* Main Layout */}
+      {/* Main layout */}
       <div className="scenario-layout">
-        {/* Left Panel */}
         <div className="left-panel">
           <ScenarioSelector
             scenarios={scenarios}
@@ -60,7 +59,7 @@ const ScenarioTab = () => {
           />
         </div>
 
-        {/* Right Panel */}
+        {/* Right panel */}
         <div className="right-panel">
           {selectedScenarios.length > 0 ? (
             <>
@@ -81,7 +80,7 @@ const ScenarioTab = () => {
         </div>
       </div>
 
-      {/* Builder Modal */}
+      {/* Scenario Builder modal */}
       {showBuilder && (
         <ScenarioBuilder
           onSave={handleAddScenario}

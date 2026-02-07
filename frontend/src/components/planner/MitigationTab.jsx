@@ -12,7 +12,7 @@ const MitigationTab = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [interventions, setInterventions] = useState(interventionsData);
 
-    // Load saved plans from localStorage on component mount
+    //load saved plans from localStorage
     useEffect(() => {
         const savedPlans = localStorage.getItem('noiseMitigationPlans');
         if (savedPlans) {
@@ -25,16 +25,14 @@ const MitigationTab = () => {
         }
     }, []);
 
-    // Save plans to localStorage whenever they change
+    //Save plans to localStorage whenever they change
     useEffect(() => {
         localStorage.setItem('noiseMitigationPlans', JSON.stringify(plans));
     }, [plans]);
 
     const handleAddToPlan = (intervention) => {
-        // In a real app, this would be connected to the PlanBuilder
-        // For now, just show a notification and switch to builder tab
+
         alert(`Added ${intervention.name} to plan. Switch to "Build Plan" tab to continue.`);
-        // Optionally, you could store the selected intervention to pre-populate the builder
         localStorage.setItem('lastSelectedIntervention', JSON.stringify(intervention));
     };
 
