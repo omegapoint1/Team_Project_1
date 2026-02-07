@@ -6,10 +6,10 @@ import React, { useState } from 'react';
 import Overview from './Overview';
 import Incidents from './Incidents';
 import Hotspots from './Hotspots';
-import Plans from './PlanBuilder';
-import Scenarios from './Scenarios';
+import Plans from './MitigationTab';
+import ScenarioTab from './Scenarios';
 import Reports from './Reports';
-import IncidentList from './Incidents/IncidentList';
+
 function PlannerScreenTabManager() {
   //states track active tab
   const [activeTab, setActiveTab] = useState('overview');
@@ -23,7 +23,7 @@ function PlannerScreenTabManager() {
     { 
       id: 'incidents', 
       label: '🚨INCIDENTS', 
-      component: <IncidentList />,
+      component: <Incidents/>,
     },
     { 
       id: 'hotspots', 
@@ -38,7 +38,7 @@ function PlannerScreenTabManager() {
     { 
       id: 'scenarios', 
       label: '🎯SCENARIOS', 
-      component: <Scenarios />,
+      component: <ScenarioTab />,
     },
     { 
       id: 'reports', 
