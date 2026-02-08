@@ -3,52 +3,48 @@ import './ReportTemplates.css';
 /* Loading report templates  in table*/
 const ReportTemplates = ({ loadTemplate }) => {
   const templates = [
+    /* P[erhaps add Scenario comparison and or decide 
+    whether each page should allow individual reports exporting aswell*/
     {
       id: 'monthly-summary',
       name: 'Monthly Noise Summary',
       description: 'Overview of noise trends, incidents, and hotspots',
-      audience: 'Management',
-      estimatedTime: '5 min',
+      audience: 'Project Owners',
       icon: '📊'
     },
     {
       id: 'hotspot-analysis',
       name: 'Hotspot Analysis Report',
-      description: 'Deep dive into specific noise hotspots with root causes',
+      description: 'Deep dive into specific noise hotspots',
       audience: 'Technical Team',
-      estimatedTime: '10 min',
       icon: '🔥'
     },
     {
       id: 'mitigation-proposal',
-      name: 'Mitigation Funding Proposal',
-      description: 'Business case for intervention funding',
-      audience: 'Finance/Leadership',
-      estimatedTime: '15 min',
+      name: 'Mitigation Proposal Report',
+      description: 'proposal on mitigation plans for requesting funding',
+      audience: 'Stakeholders/Funding',
       icon: '💰'
     },
     {
-      id: 'community-update',
-      name: 'Community Update',
-      description: 'Public-facing report on noise management efforts',
-      audience: 'Public/Residents',
-      estimatedTime: '8 min',
+      id: 'stakeholder-report',
+      name: 'Stakeholder report',
+      description: 'General template for stakeholders',
+      audience: 'StakeholderS',
       icon: '👥'
     },
     {
       id: 'incident-review',
       name: 'Incident Review Report',
       description: 'Analysis of reported incidents and responses',
-      audience: 'Operations',
-      estimatedTime: '7 min',
+      audience: 'Users and operators ',
       icon: '📝'
     },
     {
       id: 'custom',
       name: 'Custom Report',
-      description: 'Build from scratch with full control',
+      description: 'Build from scratch with more control',
       audience: 'Any',
-      estimatedTime: 'Varies',
       icon: '⚙️'
     }
   ];
@@ -76,7 +72,7 @@ const ReportTemplates = ({ loadTemplate }) => {
                 </div>
               </div>
               <span className="time-badge">
-                {template.estimatedTime}
+                {/* Previous span for estimated time*/}
               </span>
             </div>
           </button>
