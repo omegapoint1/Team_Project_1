@@ -10,7 +10,7 @@ import Dashboard from './pages/Dashboard';
   import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
-
+import GamePage from './pages/GamePage';
 function App() {
   return (
     <BrowserRouter>
@@ -48,6 +48,7 @@ function App() {
         <Route path="/planner"  element={<PlannerPage/>} />
         <Route path="/signup"   element={<SignUpPage/>} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/game" element={<GamePage/>} />
         
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
