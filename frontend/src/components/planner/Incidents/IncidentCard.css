@@ -1,0 +1,112 @@
+.incident-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+
+.incident-card:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.zone-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.zone-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.zone-red {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.zone-blue {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.zone-green {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.zone-purple {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.zone-name {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.zone-time {
+  color: #666;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.card-description {
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.incident-id {
+  color: #888;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.view-button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-button:hover {
+  background: #388E3C;
+}
