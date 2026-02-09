@@ -87,6 +87,55 @@ iframe {
     border: 0;
 }
 
-.hundred {
-    max-width: 100px;
+.boxes {
+    width: 25vw;
+}
+
+.submit {
+    max-width: 200px;
+    max-height: 50px;
+    width: 200px;
+    height: 50px;
+    background-color: rgb(130, 224, 130);
+    border-radius: 10px;
+    transition: 0.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.databox {
+    width: 50%;
+    height: 50%;
+}
+
+.hundy {
+    width: 100%;
+    height: 100%;
+}
+
+.test {
+    width: 70vw;
+    height: 100vh;
+}
+
+.submit:hover {
+    background-color: rgb(93, 184, 93);
+}
+
+.submit:active {
+    background-color: rgb(94, 163, 94);
+}
+
+.margin {
+  margin-top: 30px;
+}
+
+.textinput {
+  border-radius: 10px;
+}
+
+.smallwhiteborderbox {
+    background-color: rgb(255, 255, 255);
+    padding: 5px;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: black;
 }
