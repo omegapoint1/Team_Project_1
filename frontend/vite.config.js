@@ -1,21 +1,21 @@
+// Filename - Plugins.ts
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
+// Vite config that forces a single JS bundle named `bundle.js`
 export default defineConfig({
-  plugins: [
-    react(),
-    cssInjectedByJsPlugin(), // Injects CSS into the JS bundle
-  ],
-  build: {
-    rollupOptions: {
-      output: {
-        // Forces all modules into a single file
-        manualChunks: undefined,
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
-      },
+    plugins: [react()],
+    build: {
+        outDir: 'dist',
+        rollupOptions: {
+            output: {
+                // Force everything into one file named bundle.js
+                manualChunks: () => 'bundle',
+                entryFileNames: `bundle.js`,
+                chunkFileNames: `bundle.js`,
+                assetFileNames: `assets/[name].[ext]`,
+            },
+        },
     },
-  },
 })

@@ -4,12 +4,12 @@ import LoginPage from './pages/LoginPage';
 import PlannerPage from './pages/PlannerPage';  
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
-  import Overview from './pages/Dashboard_Overview';
-  import MitigationPlans from './pages/Dashboard_MitigationPlans';
-  import ScenarioComparison from './pages/Dashboard_ScenarioComparison';
-  import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
-  import GenerateReport from './pages/Dashboard_GenerateReport';
-  import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
+import Overview from './pages/Dashboard_Overview';
+import MitigationPlans from './pages/Dashboard_MitigationPlans';
+import ScenarioComparison from './pages/Dashboard_ScenarioComparison';
+import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
+import GenerateReport from './pages/Dashboard_GenerateReport';
+import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
 import GamePage from './pages/GamePage';
 function App() {
   return (

@@ -3,7 +3,7 @@ import ReportBuilder from './Reports/ReportBuilder';
 import QuickActions from './Reports/QuickActions';
 import ReportTemplates from './Reports/ReportTemplates';
 import SavedReports from './Reports/SavedReports';
-import styles from './Reports.css';
+//import styles from './Reports.css';
 
 function Reports() {
   return (
