@@ -11,10 +11,8 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 import login
-
-
-
-
+import report
+import gleam/option
 
 pub fn main() {
   wisp.configure_logger()
@@ -28,6 +26,7 @@ pub fn main() {
     pog.default_config(pool_name)
     |> pog.user("admin")
     |> pog.database("testdb")
+    |> pog.password(option.Some("admin"))
     |> pog.pool_size(15)
     |> pog.port(5432)
     |> pog.start
@@ -38,6 +37,7 @@ pub fn main() {
     |> wisp_mist.handler(secret_key_base)
     |> mist.new
     |> mist.port(3000)
+    |> mist.bind("0.0.0.0")
     |> mist.start
 
     process.sleep_forever()
@@ -68,6 +68,7 @@ fn handle_request(
   case req.method, wisp.path_segments(req) {
     Post, ["api", "login"] -> login.handle_login_check(req, db)
     Post, ["api", "register"] -> login.handle_register(req, db)
+//    Post, ["api", "report"] -> report.store_report(req, db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
@@ -80,15 +81,15 @@ fn serve_index() -> Response {
       html.head([], [
         html.title([], "HTML migrator"),
         html.script(
-          [attribute.type_("module"), attribute.src("/static/LoginPage.jsx")],
+          [attribute.type_("module"), attribute.src("/static/bundle.js")],
           "",
         ),
         html.link([
-          attribute.href("/static/LoginPage.css"),
+          attribute.href("/static/index.css"),
           attribute.rel("stylesheet"),
         ]),
       ]),
-      html.body([], [html.div([attribute.id("app")], [])]),
+      html.body([], [html.div([attribute.id("root")], [])]),
     ])
       html
   |> element.to_document_string
