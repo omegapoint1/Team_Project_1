@@ -6,14 +6,14 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
     const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState('desc');
 
-    const statusOptions = [
-        { value: 'all', label: 'All Plans', color: '#94a3b8' },
-        { value: 'draft', label: 'Draft', color: '#f59e0b' },
-        { value: 'submitted', label: 'Submitted', color: '#3b82f6' },
-        { value: 'approved', label: 'Approved', color: '#8b5cf6' },
-        { value: 'implemented', label: 'Implemented', color: '#10b981' },
-        { value: 'rejected', label: 'Rejected', color: '#ef4444' }
-    ];
+    //fix to use interventionplans import
+
+const statusOptions = [
+    { value: 'Planned', label: 'Planned' },
+    { value: 'In Progress', label: 'In Progress' }, 
+    { value: 'Done', label: 'Done'  },
+    { value: 'Rejected/Cancelled', label: 'Rejected/Cancelled' }
+];
 
     const sortOptions = [
         { value: 'createdAt', label: 'Date Created' },
@@ -55,47 +55,13 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
         if (!option) return null;
         
         return (
-            <span 
-                className="status-badge"
-                style={{ 
-                    backgroundColor: `${option.color}20`,
-                    color: option.color,
-                    borderColor: option.color
-                }}
-            >
+            <span className='status-badge'>
                 {option.label}
             </span>
         );
     };
 
-    const getNextStatus = (currentStatus) => {
-        switch(currentStatus) {
-            case 'draft': return 'submitted';
-            case 'submitted': return 'approved';
-            case 'approved': return 'implemented';
-            case 'rejected': return 'draft';
-            default: return 'draft';
-        }
-    };
 
-    const getActionLabel = (currentStatus) => {
-        switch(currentStatus) {
-            case 'draft': return 'Submit for Review';
-            case 'submitted': return 'Mark as Approved';
-            case 'approved': return 'Mark as Implemented';
-            case 'rejected': return 'Return to Draft';
-            default: return 'Update Status';
-        }
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
 
     const calculateBudgetUtilization = (totalCost, budget) => {
         return Math.min(Math.round((totalCost / budget) * 100), 100);
@@ -121,24 +87,19 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
             <div className="filter-controls">
                 <div className="filter-section">
                     <label className="filter-label">Filter by Status</label>
-                    <div className="status-filters">
-                        {statusOptions.map(option => (
-                            <button
-                                key={option.value}
-                                className={`status-filter ${filterStatus === option.value ? 'active' : ''}`}
-                                onClick={() => setFilterStatus(option.value)}
-                                style={{
-                                    backgroundColor: filterStatus === option.value ? option.color : 'transparent',
-                                    color: filterStatus === option.value ? 'white' : option.color,
-                                    borderColor: option.color
-                                }}
-                            >
-                                {option.label}
-                                <span className="status-count">
-                                    {plans.filter(p => p.status === option.value).length}
-                                </span>
-                            </button>
-                        ))}
+                    <div>
+                        <label>Filter by Status</label>
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                        >
+                            <option value="all">All Plans ({plans.length})</option>
+                            {statusOptions.map(option => (
+                                                    <option key={option.value} value={option.value}>
+                                    {option.label} ({plans.filter(p => p.status === option.value).length})
+                                  </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -185,7 +146,7 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                     <p>
                         {filterStatus === 'all' 
                             ? 'Create your first mitigation plan to get started!'
-                            : `No ${statusOptions.find(s => s.value === filterStatus)?.label?.toLowerCase()} plans found`
+                            : `No ${statusOptions.find(s => s.value === filterStatus)?.label} plans found`
                         }
                     </p>
                     {filterStatus !== 'all' && (
@@ -235,18 +196,18 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                                         </div>
                                         <div className="meta-item">
                                             <span className="meta-label">Created:</span>
-                                            <span className="meta-value">{formatDate(plan.createdAt)}</span>
+                                            <span className="meta-value">{plan.createdAt}</span>
                                         </div>
                                     </div>
 
                                     <div className="plan-stats">
                                         <div className="stat-item">
                                             <div className="stat-label">Budget</div>
-                                            <div className="stat-value">£{plan.budget.toLocaleString('en-GB')}</div>
+                                            <div className="stat-value">£{plan.budget}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Total Cost</div>
-                                            <div className="stat-value">£{plan.totalCost.toLocaleString('en-GB')}</div>
+                                            <div className="stat-value">£{plan.totalCost}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Interventions</div>
@@ -295,16 +256,6 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                                                 </span>
                                             )}
                                         </div>
-
-                                        <button
-                                            className="status-action-button"
-                                            onClick={() => onUpdateStatus(plan.id, getNextStatus(plan.status))}
-                                            style={{
-                                                backgroundColor: statusOptions.find(s => s.value === plan.status)?.color
-                                            }}
-                                        >
-                                            {getActionLabel(plan.status)}
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -321,7 +272,7 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                             <div className="summary-stat">
                                 <span className="stat-label">Total Investment</span>
                                 <span className="stat-value">
-                                    £{plans.reduce((sum, plan) => sum + plan.totalCost, 0).toLocaleString('en-GB')}
+                                    £{plans.reduce((sum, plan) => sum + plan.totalCost, 0)}
                                 </span>
                             </div>
                             <div className="summary-stat">
@@ -334,7 +285,7 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                             <div className="summary-stat">
                                 <span className="stat-label">Active Plans</span>
                                 <span className="stat-value">
-                                    {plans.filter(p => p.status !== 'rejected').length}
+                                    {plans.filter(p => p.status !== 'Rejected/Cancelled').length}
                                 </span>
                             </div>
                         </div>

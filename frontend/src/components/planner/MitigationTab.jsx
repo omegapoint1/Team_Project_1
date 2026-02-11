@@ -12,53 +12,86 @@ const MitigationTab = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [interventions, setInterventions] = useState(interventionsData);
 
-    //load saved plans from localStorage
+    // Load saved plans from localStorage
     useEffect(() => {
         const savedPlans = localStorage.getItem('noiseMitigationPlans');
+        
         if (savedPlans) {
             try {
-                setPlans(JSON.parse(savedPlans));
+                const parsed = JSON.parse(savedPlans);
+                setPlans(parsed);
             } catch (error) {
                 console.error('Error loading plans from localStorage:', error);
                 setPlans([]);
             }
+        } else {
+            console.log('No plans found in localStorage');
+            setPlans([]);
         }
     }, []);
 
-    //Save plans to localStorage whenever they change
+    // Save plans to localStorage whenever they change
     useEffect(() => {
-        localStorage.setItem('noiseMitigationPlans', JSON.stringify(plans));
+        
+        if (plans.length > 0) {
+            try {
+                const plansString = JSON.stringify(plans);
+                localStorage.setItem('noiseMitigationPlans', plansString);
+                
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+  
     }, [plans]);
 
     const handleAddToPlan = (intervention) => {
-
-        alert(`Added ${intervention.name} to plan. Switch to "Build Plan" tab to continue.`);
         localStorage.setItem('lastSelectedIntervention', JSON.stringify(intervention));
     };
 
     const handleCreatePlan = (newPlan) => {
+        
         const planWithId = {
             ...newPlan,
             id: `plan-${Date.now()}`,
-            status: 'draft'
+            status: 'Planned',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
-        setPlans([...plans, planWithId]);
+        
+        
+        setPlans(prevPlans => {
+            const updatedPlans = [...prevPlans, planWithId];
+            console.log('Updated plans array:', updatedPlans);
+            return updatedPlans;
+        });
+        
         setActiveTab('plans');
     };
 
     const handleUpdatePlanStatus = (planId, newStatus) => {
-        setPlans(plans.map(plan => 
-            plan.id === planId ? { ...plan, status: newStatus } : plan
-        ));
+        
+        setPlans(prevPlans => {
+            const updatedPlans = prevPlans.map(plan => 
+                plan.id === planId 
+                    ? { ...plan, status: newStatus, updatedAt: new Date().toISOString() } 
+                    : plan
+            );
+            console.log('Updated plans after status change:', updatedPlans);
+            return updatedPlans;
+        });
     };
 
     const handleDeletePlan = (planId) => {
-        if (window.confirm('Are you sure you want to delete this plan?')) {
-            setPlans(plans.filter(plan => plan.id !== planId));
-        }
+            setPlans(prevPlans => {
+                const updatedPlans = prevPlans.filter(plan => plan.id !== planId);
+                console.log('Updated plans after delete:', updatedPlans);
+                return updatedPlans;
+        })
     };
 
     const handleViewPlanDetails = (plan) => {
+        console.log('Viewing plan:', plan);
         setSelectedPlan(plan);
     };
 
@@ -83,7 +116,6 @@ const MitigationTab = () => {
                 return <PlansList 
                     plans={plans} 
                     onViewPlan={handleViewPlanDetails}
-                    onUpdateStatus={handleUpdatePlanStatus}
                     onDeletePlan={handleDeletePlan}
                 />;
             default:
@@ -91,12 +123,12 @@ const MitigationTab = () => {
         }
     };
 
-    return (
+      return (
         <div className="mitigation-tab">
             <div className="tab-header">
-                <h1>Noise Mitigation Planner</h1>
+                <h1>Noise Interventions/Mitigations creator</h1>
                 <p className="tab-description">
-                    Design and manage noise reduction strategies for different zones
+                    Create manage and track implementations of plans for noise interventions
                 </p>
             </div>
 
@@ -149,8 +181,9 @@ const MitigationTab = () => {
 
             {selectedPlan && (
                 <PlanDetailModal 
-                    plan={selectedPlan}
+                    isOpen={true}
                     onClose={handleCloseModal}
+                    plan={selectedPlan}
                     onUpdateStatus={handleUpdatePlanStatus}
                 />
             )}
