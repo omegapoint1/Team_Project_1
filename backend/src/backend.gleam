@@ -72,9 +72,9 @@ fn handle_request(
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
-    Post, ["api", "login"] -> login.handle_login_check(req, db)
-    Post, ["api", "register"] -> login.handle_register(req, db)
-//    Post, ["api", "report"] -> report.store_report(req, db)
+    Post, ["api", "login"] -> login.extract_login_check(req, db)
+    Post, ["api", "register"] -> login.extract_register(req, db)
+    Post, ["api", "report"] -> report.extract_report_request(req, db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }

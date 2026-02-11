@@ -1,9 +1,12 @@
+import shared/login_json
 import gleeunit
 import pog
 import gleam/erlang/process
 import gleam/option
 import shared/report_json
+
 import report
+import login
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -33,4 +36,26 @@ pub fn report_test() {
   let new_report_item = report.get_report_by_id(db, report_id)
 
   assert report_item == new_report_item
+}
+
+
+pub fn login_test() {
+  let pool_name = process.new_name("db_name")
+  let pool_child = 
+  pog.default_config(pool_name)
+  |> pog.user("admin")
+  |> pog.database("testdb")
+  |> pog.password(option.Some("admin"))
+  |> pog.pool_size(15)
+  |> pog.port(5432)
+  |> pog.start
+  let db = pog.named_connection(pool_name)
+  let login_item = login_json.LoginItem(
+    username: "apex.hinde@gmail.com",
+    password: "1234"
+  )
+  let login_check = login.handle_register(login_item, db)
+  let register_check = login.handle_login_check(login_item, db)
+  assert login_check == 1
+  assert register_check == 1
 }

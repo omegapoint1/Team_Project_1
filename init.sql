@@ -1,21 +1,19 @@
-
 CREATE 
 TABLE 
 LOGIN(
-  UserId SERIAL PRIMARY KEY,
-  Username varchar(80) not null,
-  Password varchar(80) not null
+  Username varchar(255) not null,
+  Password varchar(4000) not null
 );
 
 CREATE
 TABLE
 REPORTS(
   ReportId SERIAL PRIMARY KEY,
-  Noisetype varchar(80),
-  Datetime varchar(80),
+  Noisetype varchar(255),
+  Datetime varchar(255),
   Severity int,
-  Description varchar(255),
-  Locationofnoise varchar(255)
+  Description varchar(2000),
+  Locationofnoise varchar(2000)
 );
 
 CREATE 
