@@ -39,7 +39,7 @@ const ScenarioTab = () => {
     <div className="scenario-tab">
       {/* Header */}
       <div className="tab-header">
-        <h1>⚖️ Scenario Comparison</h1>
+        <h1> Scenario Comparison</h1>
         <p>Compare intervention strategies side by side</p>
       </div>
 
