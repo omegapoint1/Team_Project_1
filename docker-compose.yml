@@ -1,6 +1,5 @@
 services:
 
-
   db:
     image: postgres
     restart: always
@@ -20,14 +19,26 @@ services:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks: 
+      - app-network
+
   gleam:
     build:
       context: ./
     ports: 
       - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
 
+networks:
+  app-network:
+    driver: bridge
