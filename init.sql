@@ -1,7 +1,8 @@
 CREATE 
 TABLE 
 LOGIN(
-  Username varchar(255) not null,
+  UserId SERIAL PRIMARY KEY,
+  Username varchar(255) not null UNIQUE,
   Password varchar(4000) not null
 );
 

@@ -1,19 +1,19 @@
-import gleam/io
-import wisp.{type Request, type Response}
-import wisp/wisp_mist
-import pog
-import gleam/erlang/process
-import mist
-import gleam/http.{Get, Post}
-import gleam/dynamic/decode
 import argus
+import gleam/dynamic/decode
+import gleam/erlang/process
+import gleam/http.{Get, Post}
+import gleam/io
+import gleam/option
+import login
 import lustre/attribute
 import lustre/element
 import lustre/element/html
-import login
+import mist
+import pog
 import report
-import gleam/option
 import server_app/sql
+import wisp.{type Request, type Response}
+import wisp/wisp_mist
 
 pub fn main() {
   wisp.configure_logger()
@@ -23,13 +23,14 @@ pub fn main() {
   let pool_name = process.new_name("db_name")
   io.print(static_directory)
 
-  let pool_child = 
+  let pool_child =
     pog.default_config(pool_name)
     |> pog.user("admin")
     |> pog.database("testdb")
     |> pog.password(option.Some("admin"))
     |> pog.pool_size(15)
     |> pog.port(5432)
+    |> pog.host("db")
     |> pog.start
   let db = pog.named_connection(pool_name)
 
@@ -41,20 +42,18 @@ pub fn main() {
     |> mist.bind("0.0.0.0")
     |> mist.start
 
-    process.sleep_forever()
-    let assert Ok(data) = sql.login(db, "alex.hinde@icloud.com")
-    let db_password = case data.rows {
-      [row] -> row.password
-      _ -> ""
-    }
-
+  process.sleep_forever()
+  let assert Ok(data) = sql.login(db, "alex.hinde@icloud.com")
+  let db_password = case data.rows {
+    [row] -> row.password
+    _ -> ""
+  }
 }
-
 
 fn app_middleware(
   req: Request,
   static_directory: String,
-  next: fn(Request) -> Response
+  next: fn(Request) -> Response,
 ) -> Response {
   let req = wisp.method_override(req)
   use <- wisp.log_request(req)
@@ -64,11 +63,10 @@ fn app_middleware(
   next(req)
 }
 
-
 fn handle_request(
   static_directory: String,
   req: Request,
-  db: pog.Connection
+  db: pog.Connection,
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
@@ -79,7 +77,6 @@ fn handle_request(
     _, _ -> wisp.not_found()
   }
 }
-
 
 fn serve_index() -> Response {
   let html =
@@ -97,9 +94,7 @@ fn serve_index() -> Response {
       ]),
       html.body([], [html.div([attribute.id("root")], [])]),
     ])
-      html
+  html
   |> element.to_document_string
   |> wisp.html_response(200)
 }
-
-
