@@ -25,9 +25,7 @@ pub fn handle_login_check(req: Request, db: pog.Connection) -> Response {
     Ok(True) -> wisp.ok()
     Ok(False) -> wisp.bad_request("Request failed")
     Error(_) -> wisp.bad_request("Request failed")
-  }
-
-  
+  }  
 }
 
 

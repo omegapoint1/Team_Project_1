@@ -1,6 +1,6 @@
 SELECT
-  password
+  Password
 FROM
-  Login
+  LOGIN
 WHERE
-  username = $1;
+  Username = $1;

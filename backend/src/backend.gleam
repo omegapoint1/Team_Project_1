@@ -13,6 +13,7 @@ import lustre/element/html
 import login
 import report
 import gleam/option
+import server_app/sql
 
 pub fn main() {
   wisp.configure_logger()
@@ -41,6 +42,11 @@ pub fn main() {
     |> mist.start
 
     process.sleep_forever()
+    let assert Ok(data) = sql.login(db, "alex.hinde@icloud.com")
+    let db_password = case data.rows {
+      [row] -> row.password
+      _ -> ""
+    }
 
 }
 
