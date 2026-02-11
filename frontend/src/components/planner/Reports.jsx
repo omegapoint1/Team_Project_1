@@ -1,6 +1,6 @@
 import React from 'react';
 import ReportBuilder from './Reports/ReportBuilder';
-import QuickActions from './Reports/QuickActions';
+//import QuickActions from './Reports/QuickActions';
 import ReportTemplates from './Reports/ReportTemplates';
 import SavedReports from './Reports/SavedReports';
 import styles from './Reports.css';
@@ -17,12 +17,12 @@ function Reports() {
 
       <div className={styles.grid}>
         <div className={styles.sidebar}>
-          <ReportTemplates />
-          <QuickActions />
-          <SavedReports />
+          <ReportTemplates/>
+          {/*<QuickActions />*/}
+          <SavedReports/>
         </div>
         <div className={styles.main}>
-          <ReportBuilder />
+          <ReportBuilder/>
         </div>
       </div>
     </div>
