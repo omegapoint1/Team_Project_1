@@ -3,11 +3,11 @@
     id: "001",
     name: "Full Mitigation Package",
     description: "",
-    createdBy: "planner_john",
+    createdBy: "plannerId_0201",
     createdAt: "2025-02-25T09:00:00Z",//random time stamp copied
     
     interventionIds: ["001", "007", "PLAN-2025-003"],
-    
+    notes:"",
     // calculated aggregation metrics 
     totalCost: 32000,
     totalImpactDB: 15,
@@ -69,4 +69,25 @@ export const status_transitions = {
         }
     ],
         'default': []
+};
+
+
+export const createPlan = (planData) => {
+    const now = new Date().toISOString();
+    
+    return {
+        // Required
+        id: planData.id || `plan-${Date.now()}`,
+        name: planData.name || 'Untitled Plan',
+        status: planData.status || 'Planned',
+        
+        zone: planData.zone || '',
+        budget: planData.budget || 0,
+        totalCost: planData.totalCost || 0,
+        timeline: planData.timeline || 0,
+        interventions: planData.interventions || [],
+        
+        createdAt: planData.createdAt || now,
+  
+    };
 };
