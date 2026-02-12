@@ -62,7 +62,7 @@ function UserDashboard() {
             { name: "Stocker Rd", count: 7 }
         ],
         commonTags: ["Train", "Cars", "Music", "Crowd"],
-        updates: [{ id: 1, message: "Backend summary endpoint not wired yet." }]
+        updates: [{ id: 1, message: "No updates available yet." }]
     });
     const [summaryLoading, setSummaryLoading] = useState(false);
     const [summaryError, setSummaryError] = useState("");
