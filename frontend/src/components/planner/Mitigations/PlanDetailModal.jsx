@@ -66,11 +66,10 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
         if (!selectedNewStatus) return;
         
         const statusLabel = plan_statuses[selectedNewStatus]?.label || selectedNewStatus;
-        if (window.confirm(`Change status to "${statusLabel}"?`)) {
             onUpdateStatus(plan.id, selectedNewStatus);
             setSelectedNewStatus('');
             onClose();
-        }
+        
     };
 
     const calculateBudgetUtilization = () => {
@@ -85,7 +84,6 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
     };
 
     const handleEvidenceUploaded = (evidenceItems) => {
-        console.log('Evidence uploaded:', evidenceItems);
         setAttachedEvidence(prev => [...prev, ...evidenceItems]);
     };
 
