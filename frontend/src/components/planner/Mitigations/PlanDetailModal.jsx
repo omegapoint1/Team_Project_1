@@ -3,13 +3,14 @@ import { useState } from 'react';
 import './PlanDetailModal.css';
 import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
 import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
+import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
 
 ReactModal.setAppElement('#root');
 
 /*Modal which shows plan details in a modal window with 3 tabbed sections
  */
 
-const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
+const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
 
 
     const [activeTab, setActiveTab] = useState('overview');
@@ -62,13 +63,15 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
     }
 };
 
-    const handleStatusUpdate = () => {
-        if (!selectedNewStatus) return;
+    const handleStatusUpdate = (newStatus) => {
         
-        const statusLabel = plan_statuses[selectedNewStatus]?.label || selectedNewStatus;
-            onUpdateStatus(plan.id, selectedNewStatus);
-            setSelectedNewStatus('');
-            onClose();
+        const updatedPlan = {
+            ...plan,
+            status: newStatus,
+        };
+        
+        onUpdate(updatedPlan);
+            
         
     };
 
@@ -84,11 +87,29 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
     };
 
     const handleEvidenceUploaded = (evidenceItems) => {
-        setAttachedEvidence(prev => [...prev, ...evidenceItems]);
+        const newEvidence = [...attachedEvidence, ...evidenceItems];
+        setAttachedEvidence(newEvidence);
+
+
+        const updatedPlan = {
+            ...plan,
+            evidence: newEvidence,
+        };
+        
+        onUpdate(updatedPlan);
     };
 
-    const handleRemoveEvidence = (evidenceId) => {
-        setAttachedEvidence(prev => prev.filter(item => item.id !== evidenceId));
+    const handleEvidenceRemoval = (evidenceId) => {
+        //setAttachedEvidence(prev => prev.filter(item => item.id !== evidenceId));
+        const filteredEvidence = attachedEvidence.filter(item => item.id !== evidenceId);
+        setAttachedEvidence(filteredEvidence);
+
+        const updatedPlan = {
+            ...plan,
+            evidence: filteredEvidence,
+        };
+        
+        onUpdate(updatedPlan);
     };
 
     const renderOverview = () => (
@@ -275,10 +296,15 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
 
             <div className="evidence-actions">
                 <h4>Attach Evidence & Documentation</h4>
+
+                    <EvidenceDisplay 
+                    evidence={attachedEvidence}
+                    onRemoveEvidence={handleEvidenceRemoval}
+                    />
                 <EvidenceUploader 
                     onEvidenceUploaded={handleEvidenceUploaded}
                     attachedEvidence={attachedEvidence}
-                    onRemoveEvidence={handleRemoveEvidence}
+                    onRemoveEvidence={handleEvidenceRemoval}
                     planId={plan.id}
                 />
             </div>

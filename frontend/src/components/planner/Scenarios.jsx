@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './Scenario.css';
 
 import ScenarioSelector from './Scenario/ScenarioSelector';

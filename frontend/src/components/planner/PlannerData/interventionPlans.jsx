@@ -7,15 +7,13 @@
     createdAt: "2025-02-25T09:00:00Z",//random time stamp copied
     
     interventionIds: ["001", "007", "PLAN-2025-003"],
-    notes:"",
+    //notes:"",
     // calculated aggregation metrics 
     totalCost: 32000,
     totalImpactDB: 15,
-    zonesCovered: 3,
-    populationCovered: 1200,
-    
+ 
     feasibilityScore: 3.2, //averaging from the plans probably
-    implementationTimeMonths: 6,
+    implementationTimeWeeks: 6,
     status:"Planned" //[]
     ,
     //tags fop

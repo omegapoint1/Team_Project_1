@@ -11,8 +11,8 @@ import './IncidentList.css';
 
 
 const IncidentList = () => {
-  const [incidents, setIncidents] = useState(mockIncidents);
-  const [filteredIncidents, setFilteredIncidents] = useState(mockIncidents);
+  const [incidents, setIncidents] = useState([]);
+  const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [filters, setFilters] = useState({
     status: ['valid'],
@@ -22,14 +22,56 @@ const IncidentList = () => {
     timeRange: '7d'
   });
 
-    useEffect(() => {
-        const loadIncidents = async () => {
-            const data = await incidentService.getAll({ status: 'open' });
-            setIncidents(data);
-        };
-        loadIncidents();
-    }, []);
+  const [loading, setLoading] = useState(true);
 
+useEffect(() => {
+  const loadIncidents = async () => {
+    const cached = localStorage.getItem('incidents');
+    
+    if (cached) {
+      setIncidents(JSON.parse(cached));
+      setLoading(false);
+    }
+    
+    // Always fetch fresh data in background
+    try {
+      const freshData = await incidentService.getAll();
+      setIncidents(freshData);
+      localStorage.setItem('incidents', JSON.stringify(freshData));
+    } catch (error) {
+      console.log(' fetch failed');
+      if (!cached) {
+        console.log('Failed to load incidents');
+        setLoading(false);
+      }
+    }
+  };
+  
+  loadIncidents();
+}, []);
+
+//Update incident and sync with server
+const handleIncidentUpdate = async (id, status) => {
+  try {
+
+    const updated = await incidentService.updateStatus(id, status);
+    
+    setIncidents(prev => 
+      prev.map(inc => inc.id === id ? { ...inc, status } : inc)
+    );
+    
+    const updatedIncidents = incidents.map(inc => 
+      inc.id === id ? { ...inc, status } : inc
+    );
+    localStorage.setItem('incidents', JSON.stringify(updatedIncidents));
+    
+    return updated;
+  } catch (error) {
+    console.log('Update failed:');
+    throw error;
+  }
+
+}
   useEffect(() => {
     let filtered = [...incidents];
 
@@ -70,7 +112,7 @@ const IncidentList = () => {
   };
 
   const handleStatusUpdate = (incidentId, newStatus, notes = '') => {
-    
+     handleIncidentUpdate(incidentId,newStatus)
     setIncidents(prev => 
       prev.map(inc => 
         inc.id === incidentId ? { 
