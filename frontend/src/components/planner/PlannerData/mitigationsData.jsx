@@ -4,13 +4,10 @@ export const interventionsData = [
         name: "Quiet zone signage",
         category: "awareness",
         description: "Install signs indicating designated quiet zones to raise community awareness.",
-        costBand: "low",
         costRange: { min: 500, max: 1000 },
         feasibility: 0.9,
         impactRange: { min: 2, max: 4 },
         implementationTime: "1-2 weeks",
-        maintenance: "Annual inspection",
-        prerequisites: ["Zone approval", "Sign permit"]
     },
     {
         id: 2,
