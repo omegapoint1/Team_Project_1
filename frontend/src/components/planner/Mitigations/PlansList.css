@@ -1,0 +1,281 @@
+.plans-list {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 60px black;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid lightgrey;
+}
+
+.header-left h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: darkblue;
+    margin-bottom: 8px;
+}
+
+.plan-count {
+    color: grey;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.export-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: purple;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.export-button:hover {
+    background: darkviolet;
+}
+
+.filter-controls {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: whitesmoke;
+    border-radius: 16px;
+    border: 1px solid lightgrey;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: bold;
+    color: darkslategrey;
+}
+
+.status-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+}
+
+.sort-controls {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.sort-label {
+    font-weight: bold;
+    color: darkslategrey;
+}
+
+.sort-select,
+.order-button {
+    padding: 10px 16px;
+    border: 2px solid lightgrey;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+}
+
+.empty-plans {
+    text-align: center;
+    padding: 60px 20px;
+    background: whitesmoke;
+    border-radius: 16px;
+    border: 2px dashed grey;
+}
+
+.empty-plans h3 {
+    font-size: 1.5rem;
+    color: darkslategrey;
+    margin-bottom: 12px;
+}
+
+.empty-plans p {
+    color: grey;
+    margin-bottom: 24px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.plan-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px lightgrey;
+    border: 1px solid lightgrey;
+}
+
+.plan-card-header {
+    padding: 20px;
+    background: lavender;
+    border-bottom: 1px solid lightgrey;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.plan-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: darkblue;
+    margin-bottom: 8px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid;
+}
+
+.plan-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.plan-content {
+    padding: 20px;
+}
+
+.plan-meta {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.meta-label {
+    font-size: 0.75rem;
+    color: grey;
+    text-transform: uppercase;
+}
+
+.meta-value {
+    font-weight: bold;
+    color: darkslategrey;
+}
+
+.plan-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: whitesmoke;
+    border-radius: 12px;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: darkblue;
+}
+
+.budget-meter {
+    margin-bottom: 20px;
+}
+
+.meter-bar {
+    height: 8px;
+    background: lightgrey;
+    border-radius: 4px;
+}
+
+.meter-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.impact-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: green;
+}
+
+.plan-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid lightgrey;
+}
+
+.intervention-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.intervention-tag {
+    padding: 4px 10px;
+    background: lightgrey;
+    color: darkslategrey;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.status-action-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.summary-card {
+    background: purple;
+    color: white;
+    padding: 32px;
+    border-radius: 16px;
+    margin-top: 32px;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}

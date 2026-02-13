@@ -1,0 +1,6 @@
+INSERT INTO REPORT_TAGS (
+  Report_id,
+  Tag_id
+  )
+VALUES($1, $2)
+ON CONFLICT DO NOTHING;
