@@ -72,7 +72,13 @@ fn handle_request(
   case req.method, wisp.path_segments(req) {
     Post, ["api", "login"] -> login.extract_login_check(req, db)
     Post, ["api", "register"] -> login.extract_register(req, db)
-    Post, ["api", "report"] -> report.extract_report_request(req, db)
+    Post, ["api", "report", "store"] -> report.extract_report_request(req, db)
+//    Post, ["api", "report", "get"] -> report.extract_get_report_request(req, db)
+//    Post ["api", "intervention", "store"]
+//    Post ["api", "intervention", "gen"]
+//    Post ["api", "intervention-plan", "store"]
+//    Post ["api", "intervention-plan", "get"]
+
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
