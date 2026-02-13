@@ -1,10 +1,11 @@
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const INTERVENTIONS_ENDPOINT = '/interventions';
 
 // Helper
 const fetchWithAuth = async (url, options = {}) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');//upon reconsideration may not be necessary 
+    //given previous authentication
     
     try {
         const response = await fetch(url, {
@@ -46,12 +47,7 @@ const convertInterventionFromAPI = (data) => ({
         max: data.impact_max
     },
     feasibility: data.feasibility,
-    implementationTime: data.implementation_time,
-    requirements: data.requirements || [],
-    materials: data.materials || [],
-    maintenance: data.maintenance,
-    lifespan: data.lifespan,
-    imageUrl: data.image_url,
+
     tags: data.tags || [],
     createdAt: data.created_at,
 });
@@ -62,12 +58,10 @@ const convertInterventionToAPI = (data) => ({
     cost_max: data.costRange?.max,
     impact_min: data.impactRange?.min,
     impact_max: data.impactRange?.max,
-    implementation_time: data.implementationTime,
-    image_url: data.imageUrl,
+
     created_at: data.createdAt,
 });
 
-// Intervention Service
 export const interventionService = {
     // get all interventions
     getAll: async (filters = {}) => {

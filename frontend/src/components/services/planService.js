@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/plans';
 const STORAGE_KEY = 'noise_mitigation_plans';
 
@@ -72,7 +72,7 @@ export const planLocalService = {
     },
 
     // save all to localStorage
-    saveAll: (plans) => {
+   /* saveAll: (plans) => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
             return true;
@@ -86,7 +86,7 @@ export const planLocalService = {
     getById: (planId) => {
         const plans = planLocalService.getAll();
         return plans.find(p => p.id === planId) || null;
-    },
+    },*/
 
 
 
@@ -115,7 +115,7 @@ export const planLocalService = {
     },
 
     // update status only
-    updateStatus: (planId, status) => {
+    /*updateStatus: (planId, status) => {
         return planLocalService.update(planId, { status });
     },
 
@@ -140,11 +140,7 @@ export const planLocalService = {
         return planLocalService.update(planId, { notes });
     },
 
-    // synbc server to localStorage
-    syncFromServer: async (serverPlans) => {
-        planLocalService.saveAll(serverPlans);
-        return serverPlans;
-    }
+}*/
 };
 
 export const planServerService = {
@@ -157,10 +153,10 @@ export const planServerService = {
     },
 
     // get by id
-    getById: async (planId) => {
+    /*getById: async (planId) => {
         const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`);
         return convertPlanFromAPI(response);
-    },
+    },*/
     
     addPlan: async (plan) => {
         const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}`, {
@@ -207,16 +203,7 @@ export const planServerService = {
         return transformPlanFromAPI(response);
     },
 
-    // update notes
-    updateNotes: async (planId, notes) => {
-        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}/notes`, {
-            method: 'PATCH',
-            body: JSON.stringify({ 
-                notes,
-            })
-        });
-        return convertPlanFromAPI(response);
-    },
+
 */
     // delete a specific plan
     delete: async (planId) => {
