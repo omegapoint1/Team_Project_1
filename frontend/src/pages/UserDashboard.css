@@ -1,0 +1,336 @@
+/* UserDashboard.css */
+
+.userDashboardPage {
+    width: 100%;
+    max-width: 1845px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+    background: rgb(230, 230, 230);
+    min-height: 100vh;
+}
+
+/* FILTER BAR */
+.userDashboardFilterBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 8px;
+
+    padding: 12px 14px;
+    background: rgb(243, 243, 243);
+
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.userDashboardSearchWrap {
+    width: 320px;
+    max-width: 55vw;
+}
+
+.userDashboardSearchInput {
+    width: 100%;
+    padding: 10px 12px;
+
+    border-radius: 10px;
+    border: 2px solid rgb(119, 119, 119);
+
+    font-size: 16px;
+    outline: none;
+    background: white;
+}
+
+.userDashboardSearchInput:focus {
+    border-color: rgb(75, 85, 99);
+}
+
+.userDashboardFilterRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.userDashboardSelectorWrap {
+    position: relative;
+}
+
+.userDashboardSelect {
+    padding: 9px 34px 9px 12px;
+
+    border-radius: 10px;
+    border: 2px solid rgb(119, 119, 119);
+
+    background: rgb(222, 222, 222);
+    font-size: 15px;
+    font-weight: 600;
+
+    outline: none;
+    appearance: none;
+}
+
+.userDashboardSelectorWrap::after {
+    content: "▼";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* MAIN ROW */
+.userDashboardMainRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+    align-items: start;
+}
+
+.userDashboardMapCard {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    height: 520px;
+}
+
+/* Helps Leaflet fill the card if MapBackground uses Leaflet */
+.userDashboardMapCard .leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.userDashboardRightPanel {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    height: 520px;
+}
+
+.userDashboardRightPanelInner {
+    height: 100%;
+    overflow-y: auto;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.userDashboardPanelTitle {
+    font-weight: 900;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.userDashboardEmptyText {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+/* BOTTOM CARDS */
+.userDashboardCardsRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 14px;
+    padding: 10px 12px 14px;
+}
+
+.userDashboardInfoCard {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    font-weight: 800;
+    min-height: 140px;
+}
+
+.userDashboardCardTitle {
+    font-weight: 900;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.userDashboardStatsBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.userDashboardStatsRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.userDashboardList {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.userDashboardListItem {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.userDashboardTagWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.userDashboardTagPill {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid #8a8a8a;
+    background: #efefef;
+    font-weight: 700;
+}
+
+.userDashboardUpdates {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.userDashboardUpdateItem {
+    line-height: 1.25;
+}
+
+.userDashboardHotspotCard {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 12px;
+    margin-bottom: 12px;
+
+    background: rgb(222, 222, 222);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+}
+
+.userDashboardHotspotLeft {
+    flex: 1;
+    min-width: 0;
+}
+
+.userDashboardHotspotTitle {
+    font-weight: 900;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.userDashboardHotspotMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.userDashboardHotspotMetaRow {
+    display: flex;
+    gap: 6px;
+}
+
+.userDashboardHotspotLabel {
+    font-weight: 900;
+}
+
+.userDashboardHotspotTagsRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.userDashboardHotspotTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.userDashboardHotspotTagPill {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid #8a8a8a;
+    background: #efefef;
+    font-weight: 800;
+}
+
+.userDashboardHotspotActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+
+.userDashboardHotspotBtn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 2px solid rgb(60, 60, 60);
+    background: rgb(125, 223, 125);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.userDashboardHotspotBtn:active {
+    transform: translateY(1px);
+}
+
+
+/* MOBILE */
+@media (max-width: 900px) {
+.userDashboardFilterBar {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.userDashboardSearchWrap {
+    width: 100%;
+    max-width: 100%;
+}
+
+.userDashboardMainRow {
+    grid-template-columns: 1fr;
+}
+
+.userDashboardMapCard,
+.userDashboardRightPanel {
+    height: 420px;
+}
+
+.userDashboardCardsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .userDashboardCardsRow {
+        grid-template-columns: 1fr;
+    }
+}

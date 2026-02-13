@@ -10,10 +10,12 @@ import Dashboard from './pages/Dashboard';
   import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
+  import FormPage from './pages/FormPage';
 
+import GamePage from './pages/GamePage';
 function App() {
   return (
-    <BrowserRouter>
+<BrowserRouter>
       <nav className="navbar">
         
         <div className="navbar-left">
@@ -24,30 +26,20 @@ function App() {
         </div>
       
         <div className = "navbar-right">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Dashboard
-          </NavLink>
-          <NavLink
-            to="/planner"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Planner
-          </NavLink>
+          <Link to="/planner" className="nav-link">Planner Screen</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
           </Link>
         </div>
       </nav>
-      
+
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
         <Route path="/planner"  element={<PlannerPage/>} />
-        <Route path="/signup"   element={<SignUpPage/>} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/game" element={<GamePage/>} />
+        <Route path="/signup" element={<SignUpPage/>} />
         
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
@@ -55,7 +47,7 @@ function App() {
           <Route path="mitigation" element={<MitigationPlans />} />
           <Route path="comparison" element={<ScenarioComparison />} />
           <Route path="tracker" element={<ImplementationTracker />} />
-          <Route path="report" element={<GenerateReport />} />
+          <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>
 

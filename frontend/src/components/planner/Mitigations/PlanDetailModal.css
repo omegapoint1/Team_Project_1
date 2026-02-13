@@ -1,0 +1,311 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  background: #4CAF50;
+  padding: 20px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.name-edit-input {
+  font-size: 18px;
+  padding: 8px;
+  border: 1px solid gray;
+  background: darkgrey;
+  color: white;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.modal-tabs {
+  display: flex;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-tab {
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.modal-tab.active {
+  color: #4CAF50;
+  border-bottom-color: #4CAF50;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.overview-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.overview-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.overview-card h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+.budget-summary {
+  margin-bottom: 16px;
+}
+
+.budget-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.budget-label {
+  color: #666;
+}
+
+.budget-value {
+  font-weight: 600;
+}
+
+.budget-meter-modal {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.meter-header-modal {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.meter-bar-modal {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.meter-fill-modal {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.zone-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.zone-label {
+  color: #666;
+  font-size: 13px;
+}
+
+.zone-value {
+  font-weight: 600;
+}
+
+.interventions-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.interventions-summary {
+  display: flex;
+  gap: 20px;
+}
+
+.interventions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.intervention-detail {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.intervention-header-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.intervention-category {
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.intervention-stats-detail {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.stat-box {
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.stat-label-detail {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.status-actions, .additional-actions, .plan-notes {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.current-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.status-badge-modal {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-action-btn, .action-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.status-action-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.action-btn.danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.notes-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.save-notes-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-footer {
+  background: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+

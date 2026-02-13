@@ -1,0 +1,104 @@
+.selector-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  margin-bottom: 20px;
+}
+
+.card-header h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.card-header p {
+  font-size: 14px;
+  color: #666;
+}
+
+.scenario-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.scenario-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scenario-item:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+
+.scenario-item.selected {
+  border-color: #007bff;
+  background: #e7f3ff;
+}
+
+.item-checkbox {
+  margin-right: 12px;
+  margin-top: 2px;
+}
+
+.item-checkbox input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.item-content h4 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.item-desc {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.item-meta {
+  display: flex;
+  gap: 12px;
+}
+
+.cost {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.impact {
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.add-button {
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-button:hover {
+  background: #0056b3;
+}

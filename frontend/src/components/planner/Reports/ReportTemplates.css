@@ -1,0 +1,92 @@
+.templates-container {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.templates-title {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.templates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.template-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.template-card:hover {
+  border-color: #4CAF50;
+  background: #f9f9f9;
+}
+
+.template-content {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.template-icon {
+  width: 40px;
+  height: 40px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #333;
+}
+
+.template-name {
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px 0;
+  font-size: 15px;
+}
+
+.template-description {
+  color: #666;
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.template-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.template-audience {
+  font-size: 12px;
+  background: #f0f0f0;
+  color: #666;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.time-badge {
+  font-size: 12px;
+  background: #4CAF50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}

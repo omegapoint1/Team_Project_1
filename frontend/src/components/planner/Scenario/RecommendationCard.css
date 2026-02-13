@@ -1,0 +1,41 @@
+.recommendation-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #28a745;
+}
+
+.recommendation-card h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.best-scenario {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.best-scenario h4 {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+.score {
+  font-size: 18px;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.reason {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
