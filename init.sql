@@ -53,3 +53,21 @@ CREATE TABLE inter_plans (
   notes JSONB,
   evidence JSONB
   );
+
+CREATE TABLE NOISE_DATA (
+  NoiseDataId   SERIAL PRIMARY KEY,
+  Source        VARCHAR(50)  NOT NULL
+                  CHECK (Source IN ('amsterdam_dataset', 'verified_user_report')),
+  Geometry      JSONB        NOT NULL,
+  NoiseClass    VARCHAR(20),
+  NoiseLevelDb  INTEGER,
+  NoiseCategory VARCHAR(20)
+                  CHECK (NoiseCategory IN ('quiet', 'moderate', 'loud', 'very_loud')),
+  Severity      INTEGER CHECK (Severity BETWEEN 1 AND 10),
+  RecordedAt    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_noise_data_source    ON NOISE_DATA (Source);
+CREATE INDEX idx_noise_data_recorded  ON NOISE_DATA (RecordedAt);
+CREATE INDEX idx_noise_data_category  ON NOISE_DATA (NoiseCategory);
+CREATE INDEX idx_noise_data_geometry  ON NOISE_DATA USING GIN (Geometry);
