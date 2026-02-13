@@ -50,7 +50,7 @@ const convertPlanFromAPI = (data) => ({
     createdAt: data.created_at || data.createdAt,
 });
 
-const transformPlanToAPI = (plan) => ({
+const convertPlanToAPI = (plan) => ({
     ...plan,
     total_cost: plan.totalCost,
     created_at: plan.createdAt,
@@ -163,11 +163,11 @@ export const planServerService = {
     },
     
     addPlan: async (plan) => {
-        const response = await fetchWithAuth(`${API_BASE_URL}${PLANS_ENDPOINT}`, {
+        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}`, {
             method: 'POST',
-            body: JSON.stringify(transformPlanToAPI(plan))
+            body: JSON.stringify(convertPlanToAPI(plan))
         });
-        return transformPlanFromAPI(response);
+        return convertPlanFromAPI(response);
     },
 
 
@@ -176,13 +176,13 @@ export const planServerService = {
     update: async (planId, updates) => {
         const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {
             method: 'PATCH',
-            body: JSON.stringify(transformPlanToAPI({
+            body: JSON.stringify(convertPlanToAPI({
                 ...updates,
             }))
         });
         return convertPlanFromAPI(response);
     },
-
+    /*
     // update status
     updateStatus: async (planId, status) => {
         const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}/status`, {
@@ -217,7 +217,7 @@ export const planServerService = {
         });
         return convertPlanFromAPI(response);
     },
-
+*/
     // delete a specific plan
     delete: async (planId) => {
         return await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {

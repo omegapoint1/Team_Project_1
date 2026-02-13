@@ -9,6 +9,7 @@ export const mockIncidents = [
     description: 'Empty',
     severity: 'high',
     status: 'pending',
+    attachments: [],
     tags: []
   },
   {
@@ -19,6 +20,7 @@ export const mockIncidents = [
     description: 'Loud music from weekend party affecting nearby apartments.',
     severity: 'medium',
     status: 'valid',
+    attachments: [],
     tags: ['music', 'weekend', 'party']
   },
   {
@@ -29,6 +31,8 @@ export const mockIncidents = [
     description: 'Traffic jam driving me mental',
     severity: 'low',
     status: 'processed',
+        attachments: [],
+
     tags: ['traffic', 'rush hour', 'horn']
   },
   {
@@ -39,6 +43,7 @@ export const mockIncidents = [
     description: ' outdoor concert exceeding permitted noise levels.',
     severity: 'medium',
     status: 'valid',
+    attachments: [],
     tags: ['event', 'concert', 'music']
   },
   {
@@ -49,6 +54,7 @@ export const mockIncidents = [
     description: 'Fire station enxt to care home causing havoc',
     severity: 'high',
     status: 'duplicate',
+    attachments: [],
     tags: ['fire station', 'elderly', 'care-home']
   },
   {
@@ -59,6 +65,7 @@ export const mockIncidents = [
     description: 'Industrial factory disturbing school in early moring',
     severity: 'low',
     status: 'invalid',
+    attachments: [],
     tags: ['industrial', 'children']
   },
   {
@@ -69,6 +76,7 @@ export const mockIncidents = [
     description: 'Early morning drilling work is distrubing me.',
     severity: 'medium',
     status: 'valid',
+    attachments: [],
     tags: ['drilling', 'morning', 'residential']
   }
 ];

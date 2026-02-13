@@ -1,16 +1,47 @@
-    import React, { useState } from 'react';
+    import React, { useState ,useEffect} from 'react';
 import './InterventionCatalog.css';
 import { interventionsData } from '../PlannerData/mitigationsData';
+import { interventionService } from '../../services/interventionService';
 
 const InterventionCatalog = ({ onAddToPlan }) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedCost, setSelectedCost] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [interventions, setInterventions] = useState([]);
 
     const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
     const costBands = ['all', 'low', 'medium', 'high'];
+    const [loading, setLoading] = useState(true);
 
-    const filteredInterventions = interventionsData.filter(intervention => {
+
+
+
+     useEffect(() => {
+    const loadInterventions = async () => {
+    const cached = localStorage.getItem('interventions');
+    
+    if (cached) {
+      setInterventions(JSON.parse(cached));
+      setLoading(false);
+    }
+    
+    try {
+      const freshData = await interventionService.getAll();
+      setInterventions(freshData);
+      localStorage.setItem('interventions', JSON.stringify(freshData));
+    } catch (error) {
+      console.log('Interventions fetch faile');
+      if (!cached) {
+        console.log('Failed to load interventions');
+        setLoading(false);
+      }
+    }
+  };
+  
+  loadInterventions();
+}, []);
+
+    const filteredInterventions = interventions.filter(intervention => {
         const matchesCategory = selectedCategory === 'all' || intervention.category === selectedCategory;
         const matchesCost = selectedCost === 'all' || intervention.costBand === selectedCost;
         const matchesSearch = intervention.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

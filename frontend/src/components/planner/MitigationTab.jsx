@@ -4,6 +4,7 @@ import PlanBuilder from './Mitigations/PlanBuilder';
 import PlansList from './Mitigations/PlansList';
 import PlanDetailModal from './Mitigations/PlanDetailModal';
 import { interventionsData } from './PlannerData/mitigationsData';
+import { planLocalService,planServerService } from '../services/planService';
 import './MitigationTab.css';
 
 const MitigationTab = () => {
@@ -11,35 +12,54 @@ const MitigationTab = () => {
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [interventions, setInterventions] = useState(interventionsData);
+    const [loading, setLoading] = useState(true);
 
-    // Load saved plans from localStorage
-    useEffect(() => {
-        const savedPlans = localStorage.getItem('noiseMitigationPlans');
-        
-        if (savedPlans) {
+    //Load saved plans from local storageon mount
+  useEffect(() => {
+        const loadPlans = async () => {
+
+            
             try {
-                const parsed = JSON.parse(savedPlans);
-                setPlans(parsed);
+                const serverPlans = await planServerService.getAll();
+                
+                if (serverPlans && serverPlans.length > 0) {
+                    setPlans(serverPlans);
+                    planLocalService.saveAll(serverPlans);
+                    console.log('Loaded plans from server:', serverPlans.length);
+                } else {
+                    //fallback to local storage
+                    const localPlans = planLocalService.getAll();
+                    
+                    if (localPlans && localPlans.length > 0) {
+                        setPlans(localPlans);
+                        
+                    } else {
+                        setPlans([]);
+                    }
+                }
             } catch (error) {
-                console.error('Error loading plans from localStorage:', error);
-                setPlans([]);
+                console.error('Error loading from server, falling back to localStorage');
+                
+                // Fallback to local storage on server error
+                const localPlans = planLocalService.getAll();
+                setPlans(localPlans);
+            } finally {
+                setLoading(false);
             }
-        } else {
-            console.log('No plans found in localStorage');
-            setPlans([]);
-        }
-    }, []);
+        };
 
-    // Save plans to localStorage whenever they change
+        loadPlans();
+    }, []);
+    // Save plans to local storage whenever they change
     useEffect(() => {
         
         if (plans.length > 0) {
             try {
-                const plansString = JSON.stringify(plans);
-                localStorage.setItem('noiseMitigationPlans', plansString);
+                const plansStrings = JSON.stringify(plans);
+                localStorage.setItem('noiseMitigationPlans', plansStrings);
                 
             } catch (error) {
-                console.error('Error saving to localStorage:', error);
+                console.error('Error saving to local storage');
             }
         }
   
@@ -48,15 +68,15 @@ const MitigationTab = () => {
     const handleAddToPlan = (intervention) => {
         localStorage.setItem('lastSelectedIntervention', JSON.stringify(intervention));
     };
+    
 
-    const handleCreatePlan = (newPlan) => {
+    const handleCreatePlan = async (newPlan) => {
         
         const planWithId = {
             ...newPlan,
             id: `plan-${Date.now()}`,
             status: 'Planned',
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
         };
         
         
@@ -65,29 +85,43 @@ const MitigationTab = () => {
             console.log('Updated plans array:', updatedPlans);
             return updatedPlans;
         });
-        
+        try {
+            await planServerService.addPlan(planWithId);
+        } catch (error) {
+            console.error('Failed to sync new plan to server:', error);
+        }
         setActiveTab('plans');
     };
 
-    const handleUpdatePlanStatus = (planId, newStatus) => {
-        
+    const handleUpdatePlan =  async(updatedPlan) => {
         setPlans(prevPlans => {
-            const updatedPlans = prevPlans.map(plan => 
-                plan.id === planId 
-                    ? { ...plan, status: newStatus, updatedAt: new Date().toISOString() } 
-                    : plan
-            );
-            console.log('Updated plans after status change:', updatedPlans);
-            return updatedPlans;
-        });
-    };
+        const updatedPlans = prevPlans.map(plan => 
+            plan.id === updatedPlan.id ? updatedPlan : plan
+        );
+        //console.log('Plan updated:', updatedPlan);
+        return updatedPlans;
+    });
+       try {
+            await planServerService.update(updatedPlan.id, updatedPlan);
+        } catch (error) {
+            console.error('Failed to sync plan update to server:', error);
+        }
 
-    const handleDeletePlan = (planId) => {
+
+
+};
+
+    const handleDeletePlan = async (planId) => {
             setPlans(prevPlans => {
                 const updatedPlans = prevPlans.filter(plan => plan.id !== planId);
                 console.log('Updated plans after delete:', updatedPlans);
                 return updatedPlans;
         })
+        try {
+        await planServerService.delete(planId);
+        } catch (error) {
+            console.error('Failed to sync plan deletion to server:', error);
+        }
     };
 
     const handleViewPlanDetails = (plan) => {
@@ -184,7 +218,7 @@ const MitigationTab = () => {
                     isOpen={true}
                     onClose={handleCloseModal}
                     plan={selectedPlan}
-                    onUpdateStatus={handleUpdatePlanStatus}
+                    onUpdateStatus={handleUpdatePlan}
                 />
             )}
         </div>

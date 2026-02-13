@@ -4,6 +4,8 @@ import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
 import './IncidentDetailModal.css';
+import { incidentService } from '../../services/incidentService'; 
+
 
 
 /*Modal for the expanded details of each incident card*/
@@ -35,12 +37,29 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     }
   };
 
-  const handleStatusUpdate = () => {
-    if (incident) {
-      onUpdateStatus(incident.id, selectedStatus, processingNotes);
-      onClose();
-    }
-  };
+  
+  
+  const handleStatusUpdate = async () => {
+  if (!incident) return;
+  
+  try {
+    //Cal API to update the incident
+    const updatedIncident = await incidentService.update(incident.id, {
+      status: selectedStatus,
+      processingNotes: processingNotes 
+    });
+    //call back updating current . MAybe combine
+    onUpdateStatus(incident.id, selectedStatus, processingNotes, updatedIncident);
+    
+    onClose();
+  } catch (error) {
+    console.error('Error occured. Failed to update incident:', error);
+    alert(`Failed to update: ${error.message}`);
+  }
+
+  }
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -58,8 +77,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     { value: 'pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
     { value: 'valid', label: 'Validate Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
     { value: 'processed', label: 'Mark as Processed', icon: '✓', color: 'blue', description: 'Action has been taken' },
-    { value: 'duplicate', label: 'Flag as Duplicate', icon: '↻', color: 'orange', description: 'Merge with similar report' },
-    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'red', description: 'False or inaccurate report' }
+    //{ value: 'delete', label: 'Flag as for deletion', icon: '', color: 'red', description: 'Delete for various reasons' },
+    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'orange', description: 'False or inaccurate report' }
   ];
 
   if (!incident) return null;
