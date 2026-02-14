@@ -8,6 +8,7 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 import mist
+import noise
 import plan
 import pog
 import report
@@ -70,6 +71,7 @@ fn handle_request(
     Post, ["api", "register"] -> login.extract_register(req, db)
     Get, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
+    Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
     Get, ["api", "intervention-plan", "store"] ->
       plan.extract_plan_store(req, db)
 
