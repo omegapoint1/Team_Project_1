@@ -1,3 +1,4 @@
+import gleam/json
 import wisp.{type Request, type Response}
 import pog
 import gleam/dynamic/decode
@@ -69,3 +70,18 @@ pub fn get_report_by_id(db: pog.Connection, report_id: Int) -> report_json.Repor
     )
     report_item
 }
+
+pub fn get_all_reports(db: pog.Connection) -> Response {
+  let assert Ok(report_ids) = sql.report_get_ids(db)
+  let reports = list.map(report_ids.rows, fn(row) {
+      get_report_by_id(db, row.reportid)
+    })
+    let reports_encoded =  
+      json.array(reports, report_json.report_item_to_json)
+        |> json.to_string()
+  wisp.log_alert(reports_encoded)
+  wisp.response(200)
+    |> wisp.json_body(reports_encoded)
+}
+
+

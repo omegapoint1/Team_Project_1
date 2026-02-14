@@ -331,6 +331,36 @@ GROUP BY r.Reportid;"
   |> pog.execute(db)
 }
 
+/// A row you get from running the `report_get_ids` query
+/// defined in `./src/server_app/sql/report_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type ReportGetIdsRow {
+  ReportGetIdsRow(reportid: Int)
+}
+
+/// Runs the `report_get_ids` query
+/// defined in `./src/server_app/sql/report_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn report_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(ReportGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use reportid <- decode.field(0, decode.int)
+    decode.success(ReportGetIdsRow(reportid:))
+  }
+
+  "SELECT ReportId FROM REPORTS;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `reports_insert` query
 /// defined in `./src/server_app/sql/reports_insert.sql`.
 ///

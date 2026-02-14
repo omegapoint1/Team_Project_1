@@ -33,7 +33,7 @@ pub fn report_test() {
     description: "cars are very loud",
     location_of_noise: "road",
     tags: ["car", "road"])
-  
+
   let report_id = report.store_report(report_item, db)
   let new_report_item = report.get_report_by_id(db, report_id)
 
