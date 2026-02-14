@@ -7,6 +7,7 @@ function AddressUpdater() {
     map.src = "https://maps.google.com/maps?q=" + address.value + "&output=embed";
 }
 
+// function to remove the tag
 function RemoveTag(event) {
     const button = event.target;
     button.parentNode.parentNode.remove();
@@ -17,21 +18,22 @@ function TagsAdder(event) {
     if (event.key === " ") {
         let tag = event.target.value;
         event.target.value = "";
+        // checks the tag is within the valid length
         if (tag.length > 20) {
             alert("Tag is too long");
             return;
         }
+        // if valid creates a new tag object that can then be seen by the user and can also be deleted by pressing the button
         if (tag !== " ") {
             let tagsection = document.getElementById("tags");
             let pill = document.createElement("div");
             let tagdiv = document.createElement("div");
             let tagp = document.createElement("p");
 
-            //currently not added just for the merge, but will allow you to remove tags
             let remove = document.createElement("button");
             remove.value = "hello";
             remove.addEventListener("click", RemoveTag);
-            
+
 
             pill.className = "formnopadding formpill";
             tagdiv.className = "formflexrow";
@@ -44,6 +46,7 @@ function TagsAdder(event) {
     }
 }
 
+// gets all the tags
 function GetAllTags() {
     const tagscontainers = document.getElementById("tags").childNodes;
     let tags = [];
@@ -53,6 +56,35 @@ function GetAllTags() {
     return tags;
 }
 
+// checks the validity of all the values that need validating
+function CheckValidity(noisetype, datetime, severity, description, address, zone, tags) {
+    if (noisetype === "" || datetime === "" || description === "" || address === "") {
+        alert("Make sure you have filled out all values");
+        return false
+    }
+    if (noisetype.match("[^a-zA-Z]")) {
+        alert("Noise type must only contain letters");
+        return false;
+    }
+    console.log(datetime);
+    if (!datetime.match(".*-.*-.*T.*:.*")) {
+        alert("Date time does not match the correct format");
+        return false;
+    }
+    if (severity < 1 || severity > 10) {
+        alert("Severity must be between 1-10 inclusive");
+        return false;
+    }
+    for (let i = 0; i < tags.length; i++) {
+        if (tags[i].match("[^a-zA-Z]")) {
+            alert("Tags must only contain letters");
+            return false;
+        }
+    }
+    return true;
+}
+
+// performs the submission of the form in a json format while also doing some basid validity checking
 async function Submit(event) {
     event.preventDefault();
     const noisetype = document.getElementById("noisetype").value;
@@ -62,21 +94,24 @@ async function Submit(event) {
     const address = document.getElementById("address").value;
     const zone = document.getElementById("zone").value;
     const tags = GetAllTags();
+    if (!CheckValidity(noisetype, datetime, severity, description, address, zone, tags)) {
+        return;
+    }
     const request = {
-        "noisetype" : noisetype,
-        "datetime" : datetime,
-        "severity" : severity,
-        "description" : description,
-        "address" : address,
-        "zone" : zone,
-        "tags" : tags,
+        "noisetype": noisetype,
+        "datetime": datetime,
+        "severity": severity,
+        "description": description,
+        "address": address,
+        "zone": zone,
+        "tags": tags,
     };
     const response = await fetch("api/report/store", {
-        method : "POST",
-        headers : {
-            "Content-Type" : "application.json"
+        method: "POST",
+        headers: {
+            "Content-Type": "application.json"
         },
-        body : JSON.stringify(request)
+        body: JSON.stringify(request)
     })
     if (!response.ok) {
         alert("An error occured");
@@ -103,7 +138,7 @@ function FormPage() {
                             <div class="formflexcolumn formalittlegap">
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Noise Type</label>
-                                    <input id="noisetype" type="text"  class="explaintextinput"></input>
+                                    <input id="noisetype" type="text" class="explaintextinput"></input>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Date & Time</label>
@@ -158,12 +193,12 @@ function FormPage() {
                                         </div>
                                         <div class="formflexrow formspacebetween">
                                             <label>Zone</label>
-                                           <select id="zone">
+                                            <select id="zone">
                                                 <option value="A">Zone A</option>
                                                 <option value="B">Zone B</option>
                                                 <option value="C">Zone C</option>
                                                 <option value="D">Zone D</option>
-                                           </select>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
