@@ -7,41 +7,88 @@ function AddressUpdater() {
     map.src = "https://maps.google.com/maps?q=" + address.value + "&output=embed";
 }
 
+function RemoveTag(event) {
+    const button = event.target;
+    button.parentNode.parentNode.remove();
+}
+
 // adds a new tag underneath the text input when the user presses the space bar
 function TagsAdder(event) {
     if (event.key === " ") {
         let tag = event.target.value;
         event.target.value = "";
+        if (tag.length > 20) {
+            alert("Tag is too long");
+            return;
+        }
         if (tag !== " ") {
             let tagsection = document.getElementById("tags");
+            let pill = document.createElement("div");
             let tagdiv = document.createElement("div");
             let tagp = document.createElement("p");
 
             //currently not added just for the merge, but will allow you to remove tags
             let remove = document.createElement("button");
+            remove.value = "hello";
+            remove.addEventListener("click", RemoveTag);
             
 
-            tagdiv.className = "formnopadding formpill";
+            pill.className = "formnopadding formpill";
+            tagdiv.className = "formflexrow";
             tagp.textContent = tag;
             tagdiv.appendChild(tagp);
-            tagsection.appendChild(tagdiv);
+            tagdiv.appendChild(remove);
+            pill.appendChild(tagdiv);
+            tagsection.appendChild(pill);
         }
     }
 }
 
-function Submit() {
+function GetAllTags() {
+    const tagscontainers = document.getElementById("tags").childNodes;
+    let tags = [];
+    for (let i = 0; i < tagscontainers.length; i++) {
+        tags.push(tagscontainers[i].childNodes[0].childNodes[0].innerHTML);
+    }
+    return tags;
+}
+
+async function Submit(event) {
+    event.preventDefault();
     const noisetype = document.getElementById("noisetype").value;
     const datetime = document.getElementById("datetime").value;
     const severity = document.getElementById("severity").value;
     const description = document.getElementById("description").value;
     const address = document.getElementById("address").value;
-
+    const zone = document.getElementById("zone").value;
+    const tags = GetAllTags();
+    const request = {
+        "noisetype" : noisetype,
+        "datetime" : datetime,
+        "severity" : severity,
+        "description" : description,
+        "address" : address,
+        "zone" : zone,
+        "tags" : tags,
+    };
+    const response = await fetch("api/report/store", {
+        method : "POST",
+        headers : {
+            "Content-Type" : "application.json"
+        },
+        body : JSON.stringify(request)
+    })
+    if (!response.ok) {
+        alert("An error occured");
+    } else {
+        alert("Your report has been successfully logged");
+    }
 }
 
 function FormPage() {
     return (
         <div class="formflexcolumn formcenter formalittlegap formmargin">
-            <form class="formflexcolumn formcenter ">
+            <form onSubmit={Submit} class="formflexcolumn formcenter">
                 <div class="formflexcolumn formabiggergap formcenter formmaindiv">
                     <div class="formflexcolumn formverticalcenter formwhitebox formlightboxshadow">
                         <h1>Report a noise incident</h1>
@@ -60,7 +107,7 @@ function FormPage() {
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Date & Time</label>
-                                    <input id="datetime" type="datetime" class="explaintextinput"></input>
+                                    <input id="datetime" type="datetime-local" class="explaintextinput"></input>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Severity</label>
@@ -102,10 +149,21 @@ function FormPage() {
                                     allowfullscreen loading="lazy"
                                     referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 <div>
-                                    <div class="formflexrow formspacebetween">
-                                        <label>Address</label>
-                                        <div>
-                                            <input type="text" id="address" onInput={AddressUpdater} class="textinput"></input>
+                                    <div class="formflexcolumn formspacebetween">
+                                        <div class="formflexrow formspacebetween">
+                                            <label>Address</label>
+                                            <div>
+                                                <input type="text" id="address" onInput={AddressUpdater} class="textinput"></input>
+                                            </div>
+                                        </div>
+                                        <div class="formflexrow formspacebetween">
+                                            <label>Zone</label>
+                                           <select id="zone">
+                                                <option value="A">Zone A</option>
+                                                <option value="B">Zone B</option>
+                                                <option value="C">Zone C</option>
+                                                <option value="D">Zone D</option>
+                                           </select>
                                         </div>
                                     </div>
                                 </div>
