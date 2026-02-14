@@ -1,4 +1,3 @@
-import gleam/dynamic
 import wisp.{type Request, type Response}
 import pog
 import gleam/http.{Get, Post}
@@ -8,7 +7,7 @@ import server_app/sql
 import gleam/option
 import gleam/list
 
-pub fn extract_report_request(req: Request, db: pog.Connection) -> Response {
+pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
     use json <- wisp.require_json(req)
     let assert Ok(item) = decode.run(json, report_json.report_item_decoder())
     case store_report(item, db){
