@@ -1,6 +1,5 @@
 import gleam/dynamic/decode
 import gleam/json
-import gleam/dict.{type Dict}
 pub type Item {
   Item(id: String, description: String)
 }

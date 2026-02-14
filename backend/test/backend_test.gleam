@@ -17,7 +17,7 @@ pub fn main() -> Nil {
 // gleeunit test functions end in `_test`
 pub fn report_test() {
   let pool_name = process.new_name("db_name")
-  let pool_child = 
+  let _ = 
   pog.default_config(pool_name)
   |> pog.user("admin")
   |> pog.database("testdb")
@@ -43,7 +43,7 @@ pub fn report_test() {
 
 pub fn login_test() {
   let pool_name = process.new_name("db_name")
-  let pool_child = 
+  let _ = 
   pog.default_config(pool_name)
   |> pog.user("admin")
   |> pog.database("testdb")
@@ -64,7 +64,7 @@ pub fn login_test() {
 
 pub fn plan_test() {
   let pool_name = process.new_name("db_name")
-  let pool_child = 
+  let _ = 
   pog.default_config(pool_name)
   |> pog.user("admin")
   |> pog.database("testdb")

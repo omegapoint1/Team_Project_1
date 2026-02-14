@@ -31,7 +31,7 @@ pub fn store_plan(item: plan_json.PlanItem, db: pog.Connection) -> String {
   let created_at = item.created_at
   json.array(interventions, json.string)
 
-  let assert Ok(plan_id_temp) =
+  let assert Ok(_) =
     sql.plan_insert(
 
       db,
@@ -87,20 +87,20 @@ pub fn extract_plan_get(db: pog.Connection, plan_id) -> plan_json.PlanItem {
       decode.success(#(a, b, c))
     }),)
 
-  let plan_item =
-    plan_json.PlanItem(
-      id: plan_data.interventionplanid,
-      name: plan_data.name,
-      status: option.unwrap(plan_data.status, ""),
-      zone: option.unwrap(plan_data.zone, ""),
-      budget: option.unwrap(plan_data.budget, 0),
-      total_cost: option.unwrap(plan_data.totalcost, 0),
-      timeline: option.unwrap(plan_data.timeline, 0),
-      interventions: inter_item,
-      impact: option.unwrap(plan_data.impact, 0),
-      notes: notes_item,
-      evidence: evidence_item,
-      created_at: option.unwrap(plan_data.createdat, ""),
-    )
+
+  plan_json.PlanItem(
+    id: plan_data.interventionplanid,
+    name: plan_data.name,
+    status: option.unwrap(plan_data.status, ""),
+    zone: option.unwrap(plan_data.zone, ""),
+    budget: option.unwrap(plan_data.budget, 0),
+    total_cost: option.unwrap(plan_data.totalcost, 0),
+    timeline: option.unwrap(plan_data.timeline, 0),
+    interventions: inter_item,
+    impact: option.unwrap(plan_data.impact, 0),
+    notes: notes_item,
+    evidence: evidence_item,
+    created_at: option.unwrap(plan_data.createdat, ""),
+  )
 }
 

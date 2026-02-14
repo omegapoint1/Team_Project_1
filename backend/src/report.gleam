@@ -1,6 +1,5 @@
 import wisp.{type Request, type Response}
 import pog
-import gleam/http.{Get, Post}
 import gleam/dynamic/decode
 import shared/report_json
 import server_app/sql
