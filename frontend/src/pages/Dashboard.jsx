@@ -13,6 +13,7 @@ const tabs = [
 function DashboardPage() {
   return (
     <div className="dashboardLayout">
+
       <div className="DashBar">
         {tabs.map((tab) => (
           <NavLink

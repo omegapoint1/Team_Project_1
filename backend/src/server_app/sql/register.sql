@@ -5,3 +5,4 @@ INTO
     $1,
     $2
   )
+  RETURNING Userid;
