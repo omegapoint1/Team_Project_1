@@ -84,6 +84,15 @@ function CheckValidity(noisetype, datetime, severity, description, address, zone
     return true;
 }
 
+async function ConvertToCoords(address) {
+    const reponse = await fetch("https://nominatim.openstreetmap.org/search?q=" + address + "&format=json", {
+            method: "GET",
+    });
+    const data = response.json();
+    const { lat, long } = data[0];
+    return { "lat" : lat, "long" : long };
+}
+
 // performs the submission of the form in a json format while also doing some basid validity checking
 async function Submit(event) {
     event.preventDefault();
@@ -97,6 +106,9 @@ async function Submit(event) {
     if (!CheckValidity(noisetype, datetime, severity, description, address, zone, tags)) {
         return;
     }
+    const coords = ConvertToCoords(address);
+    const lat = coords["lat"];
+    const long = coords["long"];
     const request = {
         "noisetype": noisetype,
         "datetime": datetime,
@@ -105,11 +117,13 @@ async function Submit(event) {
         "address": address,
         "zone": zone,
         "tags": tags,
+        "lat" : lat,
+        "long" : long,
     };
-    const response = await fetch("api/report/store", {
+    const response = await fetch("/api/report/store", {
         method: "POST",
         headers: {
-            "Content-Type": "application.json"
+            "Content-Type": "application/json"
         },
         body: JSON.stringify(request)
     })
