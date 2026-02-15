@@ -85,12 +85,12 @@ function CheckValidity(noisetype, datetime, severity, description, address, zone
 }
 
 async function ConvertToCoords(address) {
-    const reponse = await fetch("https://nominatim.openstreetmap.org/search?q=" + address + "&format=json", {
+    const response = await fetch("https://nominatim.openstreetmap.org/search?q=" + address + "&format=json", {
             method: "GET",
     });
-    const data = response.json();
-    const { lat, long } = data[0];
-    return { "lat" : lat, "long" : long };
+    const data = await response.json();
+    const { lat, lon } = data[0];
+    return { "lat" : lat, "long" : lon };
 }
 
 // performs the submission of the form in a json format while also doing some basid validity checking
