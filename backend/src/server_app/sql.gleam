@@ -76,6 +76,91 @@ WHERE
   |> pog.execute(db)
 }
 
+/// A row you get from running the `noise_data_get` query
+/// defined in `./src/server_app/sql/noise_data_get.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type NoiseDataGetRow {
+  NoiseDataGetRow(
+    noisedataid: Int,
+    source: String,
+    geometry: String,
+    noiseclass: Option(String),
+    noiseleveldb: Option(Int),
+    noisecategory: Option(String),
+    severity: Option(Int),
+    recordedat: String,
+  )
+}
+
+/// Runs the `noise_data_get` query
+/// defined in `./src/server_app/sql/noise_data_get.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn noise_data_get(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: String,
+  arg_3: String,
+  arg_4: String,
+  arg_5: Int,
+  arg_6: Int,
+) -> Result(pog.Returned(NoiseDataGetRow), pog.QueryError) {
+  let decoder = {
+    use noisedataid <- decode.field(0, decode.int)
+    use source <- decode.field(1, decode.string)
+    use geometry <- decode.field(2, decode.string)
+    use noiseclass <- decode.field(3, decode.optional(decode.string))
+    use noiseleveldb <- decode.field(4, decode.optional(decode.int))
+    use noisecategory <- decode.field(5, decode.optional(decode.string))
+    use severity <- decode.field(6, decode.optional(decode.int))
+    use recordedat <- decode.field(7, decode.string)
+    decode.success(NoiseDataGetRow(
+      noisedataid:,
+      source:,
+      geometry:,
+      noiseclass:,
+      noiseleveldb:,
+      noisecategory:,
+      severity:,
+      recordedat:,
+    ))
+  }
+
+  "SELECT
+  NoiseDataId,
+  Source,
+  Geometry::text,
+  NoiseClass,
+  NoiseLevelDb,
+  NoiseCategory,
+  Severity,
+  RecordedAt::text
+FROM NOISE_DATA
+WHERE
+  ($1 = '' OR RecordedAt >= $1::TIMESTAMP)
+  AND ($2 = '' OR RecordedAt <= $2::TIMESTAMP)
+  AND ($3 = '' OR NoiseCategory = $3)
+  AND ($4 = '' OR Source = $4)
+  AND ($5 = 0  OR NoiseLevelDb >= $5)
+  AND ($6 = 0  OR NoiseLevelDb <= $6)
+ORDER BY RecordedAt DESC;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.text(arg_4))
+  |> pog.parameter(pog.int(arg_5))
+  |> pog.parameter(pog.int(arg_6))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `plan_get` query
 /// defined in `./src/server_app/sql/plan_get.sql`.
 ///
@@ -279,9 +364,11 @@ pub type ReportGetRow {
   ReportGetRow(
     noisetype: Option(String),
     datetime: Option(String),
-    severity: Option(Int),
+    severity: Option(String),
     description: Option(String),
     locationofnoise: Option(String),
+    zone: Option(String),
+    approved: Option(Bool),
     tag_list: List(String),
   )
 }
@@ -299,16 +386,20 @@ pub fn report_get(
   let decoder = {
     use noisetype <- decode.field(0, decode.optional(decode.string))
     use datetime <- decode.field(1, decode.optional(decode.string))
-    use severity <- decode.field(2, decode.optional(decode.int))
+    use severity <- decode.field(2, decode.optional(decode.string))
     use description <- decode.field(3, decode.optional(decode.string))
     use locationofnoise <- decode.field(4, decode.optional(decode.string))
-    use tag_list <- decode.field(5, decode.list(decode.string))
+    use zone <- decode.field(5, decode.optional(decode.string))
+    use approved <- decode.field(6, decode.optional(decode.bool))
+    use tag_list <- decode.field(7, decode.list(decode.string))
     decode.success(ReportGetRow(
       noisetype:,
       datetime:,
       severity:,
       description:,
       locationofnoise:,
+      zone:,
+      approved:,
       tag_list:,
     ))
   }
@@ -319,6 +410,8 @@ pub fn report_get(
   r.Severity,
   r.Description,
   r.Locationofnoise,
+  r.Zone,
+  r.Approved,
   ARRAY_AGG(t.Name) AS tag_list
 FROM REPORTS r
 LEFT JOIN REPORT_TAGS rt ON r.Reportid = rt.Report_id
@@ -381,9 +474,10 @@ pub fn reports_insert(
   db: pog.Connection,
   arg_1: String,
   arg_2: String,
-  arg_3: Int,
+  arg_3: String,
   arg_4: String,
   arg_5: String,
+  arg_6: String,
 ) -> Result(pog.Returned(ReportsInsertRow), pog.QueryError) {
   let decoder = {
     use reportid <- decode.field(0, decode.int)
@@ -395,17 +489,19 @@ pub fn reports_insert(
   Datetime,
   Severity,
   Description,
-  Locationofnoise
+  Locationofnoise,
+  Zone
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING ReportId;
 "
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
   |> pog.parameter(pog.text(arg_2))
-  |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.text(arg_3))
   |> pog.parameter(pog.text(arg_4))
   |> pog.parameter(pog.text(arg_5))
+  |> pog.parameter(pog.text(arg_6))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

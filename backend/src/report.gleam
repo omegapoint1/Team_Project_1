@@ -8,21 +8,28 @@ import gleam/option
 import gleam/list
 
 pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
+  wisp.log_alert("hi")
     use json <- wisp.require_json(req)
+  wisp.log_alert("hi2")
+
     let assert Ok(item) = decode.run(json, report_json.report_item_decoder())
+  wisp.log_alert("hi3")
+
     case store_report(item, db){
       -1 -> wisp.bad_request("report storage error")
       _ -> wisp.ok()
     }
 }
 pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
+  wisp.log_alert(item.noisetype)
   let noisetype = item.noisetype
   let datetime = item.datetime
   let severity = item.severity
   let description = item.description
   let tags = item.tags
   let location_of_noise = item.location_of_noise
-  let assert Ok(report_id_temp) = sql.reports_insert(db, noisetype, datetime, severity, description, location_of_noise)
+  let zone = item.zone
+  let assert Ok(report_id_temp) = sql.reports_insert(db, noisetype, datetime, severity, description, location_of_noise, zone)
   let report_id = case report_id_temp.rows{
     [row] -> row.reportid
     _ -> -1
@@ -63,9 +70,10 @@ pub fn get_report_by_id(db: pog.Connection, report_id: Int) -> report_json.Repor
     let report_item = report_json.ReportItem(
       noisetype: option.unwrap(report_data.noisetype, ""),
       datetime: option.unwrap(report_data.datetime, ""),
-      severity: option.unwrap(report_data.severity, 0),
+      severity: option.unwrap(report_data.severity, ""),
       description: option.unwrap(report_data.description, ""),
       location_of_noise: option.unwrap(report_data.locationofnoise, ""),
+      zone: option.unwrap(report_data.zone, ""),
       tags: report_data.tag_list
     )
     report_item
