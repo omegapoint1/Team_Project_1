@@ -1,4 +1,3 @@
-import gleam/option
 import wisp.{type Request, type Response}
 import pog
 import gleam/dynamic/decode
@@ -61,14 +60,32 @@ pub fn handle_register(item: login_json.LoginItem, db: pog.Connection) -> Int {
     |> argus.hash_length(32)
     |> argus.hash(password, salt)
 
-  case sql.register(db, username, hashes.encoded_hash) {
-    Ok(_) -> 1
+  let user_id = case sql.register(db, username, hashes.encoded_hash) {
+    Ok(db_user_id) -> {
+      case db_user_id.rows {
+        [row] -> row.userid
+        _ -> -1
+  }
+    }
     Error(_) -> {
       wisp.log_alert("err")
       -1
   }
-
   }
+  case user_id{
+    -1 -> -1
+    n -> {
+      let _ = case username{
+       "alex.hinde@icloud.com" -> {let assert Ok(_) = sql.create_user(db, n, username, True)}
+    
+        _ -> {let assert Ok(_) = sql.create_user(db, n, username, False)}
+      }
+      1
+      
+      }
+  }
+
+  
 }
 
 

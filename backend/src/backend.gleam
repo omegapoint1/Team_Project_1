@@ -1,5 +1,4 @@
-import argus
-import gleam/dynamic/decode
+
 import gleam/erlang/process
 import gleam/http.{Get, Post}
 import gleam/io
@@ -11,7 +10,7 @@ import lustre/element/html
 import mist
 import pog
 import report
-import server_app/sql
+import plan
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 
@@ -23,7 +22,7 @@ pub fn main() {
   let pool_name = process.new_name("db_name")
   io.print(static_directory)
 
-  let pool_child =
+  let _ =
     pog.default_config(pool_name)
     |> pog.user("admin")
     |> pog.database("testdb")
@@ -43,11 +42,7 @@ pub fn main() {
     |> mist.start
 
   process.sleep_forever()
-  let assert Ok(data) = sql.login(db, "alex.hinde@icloud.com")
-  let db_password = case data.rows {
-    [row] -> row.password
-    _ -> ""
-  }
+
 }
 
 fn app_middleware(
@@ -72,7 +67,13 @@ fn handle_request(
   case req.method, wisp.path_segments(req) {
     Post, ["api", "login"] -> login.extract_login_check(req, db)
     Post, ["api", "register"] -> login.extract_register(req, db)
-    Post, ["api", "report"] -> report.extract_report_request(req, db)
+    Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
+    Get, ["api", "report", "get"] -> report.get_all_reports(db)
+//    Get ["api", "intervention", "store"],
+//    Get ["api", "intervention", "gen"],
+    Get, ["api", "intervention-plan", "store"] -> plan.extract_plan_store(req, db)
+//    Get ["api", "intervention-plan", "get"],
+
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
