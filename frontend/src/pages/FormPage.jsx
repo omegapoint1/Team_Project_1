@@ -98,18 +98,18 @@ async function Submit(event) {
         return;
     }
     const request = {
-        "noisetype": noisetype,
-        "datetime": datetime,
-        "severity": severity,
-        "description": description,
-        "address": address,
-        "zone": zone,
-        "tags": tags,
+        noisetype: noisetype,
+        datetime: datetime,
+        severity: severity,
+        description: description,
+        location_of_noise: address,
+        zone: zone,
+        tags: tags,
     };
-    const response = await fetch("api/report/store", {
-        method: "POST",
+    const response = await fetch('/api/report/store', {
+        method: 'Post',
         headers: {
-            "Content-Type": "application.json"
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(request)
     })

@@ -4,6 +4,8 @@ SELECT
   r.Severity,
   r.Description,
   r.Locationofnoise,
+  r.Zone,
+  r.Approved,
   ARRAY_AGG(t.Name) AS tag_list
 FROM REPORTS r
 LEFT JOIN REPORT_TAGS rt ON r.Reportid = rt.Report_id

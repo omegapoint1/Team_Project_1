@@ -69,7 +69,7 @@ fn handle_request(
   case req.method, wisp.path_segments(req) {
     Post, ["api", "login"] -> login.extract_login_check(req, db)
     Post, ["api", "register"] -> login.extract_register(req, db)
-    Get, ["api", "report", "store"] -> report.extract_report_store(req, db)
+    Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
     Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
     Get, ["api", "intervention-plan", "store"] ->
