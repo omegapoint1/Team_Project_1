@@ -26,10 +26,11 @@ pub fn report_test() {
   |> pog.port(5432)
   |> pog.start
   let db = pog.named_connection(pool_name)
-  let  report_item =   report_json.ReportItem(
+  let  report_item = report_json.ReportItem(
     noisetype: "cars",
+    zone: "2",
     datetime: "12:30",
-    severity: 4,
+    severity: "4",
     description: "cars are very loud",
     location_of_noise: "road",
     tags: ["car", "road"])
@@ -90,6 +91,4 @@ pub fn plan_test() {
   let plan_id = plan.store_plan(plan_item, db)
   let new_plan_item = plan.extract_plan_get(db, plan_id)
   assert plan_item == new_plan_item
-
-
 }

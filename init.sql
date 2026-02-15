@@ -18,9 +18,10 @@ REPORTS(
   ReportId SERIAL PRIMARY KEY,
   Noisetype varchar(255),
   Datetime varchar(255),
-  Severity int,
+  Severity varchar(255),
   Description varchar(2000),
   Locationofnoise varchar(2000),
+  Zone varchar(255),
   Approved BOOLEAN DEFAULT FALSE
 );
 
