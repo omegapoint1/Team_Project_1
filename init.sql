@@ -57,6 +57,18 @@ CREATE TABLE inter_plans (
   evidence JSONB
   );
 
+CREATE TABLE intervention (
+  InterventionId varchar(255) PRIMARY KEY,
+  Name varchar(255) NOT NULL,
+  Category varchar(255),
+  Description varchar(255),
+  cost JSONB,
+  impact JSONB,
+  feasibility int,
+  tags JSONB,
+  created_at varchar(255)
+  );
+
 CREATE TABLE NOISE_DATA (
   NoiseDataId   SERIAL PRIMARY KEY,
   Source        VARCHAR(50)  NOT NULL
