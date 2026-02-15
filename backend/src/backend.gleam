@@ -1,20 +1,20 @@
-import gleam/io
-import wisp.{type Request, type Response}
-import wisp/wisp_mist
-import pog
 import gleam/erlang/process
-import mist
 import gleam/http.{Get, Post}
-import gleam/dynamic/decode
-import argus
+import gleam/io
+import gleam/option
+import intervention
+import load_data
+import login
 import lustre/attribute
 import lustre/element
 import lustre/element/html
-import login
-
-
-
-
+import mist
+import noise
+import plan
+import pog
+import report
+import wisp.{type Request, type Response}
+import wisp/wisp_mist
 
 pub fn main() {
   wisp.configure_logger()
@@ -24,12 +24,14 @@ pub fn main() {
   let pool_name = process.new_name("db_name")
   io.print(static_directory)
 
-  let pool_child = 
+  let _ =
     pog.default_config(pool_name)
     |> pog.user("admin")
     |> pog.database("testdb")
+    |> pog.password(option.Some("admin"))
     |> pog.pool_size(15)
     |> pog.port(5432)
+    |> pog.host("db")
     |> pog.start
   let db = pog.named_connection(pool_name)
 
@@ -38,17 +40,18 @@ pub fn main() {
     |> wisp_mist.handler(secret_key_base)
     |> mist.new
     |> mist.port(3000)
+    |> mist.bind("0.0.0.0")
     |> mist.start
 
-    process.sleep_forever()
+  load_data.run(db, priv_directory <> "/road_noise.geojson")
 
+  process.sleep_forever()
 }
-
 
 fn app_middleware(
   req: Request,
   static_directory: String,
-  next: fn(Request) -> Response
+  next: fn(Request) -> Response,
 ) -> Response {
   let req = wisp.method_override(req)
   use <- wisp.log_request(req)
@@ -58,21 +61,28 @@ fn app_middleware(
   next(req)
 }
 
-
 fn handle_request(
   static_directory: String,
   req: Request,
-  db: pog.Connection
+  db: pog.Connection,
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
-    Post, ["api", "login"] -> login.handle_login_check(req, db)
-    Post, ["api", "register"] -> login.handle_register(req, db)
+    Post, ["api", "login"] -> login.extract_login_check(req, db)
+    Post, ["api", "register"] -> login.extract_register(req, db)
+    Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
+    Get, ["api", "report", "get"] -> report.get_all_reports(db)
+    Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
+    Post, ["api", "intervention-plan", "store"] ->
+      plan.extract_plan_store(req, db)
+    Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)
+    Post, ["api", "intervention", "store"] ->intervention.extract_inter_store(req, db)
+
+    Get, ["api", "intervention", "get"] -> intervention.get_all_interventions(db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
 }
-
 
 fn serve_index() -> Response {
   let html =
@@ -80,19 +90,17 @@ fn serve_index() -> Response {
       html.head([], [
         html.title([], "HTML migrator"),
         html.script(
-          [attribute.type_("module"), attribute.src("/static/LoginPage.jsx")],
+          [attribute.type_("module"), attribute.src("/static/bundle.js")],
           "",
         ),
         html.link([
-          attribute.href("/static/LoginPage.css"),
+          attribute.href("/static/index.css"),
           attribute.rel("stylesheet"),
         ]),
       ]),
-      html.body([], [html.div([attribute.id("app")], [])]),
+      html.body([], [html.div([attribute.id("root")], [])]),
     ])
-      html
+  html
   |> element.to_document_string
   |> wisp.html_response(200)
 }
-
-

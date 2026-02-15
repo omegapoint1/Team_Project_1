@@ -1,7 +1,8 @@
 INSERT
 INTO 
-  Login(username, password)
+  LOGIN(Username, Password)
   values(
     $1,
     $2
   )
+  RETURNING Userid;
