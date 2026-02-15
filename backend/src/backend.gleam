@@ -1,16 +1,17 @@
-
 import gleam/erlang/process
 import gleam/http.{Get, Post}
 import gleam/io
 import gleam/option
+import load_data
 import login
 import lustre/attribute
 import lustre/element
 import lustre/element/html
 import mist
+import noise
+import plan
 import pog
 import report
-import plan
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 
@@ -41,8 +42,9 @@ pub fn main() {
     |> mist.bind("0.0.0.0")
     |> mist.start
 
-  process.sleep_forever()
+  load_data.run(db, priv_directory <> "/road_noise.geojson")
 
+  process.sleep_forever()
 }
 
 fn app_middleware(
@@ -69,10 +71,9 @@ fn handle_request(
     Post, ["api", "register"] -> login.extract_register(req, db)
     Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
-//    Get ["api", "intervention", "store"],
-//    Get ["api", "intervention", "gen"],
-    Get, ["api", "intervention-plan", "store"] -> plan.extract_plan_store(req, db)
-//    Get ["api", "intervention-plan", "get"],
+    Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
+    Get, ["api", "intervention-plan", "store"] ->
+      plan.extract_plan_store(req, db)
 
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
