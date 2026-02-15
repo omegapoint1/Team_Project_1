@@ -1,53 +1,53 @@
-import React, { useMemo, useState } from "react";
-import MapBackground from "../components/MapBackground";
+import React, { useMemo, useState, useEffect } from "react";
+import MapModule from "../components/map/MapModule";
 import "./Dashboard_Overview.css";
 
 /* This function is responsible for recieving data from the backend and creating a single object of a card. */
 function RequestCard({ req, onAccept, onReject, onViewMore }) {
   return (
-    <div className= "requestCard">
-      <div className= "requestLeft">
-        <div className= "requestTitle">{req.location}</div>
-        <div className= "requestTagsRow">
-          <span className= "requestLabel">Tags:</span>
-          <div className= "requestTags">
+    <div className="requestCard">
+      <div className="requestLeft">
+        <div className="requestTitle">{req.location}</div>
+        <div className="requestTagsRow">
+          <span className="requestLabel">Tags:</span>
+          <div className="requestTags">
             {req.tags.map((t) => (
-              <span key={t} className= "requestTag">
+              <span key={t} className="requestTag">
                 {t}
               </span>
             ))}
           </div>
         </div>
 
-        <div className= "requestMeta">
-          <div className= "requestMetaRow">
-            <span className= "requestLabel">Time:</span> {req.time}
+        <div className="requestMeta">
+          <div className="requestMetaRow">
+            <span className="requestLabel">Time:</span> {req.time}
           </div>
-          <div className= "requestMetaRow">
-            <span className= "requestLabel">Severity:</span> {req.severity}
+          <div className="requestMetaRow">
+            <span className="requestLabel">Severity:</span> {req.severity}
           </div>
         </div>
       </div>
 
-      <div className= "requestActions">
+      <div className="requestActions">
         <button
-          className= "requestBtn"
+          className="requestBtn"
           onClick={() => onAccept(req.id)}
-          type= "button"
+          type="button"
         >
           Accept
         </button>
         <button
-          className= "requestBtn"
+          className="requestBtn"
           onClick={() => onReject(req.id)}
-          type= "button"
+          type="button"
         >
           Reject
         </button>
         <button
-          className= "requestBtn"
+          className="requestBtn"
           onClick={() => onViewMore(req.id)}
-          type= "button"
+          type="button"
         >
           View More
         </button>
@@ -60,6 +60,51 @@ function OverviewPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [timeRange, setTimeRange] = useState("24h");
+
+  const [noiseReports, setNoiseReports] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNoiseReports = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:3000/api/noise-reports');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        let parsedData;
+
+        // Check if it's GeoJSON format
+        if (data.type === 'FeatureCollection' && data.features) {
+          // Parse GeoJSON
+          parsedData = data.features.map(feature => ({
+            lat: feature.geometry.coordinates[1],
+            long: feature.geometry.coordinates[0],
+            decibels: feature.properties.decibels,
+            time: feature.properties.time,
+            category: feature.properties.category
+          }));
+        } else {
+          // assume its in the right format
+          parsedData = data;
+        }
+
+        setNoiseReports(parsedData);
+      } catch (err) {
+        console.error('Error fetching noise reports:', err);
+        console.log('Falling back to mock data');
+        setNoiseReports(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNoiseReports();
+  }, []);
 
   const sampleRequests = [
     {
@@ -103,10 +148,6 @@ function OverviewPage() {
   const handleSearch = () => {
     console.log("Searching for:", search);
   };
-
-  /* This function actually applies the filters to the list of reports.
-    - We use useMemo to avoid recalculating the filtered list on every render if the inputs haven't changed. (This will matter once we start using more data and therefore bigger lists)  
-  */
   const filteredRequests = useMemo(() => {
     const now = Date.now();
 
@@ -114,8 +155,8 @@ function OverviewPage() {
       timeRange === "24h"
         ? 24 * 60 * 60 * 1000
         : timeRange === "7d"
-        ? 7 * 24 * 60 * 60 * 1000
-        : 30 * 24 * 60 * 60 * 1000;
+          ? 7 * 24 * 60 * 60 * 1000
+          : 30 * 24 * 60 * 60 * 1000;
 
     return sampleRequests
       .filter((r) => now - r.createdAt <= rangeMs)
@@ -133,58 +174,74 @@ function OverviewPage() {
   const onViewMore = (id) => console.log("view more", id);
 
   return (
-    <div className= "overviewPage">
-      <div className= "filterBar">
-        <div className= "searchWrap">
+    <div className="overviewPage">
+      <div className="filterBar">
+        <div className="searchWrap">
           <input
-            className= "searchInput"
+            className="searchInput"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSearch();
             }}
-            placeholder= "Search by location..."
-            aria-label= "Search"
+            placeholder="Search by location..."
+            aria-label="Search"
           />
         </div>
 
-        <div className= "filterRight">
-          <div className= "selectorWrap">
+        <div className="filterRight">
+          <div className="selectorWrap">
             <select
-              className= "select"
+              className="select"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              aria-label= "Filter by status"
+              aria-label="Filter by status"
             >
-              <option value= "All">All</option>
-              <option value= "Pending">Pending</option>
-              <option value= "Accepted">Accepted</option>
-              <option value= "Rejected">Rejected</option>
+              <option value="All">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Rejected">Rejected</option>
             </select>
           </div>
 
-          <div className= "selectorWrap">
+          <div className="selectorWrap">
             <select
-              className= "select"
+              className="select"
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              aria-label= "Filter by time range"
+              aria-label="Filter by time range"
             >
-              <option value= "24h">Last 24h</option>
-              <option value= "7d">Last 7 days</option>
-              <option value= "30d">Last 30 days</option>
+              <option value="24h">Last 24h</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div className= "mainRow">
-        <div className= "mapcard">
-          <MapBackground />
+      <div className="mainRow">
+        <div className="mapcard">
+          {loading ? (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              fontSize: '18px',
+              color: '#666'
+            }}>
+              Loading noise data...
+            </div>
+          ) : (
+            <MapModule
+              noiseData={noiseReports}
+              showControls={true}
+            />
+          )}
         </div>
 
-        <div className= "reportsSection">
-          <div className= "sideScroll">
+        <div className="reportsSection">
+          <div className="sideScroll">
             {filteredRequests.map((req) => (
               <RequestCard
                 key={req.id}
@@ -198,7 +255,6 @@ function OverviewPage() {
         </div>
       </div>
 
-      This is all mock static data right now, it means nothing, just for visuals currently.
       <div className="analyticsSection">
         <div className="statsCard">
           <div className="statsTitle">Key Statistics</div>
