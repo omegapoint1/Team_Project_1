@@ -128,6 +128,32 @@ function OverviewPage() {
       .sort((a, b) => b.createdAt - a.createdAt);
   }, [search, status, timeRange]);
 
+  /* Key stats */
+  const keyStats = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const ms24h = dayMs;
+    const ms7d = 7 * dayMs;
+    const ms30d = 30 * dayMs;
+
+    const in24h = sampleRequests.filter((r) => now - r.createdAt <= ms24h);
+    const in7d = sampleRequests.filter((r) => now - r.createdAt <= ms7d);
+    const in30d = sampleRequests.filter((r) => now - r.createdAt <= ms30d);
+
+    const avgSeverity7d =
+      in7d.length === 0
+        ? 0
+        : in7d.reduce((sum, r) => sum + (Number(r.severity) || 0), 0) / in7d.length;
+
+    return {
+      reports24h: in24h.length,
+      reports7d: in7d.length,
+      reports30d: in30d.length,
+      avgSeverity7d,
+    };
+  }, [sampleRequests]);
+
+  /* Top 4 most common tags */
   const topTags = useMemo(() => {
     const counts = new Map();
 
@@ -148,6 +174,42 @@ function OverviewPage() {
       .slice(0, 4)
       .map(([tag, count]) => ({ tag, count }));
   }, [filteredRequests]);
+
+  /* Action required count */
+  const actionCounts = useMemo(() => {
+    const counts = {
+      pendingReview: 0,
+      acceptedToday: 0,
+      rejectedToday: 0,
+    };
+
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    for (const r of filteredRequests) {
+      const createdAt =
+        typeof r.createdAt === "number"
+          ? r.createdAt
+          : new Date(r.createdAt).getTime();
+
+      if (r.status === "Pending") {
+        counts.pendingReview += 1;
+      }
+
+      const isLast24h = now - createdAt <= dayMs;
+
+      if (isLast24h && r.status === "Accepted") {
+        counts.acceptedToday += 1;
+      }
+
+      if (isLast24h && r.status === "Rejected") {
+        counts.rejectedToday += 1;
+      }
+    }
+
+    return counts;
+  }, [filteredRequests]);
+
 
 
   const onAccept = (id) => console.log("accept", id);
@@ -225,10 +287,22 @@ function OverviewPage() {
         <div className="statsCard">
           <div className="statsTitle">Key Statistics</div>
           <div className="statsBody">
-            <div className="statsRow"><span>Reports (24h):</span><b>18</b></div>
-            <div className="statsRow"><span>Reports (7d):</span><b>96</b></div>
-            <div className="statsRow"><span>Avg Severity (7d):</span><b>6.4</b></div>
-            <div className="statsRow"><span>Most Active Zone:</span><b>St Davids Station</b></div>
+            <div className="statsRow">
+              <span>Reports (24h):</span>
+              <b>{keyStats.reports24h}</b>
+            </div>
+            <div className="statsRow">
+              <span>Reports (7d):</span>
+              <b>{keyStats.reports7d}</b>
+            </div>
+            <div className="statsRow">
+              <span>Reports (30d):</span>
+              <b>{keyStats.reports30d}</b>
+            </div>
+            <div className="statsRow">
+              <span>Avg Severity (7d):</span>
+              <b>{keyStats.avgSeverity7d.toFixed(1)}</b>
+            </div>
           </div>
         </div>
 
@@ -261,10 +335,20 @@ function OverviewPage() {
         <div className="statsCard">
           <div className="statsTitle">Action Required</div>
           <div className="statsBody">
-            <div className="statsRow"><span>Pending Review:</span><b>7</b></div>
-            <div className="statsRow"><span>Accepted Today:</span><b>11</b></div>
-            <div className="statsRow"><span>Rejected Today:</span><b>2</b></div>
-            <div className="statsRow"><span>Awaiting More Info:</span><b>3</b></div>
+            <div className="statsRow">
+              <span>Pending Review:</span>
+              <b>{actionCounts.pendingReview}</b>
+            </div>
+
+            <div className="statsRow">
+              <span>Accepted Today:</span>
+              <b>{actionCounts.acceptedToday}</b>
+            </div>
+
+            <div className="statsRow">
+              <span>Rejected Today:</span>
+              <b>{actionCounts.rejectedToday}</b>
+            </div>
           </div>
         </div>
       </div>
