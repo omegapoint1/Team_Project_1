@@ -110,6 +110,36 @@ WHERE InterventionId = $1;"
   |> pog.execute(db)
 }
 
+/// A row you get from running the `intervention_get_ids` query
+/// defined in `./src/server_app/sql/intervention_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type InterventionGetIdsRow {
+  InterventionGetIdsRow(interventionid: String)
+}
+
+/// Runs the `intervention_get_ids` query
+/// defined in `./src/server_app/sql/intervention_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn intervention_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(InterventionGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use interventionid <- decode.field(0, decode.string)
+    decode.success(InterventionGetIdsRow(interventionid:))
+  }
+
+  "SELECT InterventionId FROM intervention;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `intervention_insert` query
 /// defined in `./src/server_app/sql/intervention_insert.sql`.
 ///

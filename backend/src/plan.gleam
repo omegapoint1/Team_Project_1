@@ -33,7 +33,6 @@ pub fn store_plan(item: plan_json.PlanItem, db: pog.Connection) -> String {
 
   let assert Ok(_) =
     sql.plan_insert(
-
       db,
       id,
       name,
@@ -72,21 +71,25 @@ pub fn extract_plan_get(db: pog.Connection, plan_id) -> plan_json.PlanItem {
       decode.list(decode.string),
     )
   let assert Ok(notes_item) =
-    json.parse(option.unwrap(plan_data.notes, ""), 
+    json.parse(
+      option.unwrap(plan_data.notes, ""),
       decode.list({
         use a <- decode.field(0, decode.string)
         use b <- decode.field(1, decode.string)
         decode.success(#(a, b))
-      }))
+      }),
+    )
   let assert Ok(evidence_item) =
-    json.parse(option.unwrap(plan_data.evidence, ""),     decode.list({
-      use a <- decode.field(0, decode.string)
-      use b <- decode.field(1, decode.string)
-      use c <- decode.field(2, decode.string)
+    json.parse(
+      option.unwrap(plan_data.evidence, ""),
+      decode.list({
+        use a <- decode.field(0, decode.string)
+        use b <- decode.field(1, decode.string)
+        use c <- decode.field(2, decode.string)
 
-      decode.success(#(a, b, c))
-    }),)
-
+        decode.success(#(a, b, c))
+      }),
+    )
 
   plan_json.PlanItem(
     id: plan_data.interventionplanid,
@@ -106,15 +109,14 @@ pub fn extract_plan_get(db: pog.Connection, plan_id) -> plan_json.PlanItem {
 
 pub fn get_all_plans(db: pog.Connection) -> Response {
   let assert Ok(plan_ids) = sql.plan_get_ids(db)
-  let plans = list.map(plan_ids.rows, fn(row) {
+  let plans =
+    list.map(plan_ids.rows, fn(row) {
       extract_plan_get(db, row.interventionplanid)
     })
-    let plans_encoded =  
-      json.array(plans, plan_json.plan_item_to_json)
-        |> json.to_string()
+  let plans_encoded =
+    json.array(plans, plan_json.plan_item_to_json)
+    |> json.to_string()
   wisp.log_alert(plans_encoded)
   wisp.response(200)
-    |> wisp.json_body(plans_encoded)
+  |> wisp.json_body(plans_encoded)
 }
-
-

@@ -50,9 +50,9 @@ pub fn intervention_item_decoder() -> decode.Decoder(InterventionItem) {
   use impact <- decode.field("impact", {
     use a <- decode.field(0, decode.int)
     use b <- decode.field(1, decode.int)
-
     decode.success(#(a, b))
   })
+  
   use feasibility <- decode.field("feasibility", decode.int)
   use tags <- decode.field("tags", decode.list(decode.string))
   use created_at <- decode.field("created_at", decode.string)

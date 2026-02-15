@@ -2,6 +2,7 @@ import gleam/erlang/process
 import gleam/http.{Get, Post}
 import gleam/io
 import gleam/option
+import intervention
 import load_data
 import login
 import lustre/attribute
@@ -72,9 +73,12 @@ fn handle_request(
     Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
     Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
-    Post, ["api", "intervention-plan", "store"] -> plan.extract_plan_store(req, db)
+    Post, ["api", "intervention-plan", "store"] ->
+      plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)
+    Post, ["api", "intervention", "store"] ->intervention.extract_inter_store(req, db)
 
+    Get, ["api", "intervention", "get"] -> intervention.get_all_interventions(db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }

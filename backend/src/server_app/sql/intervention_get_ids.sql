@@ -1,0 +1,1 @@
+SELECT InterventionId FROM intervention;
