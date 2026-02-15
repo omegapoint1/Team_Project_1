@@ -22,6 +22,8 @@ REPORTS(
   Description varchar(2000),
   Locationofnoise varchar(2000),
   Zone varchar(255),
+  Lat varchar(255),
+  Long varchar(255),
   Approved BOOLEAN DEFAULT FALSE
 );
 

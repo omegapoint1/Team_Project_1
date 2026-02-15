@@ -29,7 +29,9 @@ pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
   let tags = item.tags
   let location_of_noise = item.location_of_noise
   let zone = item.zone
-  let assert Ok(report_id_temp) = sql.reports_insert(db, noisetype, datetime, severity, description, location_of_noise, zone)
+  let lat = item.lat
+  let long = item.long
+  let assert Ok(report_id_temp) = sql.reports_insert(db, noisetype, datetime, severity, description, location_of_noise, zone, lat, long)
   let report_id = case report_id_temp.rows{
     [row] -> row.reportid
     _ -> -1
@@ -74,7 +76,9 @@ pub fn get_report_by_id(db: pog.Connection, report_id: Int) -> report_json.Repor
       description: option.unwrap(report_data.description, ""),
       location_of_noise: option.unwrap(report_data.locationofnoise, ""),
       zone: option.unwrap(report_data.zone, ""),
-      tags: report_data.tag_list
+      tags: report_data.tag_list,
+      lat: option.unwrap(report_data.lat, ""),
+      long: option.unwrap(report_data.long, ""),
     )
     report_item
 }

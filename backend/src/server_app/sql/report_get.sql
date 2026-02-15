@@ -5,6 +5,8 @@ SELECT
   r.Description,
   r.Locationofnoise,
   r.Zone,
+  r.lat,
+  r.long,
   r.Approved,
   ARRAY_AGG(t.Name) AS tag_list
 FROM REPORTS r

@@ -104,3 +104,17 @@ pub fn extract_plan_get(db: pog.Connection, plan_id) -> plan_json.PlanItem {
   )
 }
 
+pub fn get_all_plans(db: pog.Connection) -> Response {
+  let assert Ok(plan_ids) = sql.plan_get_ids(db)
+  let plans = list.map(plan_ids.rows, fn(row) {
+      extract_plan_get(db, row.interventionplanid)
+    })
+    let plans_encoded =  
+      json.array(plans, plan_json.plan_item_to_json)
+        |> json.to_string()
+  wisp.log_alert(plans_encoded)
+  wisp.response(200)
+    |> wisp.json_body(plans_encoded)
+}
+
+

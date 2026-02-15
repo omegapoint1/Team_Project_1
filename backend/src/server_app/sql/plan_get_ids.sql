@@ -1,0 +1,1 @@
+SELECT InterventionPlanId FROM inter_plans;

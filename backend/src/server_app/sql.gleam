@@ -244,6 +244,36 @@ WHERE InterventionPlanId = $1;"
   |> pog.execute(db)
 }
 
+/// A row you get from running the `plan_get_ids` query
+/// defined in `./src/server_app/sql/plan_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type PlanGetIdsRow {
+  PlanGetIdsRow(interventionplanid: String)
+}
+
+/// Runs the `plan_get_ids` query
+/// defined in `./src/server_app/sql/plan_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn plan_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(PlanGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use interventionplanid <- decode.field(0, decode.string)
+    decode.success(PlanGetIdsRow(interventionplanid:))
+  }
+
+  "SELECT InterventionPlanId FROM inter_plans;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `plan_insert` query
 /// defined in `./src/server_app/sql/plan_insert.sql`.
 ///
@@ -368,6 +398,8 @@ pub type ReportGetRow {
     description: Option(String),
     locationofnoise: Option(String),
     zone: Option(String),
+    lat: Option(String),
+    long: Option(String),
     approved: Option(Bool),
     tag_list: List(String),
   )
@@ -390,8 +422,10 @@ pub fn report_get(
     use description <- decode.field(3, decode.optional(decode.string))
     use locationofnoise <- decode.field(4, decode.optional(decode.string))
     use zone <- decode.field(5, decode.optional(decode.string))
-    use approved <- decode.field(6, decode.optional(decode.bool))
-    use tag_list <- decode.field(7, decode.list(decode.string))
+    use lat <- decode.field(6, decode.optional(decode.string))
+    use long <- decode.field(7, decode.optional(decode.string))
+    use approved <- decode.field(8, decode.optional(decode.bool))
+    use tag_list <- decode.field(9, decode.list(decode.string))
     decode.success(ReportGetRow(
       noisetype:,
       datetime:,
@@ -399,6 +433,8 @@ pub fn report_get(
       description:,
       locationofnoise:,
       zone:,
+      lat:,
+      long:,
       approved:,
       tag_list:,
     ))
@@ -411,6 +447,8 @@ pub fn report_get(
   r.Description,
   r.Locationofnoise,
   r.Zone,
+  r.lat,
+  r.long,
   r.Approved,
   ARRAY_AGG(t.Name) AS tag_list
 FROM REPORTS r
@@ -478,6 +516,8 @@ pub fn reports_insert(
   arg_4: String,
   arg_5: String,
   arg_6: String,
+  arg_7: String,
+  arg_8: String,
 ) -> Result(pog.Returned(ReportsInsertRow), pog.QueryError) {
   let decoder = {
     use reportid <- decode.field(0, decode.int)
@@ -490,9 +530,11 @@ pub fn reports_insert(
   Severity,
   Description,
   Locationofnoise,
-  Zone
+  Zone,
+  Lat,
+  Long
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING ReportId;
 "
   |> pog.query
@@ -502,6 +544,8 @@ RETURNING ReportId;
   |> pog.parameter(pog.text(arg_4))
   |> pog.parameter(pog.text(arg_5))
   |> pog.parameter(pog.text(arg_6))
+  |> pog.parameter(pog.text(arg_7))
+  |> pog.parameter(pog.text(arg_8))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

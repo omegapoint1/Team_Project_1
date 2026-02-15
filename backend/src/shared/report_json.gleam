@@ -9,11 +9,13 @@ pub type ReportItem {
     description: String,
     location_of_noise: String,
     zone: String,
-    tags: List(String))
+    tags: List(String),
+    lat: String,
+    long: String)
 }
 
 pub fn report_item_to_json(report_item: ReportItem) -> json.Json {
-  let ReportItem(noisetype:, datetime:, severity:, description:, location_of_noise:, zone:, tags:) = report_item
+  let ReportItem(noisetype:, datetime:, severity:, description:, location_of_noise:, zone:, tags:, lat:, long:) = report_item
   json.object([
     #("noisetype", json.string(noisetype)),
     #("datetime", json.string(datetime)),
@@ -22,6 +24,8 @@ pub fn report_item_to_json(report_item: ReportItem) -> json.Json {
     #("location_of_noise", json.string(location_of_noise)),
     #("zone", json.string(zone)),
     #("tags", json.array(tags, json.string)),
+    #("lat", json.string(lat)),
+    #("long", json.string(long)),
   ])
 }
 
@@ -33,6 +37,8 @@ pub fn report_item_decoder() -> decode.Decoder(ReportItem) {
   use location_of_noise <- decode.field("location_of_noise", decode.string)
   use zone <- decode.field("zone", decode.string)
   use tags <- decode.field("tags", decode.list(decode.string))
-  decode.success(ReportItem(noisetype:, datetime:, severity:, description:, location_of_noise:, zone:, tags:))
+  use lat <- decode.field("lat", decode.string)
+  use long <- decode.field("long", decode.string)
+  decode.success(ReportItem(noisetype:, datetime:, severity:, description:, location_of_noise:, zone:, tags:, lat:, long:))
 }
 
