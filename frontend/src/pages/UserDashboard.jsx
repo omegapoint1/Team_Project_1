@@ -153,7 +153,6 @@ useEffect(() => {
     };
     }, []);
 
-  // This is JUST for the right-hand panel list (uses filter bar)
     const filteredForPanel = useMemo(() => {
         let list = [...reports];
 
@@ -338,7 +337,7 @@ useEffect(() => {
             </div>
         </div>
 
-        {/* Bottom 4 cards (computed from ALL reports; NOT tied to filters) */}
+        {/* Bottom 4 cards made from all reports, not filtered  */}
         <div className="userDashboardCardsRow">
             <div className="userDashboardInfoCard">
             <div className="userDashboardCardTitle">Key Statistics</div>
