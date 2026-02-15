@@ -65,7 +65,7 @@ function OverviewPage() {
     {
       id: 1,
       location: "Exeter, St. Davids Station",
-      tags: ["Train", "Crowd"],
+      tags: ["Train", "Crowd", "gang"],
       time: "15:00",
       severity: 8,
       status: "Pending",
@@ -74,7 +74,7 @@ function OverviewPage() {
     {
       id: 2,
       location: "Exeter, Western Way",
-      tags: ["Traffic", "Music"],
+      tags: ["Traffic", "Music", "gang"],
       time: "17:25",
       severity: 7,
       status: "Pending",
@@ -83,7 +83,7 @@ function OverviewPage() {
     {
       id: 3,
       location: "Exeter, New North Road",
-      tags: ["Train", "Cars"],
+      tags: ["Train", "Cars", "gang"],
       time: "16:17",
       severity: 4,
       status: "Accepted",
@@ -127,6 +127,28 @@ function OverviewPage() {
       )
       .sort((a, b) => b.createdAt - a.createdAt);
   }, [search, status, timeRange]);
+
+  const topTags = useMemo(() => {
+    const counts = new Map();
+
+    for (const r of filteredRequests) {
+      for (const rawTag of r.tags || []) {
+        const tag = String(rawTag).trim();
+        if (!tag) continue;
+
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      }
+    }
+
+    return Array.from(counts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) return b[1] - a[1];
+        return a[0].localeCompare(b[0]);
+      })
+      .slice(0, 4)
+      .map(([tag, count]) => ({ tag, count }));
+  }, [filteredRequests]);
+
 
   const onAccept = (id) => console.log("accept", id);
   const onReject = (id) => console.log("reject", id);
@@ -198,8 +220,8 @@ function OverviewPage() {
         </div>
       </div>
 
-      This is all mock static data right now, it means nothing, just for visuals currently.
       <div className="analyticsSection">
+        
         <div className="statsCard">
           <div className="statsTitle">Key Statistics</div>
           <div className="statsBody">
@@ -222,12 +244,18 @@ function OverviewPage() {
 
         <div className="statsCard">
           <div className="statsTitle">Common Tags</div>
-          <ol className="statsList">
-            <li><span className="tagPill">Train</span></li>
-            <li><span className="tagPill">Cars</span></li>
-            <li><span className="tagPill">Music</span></li>
-            <li><span className="tagPill">Crowd</span></li>
-          </ol>
+          {topTags.length === 0 ? (
+            <div className="statsBody">No tags in this selection.</div>
+          ) : (
+            <ol className="statsList">
+              {topTags.map(({ tag, count }) => (
+                <li key={tag}>
+                  <span className="tagPill">{tag}</span>
+                  <b>{count}</b>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
 
         <div className="statsCard">
