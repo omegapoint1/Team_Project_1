@@ -106,9 +106,7 @@ async function Submit(event) {
     if (!CheckValidity(noisetype, datetime, severity, description, address, zone, tags)) {
         return;
     }
-    const coords = ConvertToCoords(address);
-    const lat = coords["lat"];
-    const long = coords["long"];
+    const { lat, long } = ConvertToCoords(address);
     const request = {
         "noisetype": noisetype,
         "datetime": datetime,
