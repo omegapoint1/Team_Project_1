@@ -1,6 +1,6 @@
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/plans';
-const STORAGE_KEY = 'noise_mitigation_plans';
+const STORAGE_KEY = 'noiseMitigationpPlans';
 
 /*Helper functions */
 const fetchWithAuth = async (url, options = {}) => {

@@ -2,9 +2,9 @@ import ReactModal from 'react-modal';
 import { useState } from 'react';
 import './PlanDetailModal.css';
 import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
-import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
+//import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
 import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
-
+import PlanExportButtons from '../../common/PlamExportButtons.jsx';
 ReactModal.setAppElement('#root');
 
 /*Modal which shows plan details in a modal window with 3 tabbed sections
@@ -277,6 +277,10 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         {plan.status}
                     </span>
                 </p>
+                    <div className="export-actions">
+      <h4>Export Plan</h4>
+      <PlanExportButtons plan={plan} />
+    </div>
                 
                 <div className="action-buttons">
                     {getNextStatusOptions().map(option => (
@@ -291,6 +295,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                     ))}
                 </div>
             </div>
+            
 
             
 
