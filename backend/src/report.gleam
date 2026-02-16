@@ -1,3 +1,5 @@
+import gleam/int
+import gleam/dict
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
@@ -6,6 +8,9 @@ import pog
 import server_app/sql
 import shared/report_json
 import shared/accept_json
+import map_data
+import shared/map_json
+import gleam/float
 import wisp.{type Request, type Response}
 
 pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
@@ -161,7 +166,27 @@ pub fn approve_report(req: Request, db: pog.Connection) -> Response {
   use json <- wisp.require_json(req)
   let assert Ok(item) = decode.run(json, accept_json.accept_item_decoder())
   let assert Ok(_) = sql.report_accept(db, item.accepted, item.id)
-  get_report_by_id(db, item.id)
+  let report_data = get_report_by_id(db, item.id)
+  let lat = case float.parse(report_data.lat){
+    Ok(val) -> val
+    _ -> 0.0
+  }
+  let long = case float.parse(report_data.long){
+    Ok(val) -> val
+    _ -> 0.0
+  }
+  let severity = case int.parse(report_data.severity){
+    Ok(val) -> val
+    _ -> 0
+  }
+  let new_map_data = map_json.MapDataItem(
+    lat: lat,
+    long: long,
+    noise: severity,
+    time: report_data.datetime,
+    category: report_data.noisetype,
+  )
+  map_data.store_map_data(db, new_map_data)
   wisp.ok()
 }
 
