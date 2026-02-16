@@ -60,7 +60,7 @@ export const interventionServerService = {
         try {
             const url = `${API_URL}${INTERVENTIONS_ENDPOINT}/get`;
             const response = await fetchAPI(url);
-            return esponse.map(convertInterventionFromAPI);
+            return response.map(convertInterventionFromAPI);
         } catch (error) {
             console.error('Error fetching interventions:', error);
             return [];
