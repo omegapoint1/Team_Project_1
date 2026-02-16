@@ -11,7 +11,6 @@ const fetchAPI = async (url, options = {}) => {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
                 ...options.headers
             }
         });
@@ -58,14 +57,13 @@ const convertInterventionToAPI = (data) => ({
 export const interventionServerService = {
     // get all interventions
     getAll: async (filters = {}) => {
-        const queryString = new URLSearchParams(filters).toString();
-        const url = `${API_URL}${INTERVENTIONS_ENDPOINT}${queryString ? `?${queryString}` : ''}`;
+        const url = `${API_URL}${INTERVENTIONS_ENDPOINT}/get`;
         
         const response = await fetchAPI(url);
         return Array.isArray(response) ? response.map(convertInterventionFromAPI) : [];
     },
     create: async (interventionData) => {
-        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}`, {
+        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
             method: 'POST',
             body: JSON.stringify(convertInterventionToAPI(interventionData))
         });
@@ -74,15 +72,15 @@ export const interventionServerService = {
 
 
     update: async (updatedIntervention) => {
-        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/${updatedIntervention.id}`, {
-            method: 'PUT',
+        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
+            method: 'POST',
             body: JSON.stringify(convertInterventionToAPI(updatedIntervention))
         });
         return convertInterventionFromAPI(response);
     },
 
     delete: async (interventionId) => {
-        return await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/${interventionId}`, {
+        return await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/delete`, {
             method: 'DELETE'
         });
     },
