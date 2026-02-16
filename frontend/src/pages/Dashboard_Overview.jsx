@@ -68,7 +68,7 @@ function OverviewPage() {
     const fetchNoiseReports = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/api/noise-reports');
+        const response = await fetch('http://localhost:3000/api/noise-data');
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
