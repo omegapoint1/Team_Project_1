@@ -6,6 +6,7 @@ import gleam/option
 import pog
 import server_app/sql
 import shared/map_json
+import gleam/float
 
 
 pub fn store_map_data(db: pog.Connection, data: map_json.MapDataItem) -> Int{
@@ -51,8 +52,9 @@ pub fn get_all_map_reports(db: pog.Connection) -> Response {
 
 
 pub fn generate_map_data(db: pog.Connection) -> Int {
-
+  float.random()
   let init_data = [
+    
     // Feb 
     map_json.MapDataItem(lat: 50.7, long: -3.5, noise: 4, time: "2024-02-01T10:30:00", category: "Train" ),
     map_json.MapDataItem(lat: 50.705, long: -3.505, noise: 7, time: "2024-02-01T14:35:00", category: "Traffic" ),
@@ -106,3 +108,17 @@ pub fn generate_map_data(db: pog.Connection) -> Int {
   })
   1
 }
+
+
+//fn generate_data(i: Int, acc: List(map_json.MapDataItem)) -> List(map_json.MapDataItem){
+//  case i{
+//    100 -> acc
+//    j ->{
+//      let lat = {{float.random()/5}+50.7}
+//      let long = {{float.random()/5}-3.51}
+//      
+//
+//    }
+//
+//  }
+//}
