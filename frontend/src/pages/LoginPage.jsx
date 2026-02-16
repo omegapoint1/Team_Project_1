@@ -14,7 +14,7 @@ function LoginPage() {
 
     try {
       const response = await fetch('/api/login', {
-        method: 'Post',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },

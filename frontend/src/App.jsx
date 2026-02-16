@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
   import FormPage from './pages/FormPage';
+  import UserDashboard from './pages/UserDashboard';
 
 import GamePage from './pages/GamePage';
 function App() {
@@ -26,7 +27,10 @@ function App() {
         </div>
       
         <div className = "navbar-right">
-          <Link to="/planner" className="nav-link">Planner Screen</Link>
+          <Link to="/user-dashboard" className="nav-link">My Dashboard</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard+</Link>
+          <Link to="/game" className="nav-link">Quests</Link>
+          <Link to="/dashboard/report" className="nav-link">Report incident</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
@@ -40,6 +44,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+
         
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />

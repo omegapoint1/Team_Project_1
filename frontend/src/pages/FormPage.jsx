@@ -117,7 +117,7 @@ async function Submit(event) {
         "datetime": datetime,
         "severity": severity,
         "description": description,
-        "address": address,
+        "location_of_noise": address,
         "zone": zone,
         "tags": tags,
         "lat" : lat,
