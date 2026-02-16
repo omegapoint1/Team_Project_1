@@ -56,9 +56,16 @@ const MitigationTab = () => {
     }, []);
 
     const handleCreatePlan = async (newPlan) => {
+            let newId;
+            let isUnique = false;
+    
+           while (!isUnique) {
+            newId = Math.floor(Math.random() * 999999) + 1;
+            isUnique = !plans.some(plan => plan.id === newId.toString());
+    }
         const planWithId = {
             ...newPlan,
-            id: `plan-${Date.now()}`,
+            id: `${newId}`,
             status: 'draft',
             created_at: new Date().toISOString()
         };

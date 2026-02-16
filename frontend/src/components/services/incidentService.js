@@ -100,7 +100,7 @@ update: async (updatedIncident) => {
 
             return convertIncidentFromAPI(response);
         } catch (error) {
-            console.error('Error in update incident:', error);
+            console.log('Error in update incident:', error);
     
         }
     },
