@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // CHANGE: Added useCallback
 import IncidentFilters from './IncidentFilters';
 import IncidentCard from './IncidentCard';
 import IncidentDetailModal from './IncidentDetailModal';
@@ -20,38 +20,66 @@ const IncidentList = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadIncidents = useCallback(async (showRefreshingState = false) => {
+    try {
+      if (showRefreshingState) {
+        setIsRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      let freshData;
+      try {
+        freshData = await incidentServerService.getAll();
+      } catch (serverError) {
+        console.log('Failed to load incidents from server:', serverError);
+        freshData = incidentLocalService.getAll();
+      }
+
+      if (freshData && freshData.length > 0) {
+        incidentLocalService.saveAll(freshData);
+      }
+
+      setIncidents(freshData || []);
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      const localData = incidentLocalService.getAll();
+      setIncidents(localData || []);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const loadIncidents = async () => {
-      try {
-        setLoading(true);
-
-        const freshData = await incidentServerService.getAll();
-        setIncidents(freshData);
-      } catch (error) {
-        console.log('Failed to load incidents from server:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     loadIncidents();
-  }, []); // on mount
+  }, [loadIncidents]);
+
+  const handleRefresh = async () => {
+    await loadIncidents(true);
+  };
 
   //Update incident. update server first, then local
   const handleIncidentUpdate = async (updatedIncident) => {
     try {
-      const serverResponse = await incidentServerService.update(updatedIncident);
+      try {
+        await incidentServerService.update(updatedIncident);
+      } catch (error) {
+        console.log('Server update failed:', error);
+      }
+      
+      incidentLocalService.update(updatedIncident);
       
       setIncidents(prev => 
-        prev.map(inc => inc.id === updatedIncident.id ? serverResponse : inc)
+        prev.map(inc => inc.id === updatedIncident.id)
       );
-      
-      incidentLocalService.update(serverResponse);
       
       return serverResponse;
     } catch (error) {
-      console.log('Server update failed:', error);
+      console.log('Error updating incident:', error);
+      throw error;
     }
   };
 
@@ -178,6 +206,14 @@ const IncidentList = () => {
         headerActions={
           <div className="header-actions">
             <button 
+              onClick={handleRefresh}
+              className={`icon-button ${isRefreshing ? 'refreshing' : ''}`}
+              title="Refresh incidents"
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? '⏳' : '🔄'}
+            </button>
+            <button 
               onClick={handleExport}
               className="icon-button"
               title="Export as CSV"
@@ -198,8 +234,16 @@ const IncidentList = () => {
             <div>
               <span className="bold">{filteredIncidents.length}</span> of{' '}
               <span className="bold">{incidents.length}</span> incidents
+              {isRefreshing && <span className="refreshing-text"> (Refreshing...)</span>}
             </div>
             <div className="footer-actions">
+              <button 
+                onClick={handleRefresh}
+                className="text-button"
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
               <button 
                 onClick={handleExport}
                 className="text-button"
@@ -220,12 +264,19 @@ const IncidentList = () => {
             <div className="empty-icon">📭</div>
             <h3>No incidents found</h3>
             <p>Try adjusting your filters</p>
+            <button 
+              onClick={handleRefresh}
+              className="refresh-button"
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
           </div>
         }
       >
         {filteredIncidents.map(incident => (
           <IncidentCard
-            key={incident.id}
+            key={`${incident.id}-${incident.status}`}
             incident={incident}
             onViewMore={handleViewMore}
           />
