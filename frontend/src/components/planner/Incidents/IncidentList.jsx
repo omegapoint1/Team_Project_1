@@ -3,12 +3,9 @@ import IncidentFilters from './IncidentFilters';
 import IncidentCard from './IncidentCard';
 import IncidentDetailModal from './IncidentDetailModal';
 import ScrollableContainer from '../../common/ScrollableContainer';
-import { mockIncidents } from '../PlannerData/Incidents';
-import { incidentService } from '../../services/incidentService';
+import { incidentServerService } from '../../services/incidentService';
+import { incidentLocalService } from '../../services/incidentService';
 import './IncidentList.css';
-
-
-
 
 const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
@@ -24,54 +21,60 @@ const IncidentList = () => {
 
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const loadIncidents = async () => {
-    const cached = localStorage.getItem('incidents');
-    
-    if (cached) {
-      setIncidents(JSON.parse(cached));
-      setLoading(false);
-    }
-    
-    // Always fetch fresh data in background
-    try {
-      const freshData = await incidentService.getAll();
-      setIncidents(freshData);
-      localStorage.setItem('incidents', JSON.stringify(freshData));
-    } catch (error) {
-      console.log(' fetch failed');
-      if (!cached) {
-        console.log('Failed to load incidents');
+  useEffect(() => {
+    const loadIncidents = async () => {
+      try {
+        setLoading(true);
+
+        const freshData = await incidentServerService.getAll();
+        setIncidents(freshData);
+      } catch (error) {
+        console.log('Failed to load incidents from server:', error);
+      } finally {
         setLoading(false);
       }
+    };
+    
+    loadIncidents();
+  }, []); // on mount
+
+  //Update incident. update server first, then local
+  const handleIncidentUpdate = async (updatedIncident) => {
+    try {
+      const serverResponse = await incidentServerService.update(updatedIncident);
+      
+      setIncidents(prev => 
+        prev.map(inc => inc.id === updatedIncident.id ? serverResponse : inc)
+      );
+      
+      incidentLocalService.update(serverResponse);
+      
+      return serverResponse;
+    } catch (error) {
+      console.log('Server update failed:', error);
+      throw error;
     }
   };
-  
-  loadIncidents();
-}, []);
 
-//Update incident and sync with server
-const handleIncidentUpdate = async (id, status) => {
-  try {
+  const handleStatusUpdate = async (incidentId, newStatus, notes = '') => {
+    const currentIncident = incidents.find(inc => inc.id === incidentId);
+    if (!currentIncident) return;
 
-    const updated = await incidentService.updateStatus(id, status);
-    
-    setIncidents(prev => 
-      prev.map(inc => inc.id === id ? { ...inc, status } : inc)
-    );
-    
-    const updatedIncidents = incidents.map(inc => 
-      inc.id === id ? { ...inc, status } : inc
-    );
-    localStorage.setItem('incidents', JSON.stringify(updatedIncidents));
-    
-    return updated;
-  } catch (error) {
-    console.log('Update failed:');
-    throw error;
-  }
+    const updatedIncident = {
+      ...currentIncident,
+      status: newStatus,
+      ...(notes && { moderation_notes: notes })
+    };
 
-}
+    try {
+
+      await handleIncidentUpdate(updatedIncident);
+      alert(`Incident ${incidentId} marked as ${newStatus}`);
+    } catch (error) {
+      alert('Failed to update incident status');
+    }
+  };
+
   useEffect(() => {
     let filtered = [...incidents];
 
@@ -99,7 +102,7 @@ const handleIncidentUpdate = async (id, status) => {
       cutoff.setDate(cutoff.getDate() - days);
       
       filtered = filtered.filter(incident => {
-        const incidentDate = new Date(incident.timestamp);
+        const incidentDate = new Date(incident.timestamp || incident.datetime);
         return incidentDate >= cutoff;
       });
     }
@@ -109,22 +112,6 @@ const handleIncidentUpdate = async (id, status) => {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-  };
-
-  const handleStatusUpdate = (incidentId, newStatus, notes = '') => {
-     handleIncidentUpdate(incidentId,newStatus)
-    setIncidents(prev => 
-      prev.map(inc => 
-        inc.id === incidentId ? { 
-          ...inc, 
-          status: newStatus,
-          processedAt: new Date().toISOString(),
-          processorNotes: notes
-        } : inc
-      )
-    );
-    
-    alert(`Incident ${incidentId} marked as ${newStatus}`);
   };
 
   const handleViewMore = (incident) => {
@@ -142,6 +129,10 @@ const handleIncidentUpdate = async (id, status) => {
   const handleReport = () => {
     alert('Generating incident report');
   };
+
+  if (loading) {
+    return <div className="loading">Loading incidents...</div>;
+  }
 
   return (
     <div className="incident-list-container">
@@ -192,14 +183,14 @@ const handleIncidentUpdate = async (id, status) => {
               className="icon-button"
               title="Export as CSV"
             >
-
+              📥
             </button>
             <button 
               onClick={handleReport}
               className="icon-button"
               title="Generate Report"
             >
-
+              📊
             </button>
           </div>
         }
