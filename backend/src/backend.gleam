@@ -16,6 +16,7 @@ import pog
 import report
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
+import map_data
 
 pub fn main() {
   wisp.configure_logger()
@@ -35,7 +36,7 @@ pub fn main() {
     |> pog.host("db")
     |> pog.start
   let db = pog.named_connection(pool_name)
-
+  map_data.generate_map_data(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)

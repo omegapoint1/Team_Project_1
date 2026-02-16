@@ -223,6 +223,132 @@ WHERE
   |> pog.execute(db)
 }
 
+/// A row you get from running the `map_data_get` query
+/// defined in `./src/server_app/sql/map_data_get.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type MapDataGetRow {
+  MapDataGetRow(
+    lat: Option(Float),
+    long: Option(Float),
+    noise: Option(Int),
+    time: Option(String),
+    category: Option(String),
+  )
+}
+
+/// Runs the `map_data_get` query
+/// defined in `./src/server_app/sql/map_data_get.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn map_data_get(
+  db: pog.Connection,
+) -> Result(pog.Returned(MapDataGetRow), pog.QueryError) {
+  let decoder = {
+    use lat <- decode.field(0, decode.optional(decode.float))
+    use long <- decode.field(1, decode.optional(decode.float))
+    use noise <- decode.field(2, decode.optional(decode.int))
+    use time <- decode.field(3, decode.optional(decode.string))
+    use category <- decode.field(4, decode.optional(decode.string))
+    decode.success(MapDataGetRow(lat:, long:, noise:, time:, category:))
+  }
+
+  "SELECT
+  lat,
+  long,
+  noise,
+  time,
+  category 
+FROM map_data;
+
+"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `map_data_get_ids` query
+/// defined in `./src/server_app/sql/map_data_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type MapDataGetIdsRow {
+  MapDataGetIdsRow(mapdataid: Int)
+}
+
+/// Runs the `map_data_get_ids` query
+/// defined in `./src/server_app/sql/map_data_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn map_data_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(MapDataGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use mapdataid <- decode.field(0, decode.int)
+    decode.success(MapDataGetIdsRow(mapdataid:))
+  }
+
+  "SELECT MapDataId FROM map_data;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `map_data_insert` query
+/// defined in `./src/server_app/sql/map_data_insert.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type MapDataInsertRow {
+  MapDataInsertRow(mapdataid: Int)
+}
+
+/// Runs the `map_data_insert` query
+/// defined in `./src/server_app/sql/map_data_insert.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn map_data_insert(
+  db: pog.Connection,
+  arg_1: Float,
+  arg_2: Float,
+  arg_3: Int,
+  arg_4: String,
+  arg_5: String,
+) -> Result(pog.Returned(MapDataInsertRow), pog.QueryError) {
+  let decoder = {
+    use mapdataid <- decode.field(0, decode.int)
+    decode.success(MapDataInsertRow(mapdataid:))
+  }
+
+  "INSERT INTO map_data (
+  lat,
+  long,
+  noise,
+  time,
+  category
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING MapDataId;"
+  |> pog.query
+  |> pog.parameter(pog.float(arg_1))
+  |> pog.parameter(pog.float(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.text(arg_4))
+  |> pog.parameter(pog.text(arg_5))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `noise_data_get` query
 /// defined in `./src/server_app/sql/noise_data_get.sql`.
 ///

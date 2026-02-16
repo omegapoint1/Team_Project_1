@@ -45,7 +45,8 @@ pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
       lat,
       long,
     )
-  let report_id = case report_id_temp.rows {
+  let report_id = case report_id_temp
+.rows {
     [row] -> row.reportid
     _ -> -1
   }
