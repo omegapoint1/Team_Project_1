@@ -33,9 +33,6 @@ pub fn get_noise_data(req: Request, db: pog.Connection) -> Response {
       wisp.internal_server_error()
     }
     Ok(returned) -> {
-      // Build each feature by inlining the raw geometry JSON string directly
-      // rather than encoding it as a quoted string, so Leaflet receives a
-      // proper GeoJSON object rather than a string value.
       let features =
         list.map(returned.rows, fn(row) {
           let properties =
@@ -69,8 +66,6 @@ pub fn get_noise_data(req: Request, db: pog.Connection) -> Response {
     }
   }
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 fn get_param(
   params: List(#(String, String)),

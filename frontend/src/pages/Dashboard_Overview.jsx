@@ -63,13 +63,16 @@ function OverviewPage() {
 
   const [noiseReports, setNoiseReports] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reports_data, setReports] = useState([]);
+
 
   useEffect(() => {
     const fetchNoiseReports = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/api/noise-reports');
+        const response = await fetch('http://localhost:3000/api/noise-data');
 
+            
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -105,45 +108,34 @@ function OverviewPage() {
 
     fetchNoiseReports();
   }, []);
+useEffect(() => {
+    const getReports = async () => {
+      try {
+        const report_response = await fetch("/api/report/get", {
+          method: "GET",
+        });
+        const reportData = await report_response.json();
 
-  const sampleRequests = [
-    {
-      id: 1,
-      location: "Exeter, St. Davids Station",
-      tags: ["Train", "Crowd"],
-      time: "15:00",
-      severity: 8,
-      status: "Pending",
-      createdAt: Date.now() - 2 * 60 * 60 * 1000, // 2h
-    },
-    {
-      id: 2,
-      location: "Exeter, Western Way",
-      tags: ["Traffic", "Music"],
-      time: "17:25",
-      severity: 7,
-      status: "Pending",
-      createdAt: Date.now() - 10 * 60 * 60 * 1000, // 10h
-    },
-    {
-      id: 3,
-      location: "Exeter, New North Road",
-      tags: ["Train", "Cars"],
-      time: "16:17",
-      severity: 4,
-      status: "Accepted",
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3d
-    },
-    {
-      id: 4,
-      location: "Exeter, Stocker Road",
-      tags: ["Crowd", "Music"],
-      time: "15:00",
-      severity: 5,
-      status: "Rejected",
-      createdAt: Date.now() - 20 * 60 * 60 * 1000, // 20h
-    },
-  ];
+        const reports = reportData.map((report, index) => ({
+          id: report.id || index,
+          location: report.locationofnoise || report.location_of_noise || "Unknown",
+          tags: report.tag_list || report.tags || [],
+          time: Date.now(),
+          severity: report.severity,
+          status: report.approved,
+          createdAt: report.datetime ? new Date(report.datetime).getTime() : Date.now(),
+        }));  
+        console.log(reports)
+
+        setReports(reports);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+    };
+    getReports();
+  }, []);
+
+  const sampleRequests = reports_data
 
   const handleSearch = () => {
     console.log("Searching for:", search);
@@ -167,11 +159,121 @@ function OverviewPage() {
           : true
       )
       .sort((a, b) => b.createdAt - a.createdAt);
-  }, [search, status, timeRange]);
+  }, [search, status, timeRange, sampleRequests]);
 
-  const onAccept = (id) => console.log("accept", id);
-  const onReject = (id) => console.log("reject", id);
-  const onViewMore = (id) => console.log("view more", id);
+  const onAccept = async (id) => {
+    console.log("accept", id);
+          const response = await fetch('/api/report/accept', {
+        method: 'Post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          accepted: "Accepted"
+        })
+      });
+  }
+  const onReject = async(id) => {
+    console.log("reject", id);
+          const response = await fetch('/api/report/accept', {
+        method: 'Post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          accepted: "Rejected"
+        })
+      });}
+  const onViewMore = (id) => {
+    console.log("view more", id);
+  };
+
+  /* Key stats */
+  const keyStats = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const ms24h = dayMs;
+    const ms7d = 7 * dayMs;
+    const ms30d = 30 * dayMs;
+
+    const in24h = sampleRequests.filter((r) => now - r.createdAt <= ms24h);
+    const in7d = sampleRequests.filter((r) => now - r.createdAt <= ms7d);
+    const in30d = sampleRequests.filter((r) => now - r.createdAt <= ms30d);
+
+    const avgSeverity7d =
+      in7d.length === 0
+        ? 0
+        : in7d.reduce((sum, r) => sum + (Number(r.severity) || 0), 0) / in7d.length;
+
+    return {
+      reports24h: in24h.length,
+      reports7d: in7d.length,
+      reports30d: in30d.length,
+      avgSeverity7d,
+    };
+  }, [sampleRequests]);
+
+  /* Top 4 most common tags */
+  const topTags = useMemo(() => {
+    const counts = new Map();
+
+    for (const r of filteredRequests) {
+      for (const rawTag of r.tags || []) {
+        const tag = String(rawTag).trim();
+        if (!tag) continue;
+
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      }
+    }
+
+    return Array.from(counts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) return b[1] - a[1];
+        return a[0].localeCompare(b[0]);
+      })
+      .slice(0, 4)
+      .map(([tag, count]) => ({ tag, count }));
+  }, [filteredRequests]);
+
+  /* Action required count */
+  const actionCounts = useMemo(() => {
+    const counts = {
+      pendingReview: 0,
+      acceptedToday: 0,
+      rejectedToday: 0,
+    };
+
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    for (const r of filteredRequests) {
+      const createdAt =
+        typeof r.createdAt === "number"
+          ? r.createdAt
+          : new Date(r.createdAt).getTime();
+
+      if (r.status === "Pending") {
+        counts.pendingReview += 1;
+      }
+
+      const isLast24h = now - createdAt <= dayMs;
+
+      if (isLast24h && r.status === "Accepted") {
+        counts.acceptedToday += 1;
+      }
+
+      if (isLast24h && r.status === "Rejected") {
+        counts.rejectedToday += 1;
+      }
+    }
+
+    return counts;
+  }, [filteredRequests]);
+
+
+
 
   return (
     <div className="overviewPage">
@@ -256,13 +358,26 @@ function OverviewPage() {
       </div>
 
       <div className="analyticsSection">
+        
         <div className="statsCard">
           <div className="statsTitle">Key Statistics</div>
           <div className="statsBody">
-            <div className="statsRow"><span>Reports (24h):</span><b>18</b></div>
-            <div className="statsRow"><span>Reports (7d):</span><b>96</b></div>
-            <div className="statsRow"><span>Avg Severity (7d):</span><b>6.4</b></div>
-            <div className="statsRow"><span>Most Active Zone:</span><b>St Davids Station</b></div>
+            <div className="statsRow">
+              <span>Reports (24h):</span>
+              <b>{keyStats.reports24h}</b>
+            </div>
+            <div className="statsRow">
+              <span>Reports (7d):</span>
+              <b>{keyStats.reports7d}</b>
+            </div>
+            <div className="statsRow">
+              <span>Reports (30d):</span>
+              <b>{keyStats.reports30d}</b>
+            </div>
+            <div className="statsRow">
+              <span>Avg Severity (7d):</span>
+              <b>{keyStats.avgSeverity7d.toFixed(1)}</b>
+            </div>
           </div>
         </div>
 
@@ -278,21 +393,37 @@ function OverviewPage() {
 
         <div className="statsCard">
           <div className="statsTitle">Common Tags</div>
-          <ol className="statsList">
-            <li><span className="tagPill">Train</span></li>
-            <li><span className="tagPill">Cars</span></li>
-            <li><span className="tagPill">Music</span></li>
-            <li><span className="tagPill">Crowd</span></li>
-          </ol>
+          {topTags.length === 0 ? (
+            <div className="statsBody">No tags in this selection.</div>
+          ) : (
+            <ol className="statsList">
+              {topTags.map(({ tag, count }) => (
+                <li key={tag}>
+                  <span className="tagPill">{tag}</span>
+                  <b>{count}</b>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
 
         <div className="statsCard">
           <div className="statsTitle">Action Required</div>
           <div className="statsBody">
-            <div className="statsRow"><span>Pending Review:</span><b>7</b></div>
-            <div className="statsRow"><span>Accepted Today:</span><b>11</b></div>
-            <div className="statsRow"><span>Rejected Today:</span><b>2</b></div>
-            <div className="statsRow"><span>Awaiting More Info:</span><b>3</b></div>
+            <div className="statsRow">
+              <span>Pending Review:</span>
+              <b>{actionCounts.pendingReview}</b>
+            </div>
+
+            <div className="statsRow">
+              <span>Accepted Today:</span>
+              <b>{actionCounts.acceptedToday}</b>
+            </div>
+
+            <div className="statsRow">
+              <span>Rejected Today:</span>
+              <b>{actionCounts.rejectedToday}</b>
+            </div>
           </div>
         </div>
       </div>

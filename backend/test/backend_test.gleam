@@ -38,7 +38,7 @@ pub fn report_test() {
     long: "123")
 
   let report_id = report.store_report(report_item, db)
-  let new_report_item = report.get_report_by_id(db, report_id)
+  let new_report_item = report.get_report_by_id_testing(db, report_id)
 
   assert report_item == new_report_item
 }
