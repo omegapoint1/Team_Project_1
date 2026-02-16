@@ -193,7 +193,13 @@ function FormPage() {
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Description</label>
-                                    <textarea id="description" rows="5" cols="25" class="explaintextinput"></textarea>
+                                    <textarea
+                                        id="description"
+                                        rows="5"
+                                        cols="25"
+                                        class="explaintextinput"
+                                        placeholder="Please do not include any personal or sensitive information."
+                                        ></textarea>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>tags</label>
