@@ -4,6 +4,8 @@ import pog
 import gleam/erlang/process
 import gleam/option
 import shared/report_json
+import shared/plan_json
+import plan
 
 import report
 import login
@@ -15,7 +17,7 @@ pub fn main() -> Nil {
 // gleeunit test functions end in `_test`
 pub fn report_test() {
   let pool_name = process.new_name("db_name")
-  let pool_child = 
+  let _ = 
   pog.default_config(pool_name)
   |> pog.user("admin")
   |> pog.database("testdb")
@@ -24,14 +26,17 @@ pub fn report_test() {
   |> pog.port(5432)
   |> pog.start
   let db = pog.named_connection(pool_name)
-  let  report_item =   report_json.ReportItem(
+  let  report_item = report_json.ReportItem(
     noisetype: "cars",
+    zone: "2",
     datetime: "12:30",
-    severity: 4,
+    severity: "4",
     description: "cars are very loud",
     location_of_noise: "road",
-    tags: ["car", "road"])
-  
+    tags: ["car", "road"],
+    lat: "12.3",
+    long: "123")
+
   let report_id = report.store_report(report_item, db)
   let new_report_item = report.get_report_by_id(db, report_id)
 
@@ -41,7 +46,7 @@ pub fn report_test() {
 
 pub fn login_test() {
   let pool_name = process.new_name("db_name")
-  let pool_child = 
+  let _ = 
   pog.default_config(pool_name)
   |> pog.user("admin")
   |> pog.database("testdb")
@@ -58,4 +63,34 @@ pub fn login_test() {
   let register_check = login.handle_login_check(login_item, db)
   assert login_check == 1
   assert register_check == 1
+}
+
+pub fn plan_test() {
+  let pool_name = process.new_name("db_name")
+  let _ = 
+  pog.default_config(pool_name)
+  |> pog.user("admin")
+  |> pog.database("testdb")
+  |> pog.password(option.Some("admin"))
+  |> pog.pool_size(15)
+  |> pog.port(5432)
+  |> pog.start
+  let db = pog.named_connection(pool_name)
+  let plan_item = plan_json.PlanItem(
+    id: "001",
+    name: "cars",
+    status: "open",
+    zone: "2",
+    budget: 100,
+    total_cost: 50,
+    timeline: 2,
+    interventions: ["0","1"],
+    impact: 7,
+    notes: [#("0", "is good"), #("1", "is bad")],
+    evidence: [#("0", "is good", "hi"), #("1", "is bad", "hallo")],
+    created_at: "123"
+  )
+  let plan_id = plan.store_plan(plan_item, db)
+  let new_plan_item = plan.extract_plan_get(db, plan_id)
+  assert plan_item == new_plan_item
 }

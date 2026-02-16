@@ -12,8 +12,6 @@ COPY . /Team_Project/
 RUN cd Team_Project/frontend \
   && npm install \
   && npm run build
-RUN rm Team_Project/backend/priv/static/bundle.js
-RUN rm Team_Project/backend/priv/static/index.css
 
 RUN mv Team_Project/frontend/dist/bundle.js Team_Project/backend/priv/static/bundle.js
 RUN mv Team_Project/frontend/dist/assets/index.css Team_Project/backend/priv/static/index.css

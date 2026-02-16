@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import './LoginPage.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
 
   const[email, setEmail] = useState('');
   const[password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,8 +25,8 @@ function LoginPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // data to be used later
+//        const data = await response.json();
+        navigate('/dashboard');
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Invalid email or password');

@@ -3,7 +3,10 @@ INSERT INTO REPORTS (
   Datetime,
   Severity,
   Description,
-  Locationofnoise
+  Locationofnoise,
+  Zone,
+  Lat,
+  Long
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING ReportId;
