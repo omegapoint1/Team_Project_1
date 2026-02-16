@@ -1,7 +1,7 @@
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-const INCIDENTS_ENDPOINT = '/incidents';
-const STORAGE_KEY = 'incidents';
+const INCIDENTS_ENDPOINT = '/report';
+const STORAGE_KEY = 'report';
 
 // Helpers
 const fetchAPI = async (url, options = {}) => {
@@ -62,10 +62,21 @@ const convertIncidentToAPI = (data) => ({
 
 export const incidentServerService = {
     // get all incidents
-    getAll: async (filters = {}) => {
-        const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
-        const response = await fetchAPI(url);
-        return Array.isArray(response) ? response.map(convertIncidentFromAPI) : [];
+getAll: async (filters = {}) => {
+        try {
+            const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
+            const response = await fetchAPI(url);
+            // undefined or null
+            if (!response) {
+                console.log('No response received from server');
+                return [];
+            }
+                return response.map(convertIncidentFromAPI);
+        } catch (error) {
+            console.error('Error in getAll incidents:', error.message || error);
+            //Return empty array on error
+            return [];
+        }
     },
 
     /*// get a single incident
@@ -76,12 +87,22 @@ export const incidentServerService = {
 
 
     // update incident
-    update: async (updatedIncident) => {
-        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertIncidentToAPI(updatedIncident))
-        });
-        return convertIncidentFromAPI(response);
+update: async (updatedIncident) => {
+        try {
+            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertIncidentToAPI(updatedIncident))
+            });
+
+            if (!response) {
+                console.log('No response from server');
+            }
+
+            return convertIncidentFromAPI(response);
+        } catch (error) {
+            console.error('Error in update incident:', error);
+    
+        }
     },
 
 
@@ -89,10 +110,18 @@ export const incidentServerService = {
 
 
     // delete incident
-    delete: async (incidentId) => {
-        return await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/delete`, {
-            method: 'POST'
-        });
+delete: async (incidentId) => {
+        try {
+            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/delete`, {
+                method: 'POST',
+                body: JSON.stringify({ id: incidentId })
+            });
+
+            return response
+        } catch (error) {
+            console.error('Error in delete incident:', error.message || error);
+
+        }
     },
 
 

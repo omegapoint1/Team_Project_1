@@ -1,6 +1,6 @@
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-const PLANS_ENDPOINT = '/plans';
-const STORAGE_KEY = 'mitigationpPlans';
+const PLANS_ENDPOINT = '/intervention-plan';
+const STORAGE_KEY = 'intervention-plan';
 
 /*Helper functions */
 const fetchAPI = async (url, options = {}) => {
@@ -66,10 +66,15 @@ const convertPlanToAPI = (plan) => ({
 
 
 export const planServerService = {
-    getAll: async (filters = {}) => {
-        const url = `${API_URL}${PLANS_ENDPOINT}/get`;
-        const response = await fetchAPI(url);
-        return response.map(convertPlanFromAPI);
+        getAll: async (filters = {}) => {
+        try {
+            const url = `${API_URL}${PLANS_ENDPOINT}/get`;
+            const response = await fetchAPI(url);
+            return response.map(convertPlanFromAPI);
+        } catch (error) {
+            console.log('Error fetching plans:', error);
+            return [];
+        }
     },
 
     // get by id
@@ -79,21 +84,29 @@ export const planServerService = {
     },*/
     
     create: async (planData) => {
-        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertPlanToAPI(planData))
-        });
-        return convertPlanFromAPI(response);
+        try {
+            const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertPlanToAPI(planData))
+            });
+            return convertPlanFromAPI(response);
+        } catch (error) {
+            console.log('Error creating plan:', error);
+        }
     },
 
 
     // update plan
     update: async (updatedPlan) => {
-        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertPlanToAPI(updatedPlan))
-        });
-        return convertPlanFromAPI(response);
+        try {
+            const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertPlanToAPI(updatedPlan))
+            });
+            return convertPlanFromAPI(response);
+        } catch (error) {
+            console.log('Error updating plan:', error);
+        }
     },
     /*
     // update status
@@ -124,10 +137,15 @@ export const planServerService = {
 */
     // delete a specific plan
     delete: async (planId) => {
-        return await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/delete`, {
-            method: 'DELETE'
-        });
-    },
+        try {
+            return await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/delete`, {
+                method: 'POST',
+                bpdy:JSON.stringify({id:planId})
+            });
+        } catch (error) {
+            console.log(`Error deleting plan ${planId}:`, error);
+        }
+    }
 
 
 

@@ -1,7 +1,7 @@
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-const INTERVENTIONS_ENDPOINT = '/interventions';
-const STORAGE_KEY = 'interventions';
+const INTERVENTIONS_ENDPOINT = '/intervention';
+const STORAGE_KEY = 'intervention';
 
 // Helper
 const fetchAPI = async (url, options = {}) => {
@@ -57,33 +57,51 @@ const convertInterventionToAPI = (data) => ({
 export const interventionServerService = {
     // get all interventions
     getAll: async (filters = {}) => {
-        const url = `${API_URL}${INTERVENTIONS_ENDPOINT}/get`;
-        
-        const response = await fetchAPI(url);
-        return Array.isArray(response) ? response.map(convertInterventionFromAPI) : [];
+        try {
+            const url = `${API_URL}${INTERVENTIONS_ENDPOINT}/get`;
+            const response = await fetchAPI(url);
+            return esponse.map(convertInterventionFromAPI);
+        } catch (error) {
+            console.error('Error fetching interventions:', error);
+            return [];
+        }
     },
     create: async (interventionData) => {
-        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertInterventionToAPI(interventionData))
-        });
-        return convertInterventionFromAPI(response);
+        try {
+            const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertInterventionToAPI(interventionData))
+            });
+            return convertInterventionFromAPI(response);
+        } catch (error) {
+            console.error('Error creating intervention:', error);
+        }
     },
 
 
     update: async (updatedIntervention) => {
-        const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertInterventionToAPI(updatedIntervention))
-        });
-        return convertInterventionFromAPI(response);
+        try {
+            const response = await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertInterventionToAPI(updatedIntervention))
+            });
+            return convertInterventionFromAPI(response);
+        } catch (error) {
+            console.error('Error updating intervention:', error);
+        }
     },
 
     delete: async (interventionId) => {
-        return await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/delete`, {
-            method: 'DELETE'
-        });
-    },
+        try {
+            return await fetchAPI(`${API_URL}${INTERVENTIONS_ENDPOINT}/delete`, {
+                method: 'POST',
+                body: JSON.stringify({id:interventionId})
+
+            });
+        } catch (error) {
+            console.log('Error deleting intervention:', error);
+        }
+    }
 
 
 

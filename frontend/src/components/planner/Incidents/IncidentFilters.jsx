@@ -21,7 +21,8 @@ const zones = [
     { id: 15, name: "South-Central-East" },
     { id: 16, name: "South-East" },
   ];
-
+ const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8];
+ 
 
   const [filters, setFilters] = useState({
     status: initialFilters.status || ['valid'], // Default: valid only
