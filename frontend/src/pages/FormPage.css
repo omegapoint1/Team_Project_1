@@ -87,6 +87,7 @@ iframe {
     background-color: rgb(130, 224, 130);
     border-radius: 10px;
     transition: 0.2s cubic-bezier(0.65, 0, 0.35, 1);
+    margin-bottom: 20px;
 }
 
 .formhundred {
@@ -124,4 +125,11 @@ iframe {
     border: 1px solid black;
     display: inline-block;
     font-size: 10px;
+}
+
+.slidernumbers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding-left: 8px;
 }
