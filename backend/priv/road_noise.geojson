@@ -1,0 +1,17 @@
+{
+"type": "FeatureCollection",
+"name": "test_noise_data",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::27700" } },
+"features": [
+{ "type": "Feature", "properties": { "noiseclass": ">=75.0" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 168245.0, 24325.0 ], [ 168255.0, 24325.0 ], [ 168255.0, 24315.0 ], [ 168245.0, 24315.0 ], [ 168245.0, 24325.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": ">=75.0" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 466965.0, 458415.0 ], [ 466965.0, 458405.0 ], [ 466955.0, 458405.0 ], [ 466955.0, 458415.0 ], [ 466965.0, 458415.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "75.0-79.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 420145.0, 253935.0 ], [ 420135.0, 253935.0 ], [ 420135.0, 253945.0 ], [ 420145.0, 253945.0 ], [ 420145.0, 253935.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "70.0-74.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 530100.0, 179200.0 ], [ 530110.0, 179200.0 ], [ 530110.0, 179210.0 ], [ 530100.0, 179210.0 ], [ 530100.0, 179200.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "65.0-69.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 381000.0, 394000.0 ], [ 381010.0, 394000.0 ], [ 381010.0, 394010.0 ], [ 381000.0, 394010.0 ], [ 381000.0, 394000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "60.0-64.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 290500.0, 92300.0 ], [ 290510.0, 92300.0 ], [ 290510.0, 92310.0 ], [ 290500.0, 92310.0 ], [ 290500.0, 92300.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "55.0-59.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 325000.0, 673000.0 ], [ 325010.0, 673000.0 ], [ 325010.0, 673010.0 ], [ 325000.0, 673010.0 ], [ 325000.0, 673000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "50.0-54.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 260000.0, 665000.0 ], [ 260010.0, 665000.0 ], [ 260010.0, 665010.0 ], [ 260000.0, 665010.0 ], [ 260000.0, 665000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "45.0-49.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 190000.0, 455000.0 ], [ 190010.0, 455000.0 ], [ 190010.0, 455010.0 ], [ 190000.0, 455010.0 ], [ 190000.0, 455000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "noiseclass": "40.0-44.9" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 100000.0, 200000.0 ], [ 100010.0, 200000.0 ], [ 100010.0, 200010.0 ], [ 100000.0, 200010.0 ], [ 100000.0, 200000.0 ] ] ] } }
+]
+}
