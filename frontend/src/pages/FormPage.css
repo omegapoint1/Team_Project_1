@@ -3,26 +3,9 @@
     flex-direction: column;
 }
 
-.formnopadding {
-    padding-top: 0px;
-    padding-bottom: 0px;
-}
-
 .formflexrow {
     display: flex;
     flex-direction: row;
-}
-
-.formspacebetween {
-    justify-content: space-between;
-}
-
-.formalittlegap {
-    gap: 10px;
-}
-
-.formabiggergap {
-    gap: 30px;
 }
 
 .formcenter {
@@ -38,98 +21,294 @@
     justify-content: center;
 }
 
-.formwhitebox {
-    background-color: white;
-    padding: 5px;
-    border-radius: 10px;
+.formspacebetween {
+    justify-content: space-between;
 }
 
-.formlightgreybox {
-    background-color: rgba(217, 217, 217, 1);
-    padding: 20px;
-    border-radius: 10px;
+.formalittlegap {
+    gap: 12px;
 }
 
-.formlightboxshadow {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+.formabiggergap {
+    gap: 24px;
+}
+
+.formmargin {
+    margin-top: 16px;
+}
+
+.formnopadding {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 body {
-    background-color: rgb(190, 190, 190);
+    background-color: rgb(230, 230, 230);
     padding: 0;
     margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
 form {
     max-width: 100%;
-    max-height: 100%;
-    width: 60%;
+    width: 100%;
 }
 
 div {
     max-width: 100%;
-    max-height: 100%;
 }
 
 iframe {
     border: 0;
+    border-radius: 8px;
+    width: 100%;
+    height: 300px;
+}
+
+.formmaindiv {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.formlightgreybox {
+    background-color: rgb(243, 243, 243);
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid rgb(119, 119, 119);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.formwhitebox {
+    background-color: rgb(244, 244, 244);
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 2px solid rgb(122, 122, 122);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .formboxes {
-    width: 25vw;
-}
-
-.formsubmit {
-    max-width: 200px;
-    max-height: 50px;
-    width: 200px;
-    height: 50px;
-    background-color: rgb(130, 224, 130);
-    border-radius: 10px;
-    transition: 0.2s cubic-bezier(0.65, 0, 0.35, 1);
-    margin-bottom: 20px;
+    flex: 1;
+    min-width: 280px;
+    max-width: 600px;
 }
 
 .formhundred {
     width: 100%;
-    height: 100%;
 }
 
-.formmaindiv {
-    width: 70vw;
-    height: 100vh;
+.formwhitebox h1 {
+    font-size: 28px;
+    font-weight: 900;
+    margin: 8px 0;
+    color: rgb(30, 30, 30);
 }
 
-.formsubmit:hover {
-    background-color: rgb(93, 184, 93);
+.formwhitebox p {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgb(80, 80, 80);
+    margin: 4px 0 8px 0;
 }
 
-.formsubmit:active {
-    background-color: rgb(94, 163, 94);
+.formboxes h1 {
+    font-size: 22px;
+    font-weight: 900;
+    margin: 0 0 16px 0;
+    color: rgb(30, 30, 30);
 }
 
-.formmargin {
-  margin-top: 30px;
+label {
+    font-weight: 700;
+    font-size: 15px;
+    color: rgb(40, 40, 40);
+    min-width: 100px;
 }
 
-.explaintextinput {
-  border-radius: 10px;
+input[type="text"],
+textarea,
+select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 2px solid rgb(119, 119, 119);
+    background: white;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+    flex: 1;
+    min-width: 0;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    border-color: rgb(75, 85, 99);
+}
+
+textarea {
+    resize: vertical;
+    font-family: inherit;
+}
+
+input[type="range"] {
+    flex: 1;
+    height: 8px;
+    border-radius: 5px;
+    background: linear-gradient(to right, rgb(120, 220, 120), rgb(255, 200, 80), rgb(255, 100, 100));
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid rgb(60, 60, 60);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid rgb(60, 60, 60);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23333' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+#tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
 }
 
 .formpill {
-    background-color: rgb(250, 250, 250);
-    padding: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    border-radius: 20px;
-    border: 1px solid black;
-    display: inline-block;
-    font-size: 10px;
+    background-color: rgb(235, 235, 235);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgb(150, 150, 150);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.formpill button {
+    background: rgb(255, 100, 100);
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+    color: white;
+    transition: background 0.2s ease;
+}
+
+.formpill button::before {
+    content: "×";
+}
+
+.formpill button:hover {
+    background: rgb(220, 70, 70);
+}
+
+.formsubmit {
+    width: 200px;
+    height: 50px;
+    background: rgb(120, 220, 120);
+    border: 2px solid rgb(60, 60, 60);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.65, 0, 0.35, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.formsubmit:hover {
+    background: rgb(100, 200, 100);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.formsubmit:active {
+    background: rgb(90, 180, 90);
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .slidernumbers {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    padding-left: 8px;
+    padding-left: 12px;
+    padding-right: 6px;
+}
+
+@media (max-width: 900px) {
+    .formlightgreybox {
+        flex-direction: column !important;
+    }
+    
+    .formboxes {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .formmaindiv {
+        width: 95%;
+        padding: 10px 0;
+    }
+    
+    iframe {
+        height: 250px;
+    }
+}
+
+@media (max-width: 600px) {
+    .formflexrow.formspacebetween {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    label {
+        margin-bottom: 6px;
+    }
+    
+    .explaintextinput,
+    input[type="text"],
+    textarea,
+    select {
+        width: 100%;
+    }
+    
+    .formwhitebox h1 {
+        font-size: 24px;
+    }
+    
+    .formboxes h1 {
+        font-size: 20px;
+    }
 }
