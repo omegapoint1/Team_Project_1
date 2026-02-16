@@ -26,7 +26,7 @@ function App() {
         </div>
       
         <div className = "navbar-right">
-          <Link to="/planner" className="nav-link">Planner Screen</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
