@@ -4,7 +4,7 @@ import './PlanDetailModal.css';
 import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
 //import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
 import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
-import PlanExportButtons from '../../common/PlamExportButtons.jsx';
+import PlanExportButtons from '../../common/PlanExportButtons.jsx';
 ReactModal.setAppElement('#root');
 
 /*Modal which shows plan details in a modal window with 3 tabbed sections
