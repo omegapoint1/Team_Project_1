@@ -52,7 +52,6 @@ const IncidentList = () => {
       return serverResponse;
     } catch (error) {
       console.log('Server update failed:', error);
-      throw error;
     }
   };
 
