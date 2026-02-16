@@ -2,6 +2,27 @@ import { useState } from 'react';
 import './IncidentFilters.css';
 
 const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
+
+const zones = [
+    { id: 1, name: "North-West" },
+     { id: 2, name: "North-Central-West" },
+    { id: 3, name: "North-Central-East" },
+    { id: 4, name: "North-East" },
+    { id: 5, name: "Central-North-West" },
+    { id: 6, name: "Central-North-Central-West" },
+    { id: 7, name: "Central-North-Central-East" },
+    { id: 8, name: "Central-North-East" },
+    { id: 9, name: "Central-South-West" },
+    { id: 10, name: "Central-South-Central-West" },
+    { id: 11, name: "Central-South-Central-East" },
+    { id: 12, name: "Central-South-East" },
+    { id: 13, name: "South-West" },
+    { id: 14, name: "South-Central-West" },
+    { id: 15, name: "South-Central-East" },
+    { id: 16, name: "South-East" },
+  ];
+
+
   const [filters, setFilters] = useState({
     status: initialFilters.status || ['valid'], // Default: valid only
     zone: initialFilters.zone || 'all',
@@ -31,10 +52,8 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
 
   const statusOptions = [
     { value: 'pending', label: 'Pending', color: 'yellow' },
-    { value: 'valid', label: 'Valid', color: 'green' },
-    { value: 'processed', label: 'Processed', color: 'blue' },
-    { value: 'duplicate', label: 'Duplicate', color: 'orange' },
-    { value: 'invalid', label: 'Invalid', color: 'red' }
+    { value: 'accepted', label: 'Accepted', color: 'green' },
+    { value: 'rejected', label: 'Rejected', color: 'red' }
   ];
 
   return (
@@ -71,9 +90,9 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
         </div>
       </div>
 
-      {/* Other Filters in Grid */}
+      {/* Rest of filters in grid */}
       <div className="filters-grid">
-        {/* Zone Filter */}
+        {/* Zone filter with matching map zone*/}
         <div className="filter-group">
           <label className="filter-label">Zone</label>
           <select
@@ -82,15 +101,17 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
             className="filter-select"
           >
             <option value="all">All Zones</option>
-            <option value="zone_a">Zone A</option>
-            <option value="zone_b">Zone B</option>
-            <option value="zone_c">Zone C</option>
-            <option value="zone_d">Zone D</option>
+            {zones.map(zone => (
+              <option key={zone.id} value={zone.name}>
+                {zone.name}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Category Filter */}
-        <div className="filter-group">
+        {/* Category Filter 
+        
+             {/*  <div className="filter-group">
           <label className="filter-label">Category</label>
           <select
             value={filters.category}
@@ -104,20 +125,22 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
             <option value="events">Events</option>
             <option value="other">Other</option>
           </select>
-        </div>
+        </div>*/}
 
-        {/* Severity Filter */}
+        {/* Severity Filter  */}
         <div className="filter-group">
-          <label className="filter-label">Severity</label>
+          <label className="filter-label">Severity (1-8)</label>
           <select
             value={filters.severity}
             onChange={(e) => handleFilterChange('severity', e.target.value)}
             className="filter-select"
           >
             <option value="all">All Severities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            {severityOptions.map(level => (
+              <option key={level} value={level}>
+                Level {level} - {level === 1 ? 'Lowest' : level === 8 ? 'Highest' : ''}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -139,7 +162,7 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
       </div>
 
       {/* Active Filters Summary */}
-      {filters.status.length > 0 && (
+     {filters.status.length > 0 && (
         <div className="active-filters">
           <div className="filters-summary">
             <span className="summary-label">Active filters:</span>

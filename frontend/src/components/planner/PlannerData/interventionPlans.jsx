@@ -74,7 +74,6 @@ export const createPlan = (planData) => {
     const now = new Date().toISOString();
     
     return {
-        // Required
         id: planData.id || `plan-${Date.now()}`,
         name: planData.name || 'Untitled Plan',
         status: planData.status || 'Planned',
