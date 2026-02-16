@@ -4,7 +4,7 @@ import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
 import './IncidentDetailModal.css';
-import { incidentService } from '../../services/incidentService'; 
+import { incidentServerService } from '../../services/incidentService'; 
 
 
 
@@ -44,7 +44,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   
   try {
     //Cal API to update the incident
-    const updatedIncident = await incidentService.update(incident.id, {
+    const updatedIncident = await incidentServerService.update(incident.id, {
       status: selectedStatus,
       processingNotes: processingNotes 
     });
@@ -75,10 +75,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
 
   const statusOptions = [
     { value: 'pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
-    { value: 'valid', label: 'Validate Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
-    { value: 'processed', label: 'Mark as Processed', icon: '✓', color: 'blue', description: 'Action has been taken' },
-    //{ value: 'delete', label: 'Flag as for deletion', icon: '', color: 'red', description: 'Delete for various reasons' },
-    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'orange', description: 'False or inaccurate report' }
+    { value: 'Accpeted', label: 'Validated Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
+    { value: 'Rejected', label: 'Reject as Invalid', icon: '✗', color: 'orange', description: 'False or inaccurate report' }
   ];
 
   if (!incident) return null;
@@ -167,10 +165,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                 </div>
                 <div className="status-description">
                   {incident.status === 'pending' && 'Awaiting review'}
-                  {incident.status === 'valid' && 'Verified and accepted'}
-                  {incident.status === 'processed' && 'Action has been taken'}
-                  {incident.status === 'duplicate' && 'Merged with similar report'}
-                  {incident.status === 'invalid' && 'Rejected as inaccurate'}
+                  {incident.status === 'Accepted' && 'Verified and accepted'}
+                  {incident.status === 'Rejected' && 'Rejected'}
                 </div>
               </div>
             </div>
@@ -191,7 +187,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
           <div className="info-column">
             <div className="info-section">
               <h3>Category</h3>
-              <div className="category-card">
+              {/*<div className="category-card">
                 <Tag label={incident.category} color={getCategoryColor()} />
                 <div className="category-description">
                   {incident.category === 'construction' && 'Building or demolition work'}
@@ -199,7 +195,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                   {incident.category === 'traffic' && 'Road or vehicle noise'}
                   {incident.category === 'events' && 'Organized event noise'}
                 </div>
-              </div>
+              </div>*/}
             </div>
 
             <div className="info-section">
@@ -207,14 +203,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               <div className="tags-card">
                 <div className="tags-container">
                   {incident.tags?.map((tag, index) => (
-                    <Tag key={index} label={tag} color="gray" />
-                  ))}
-                  {incident.description.toLowerCase().includes('drilling') && (
-                    <Tag label="Drilling" color="red" />
-                  )}
-                  {incident.description.toLowerCase().includes('night') && (
-                    <Tag label="Night Time" color="purple" />
-                  )}
+                    <Tag key={index} label={tag} color="grey" />
+                ))}
                 </div>
               </div>
             </div>
