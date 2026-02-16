@@ -46,7 +46,6 @@
     ]
   },
   "devDependencies": {
-<<<<<<< HEAD
     "@vitejs/plugin-react": "^5.1.3",
     "autoprefixer": "^10.4.23",
     "babel-plugin-react-compiler": "^1.0.0",
@@ -54,8 +53,5 @@
     "tailwindcss": "^4.1.18",
     "vite": "^7.3.1",
     "vite-plugin-css-injected-by-js": "^3.5.2"
-=======
-    "babel-plugin-react-compiler": "^1.0.0"
->>>>>>> a4835c9 (feature: csv and pdf exporting buttons components main functionality)
   }
 }
