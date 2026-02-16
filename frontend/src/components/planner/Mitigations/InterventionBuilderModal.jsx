@@ -56,15 +56,13 @@ const InterventionBuilderModal = ({
         e.preventDefault();
         
         const interventionData = {
-            id: intervention?.id || `int-${Date.now()}`,
+            id: `${Date.now()}`,
             name: form.name,
             category: form.category,
             description: form.description,
-            cost: [form.costMin, form.costMax],
-            costRange: { min: form.costMin, max: form.costMax },
-            impact: [form.impactMin, form.impactMax],
-            impactRange: { min: form.impactMin, max: form.impactMax },
-            feasibility: Math.round(form.feasibility),
+            cost: [ form.costMin,form.costMax ],
+            impact: [form.impactMin,form.impactMax],
+            feasibility: Math.round(form.feasibility) || 5,
             tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
             created_at: intervention?.created_at || new Date().toISOString()
         };

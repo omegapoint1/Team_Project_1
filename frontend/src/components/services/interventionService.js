@@ -25,7 +25,13 @@ const fetchAPI = async (url, options = {}) => {
         }
 
         if (response.status === 204) return null;
-        return await response.json();
+                const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            return { success: true, message: text, id: Date.now().toString() };
+        }
     } catch (error) {
         console.error('Error:', error);
     }
@@ -47,8 +53,8 @@ const convertInterventionToAPI = (data) => ({
     name: data.name,
     category: data.category,
     description: data.description,
-    cost: data.cost || [data.costRange?.min, data.costRange?.max],
-    impact: data.impact || [data.impactRange?.min, data.impactRange?.max],
+    cost: data.cost,
+    impact: data.impact ,
     feasibility: data.feasibility,
     tags: data.tags,
     created_at: data.created_at || data.createdAt

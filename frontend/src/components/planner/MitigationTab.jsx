@@ -72,10 +72,9 @@ const MitigationTab = () => {
         
         try {
             await planServerService.create(planWithId);
-            setPlans(prevPlans => [...prevPlans, newPlan]);
-            planLocalService.create(newPlan);
+            setPlans(prevPlans => [...prevPlans, planWithId]);
+            planLocalService.create(planWithId);
             setActiveTab('plans');
-            return serverResponse;
         } catch (error) {
             console.log('Failed to create plan on server:', error);
             setPlans(prevPlans => [...prevPlans, planWithId]);
@@ -85,31 +84,36 @@ const MitigationTab = () => {
         }
     };
 
-    const handleUpdatePlan = async (updatedPlan) => {
-        try {
-            const serverResponse = await planServerService.update(updatedPlan);
-            setPlans(prevPlans => 
-                prevPlans.map(plan => 
-                    plan.id === updatedPlan.id ? serverResponse : plan
-                )
+const handleUpdatePlan = async (updatedPlan) => {
+    try {
+        planServerService.update(updatedPlan).catch(error => {
+            console.log('Server update failed (background):', error);
+        });
+        
+        setPlans(prevPlans => {
+            const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+            return currentPlans.map(plan => 
+                plan && plan.id === updatedPlan.id ? updatedPlan : plan
             );
-            planLocalService.update(serverResponse);
-            
-            if (selectedPlan && selectedPlan.id === updatedPlan.id) {
-                setSelectedPlan(serverResponse);
-            }
-            return serverResponse;
-        } catch (error) {
-            console.error('Failed to update plan on server:', error);
-            setPlans(prevPlans => 
-                prevPlans.map(plan => 
-                    plan.id === updatedPlan.id ? updatedPlan : plan
-                )
-            );
-            planLocalService.update(updatedPlan);
-            throw error;
+        });
+        
+        planLocalService.update(updatedPlan);
+        
+        if (selectedPlan && selectedPlan.id === updatedPlan.id) {
+            setSelectedPlan(updatedPlan);
         }
-    };
+    } catch (error) {
+        console.log('Failed to update plan:', error);
+        
+        setPlans(prevPlans => {
+            const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+            return currentPlans.map(plan => 
+                plan && plan.id === updatedPlan.id ? updatedPlan : plan
+            );
+        });
+        planLocalService.update(updatedPlan);
+    }
+};
 
     const handleDeletePlan = async (planId) => {
         try {

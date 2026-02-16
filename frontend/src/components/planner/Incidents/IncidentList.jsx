@@ -76,7 +76,6 @@ const IncidentList = () => {
         prev.map(inc => inc.id === updatedIncident.id)
       );
       
-      return serverResponse;
     } catch (error) {
       console.log('Error updating incident:', error);
       throw error;

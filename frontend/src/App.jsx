@@ -13,7 +13,10 @@ import Dashboard from './pages/Dashboard';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
   import FormPage from './pages/FormPage';
   import UserDashboard from './pages/UserDashboard';
-
+import ScenarioTab from './components/planner/Scenarios';
+import MitigationTab from './components/planner/MitigationTab';
+import Incidents from './components/planner/Incidents';
+import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
 function App() {
   return (
@@ -51,9 +54,11 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
-          <Route path="mitigation" element={<MitigationPlans />} />
+          <Route path="reportProcessing" element={<Incidents />} />
+          <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
-          <Route path="tracker" element={<IncidentManagement />} />
+          <Route path="ExportingReport" element={<Reports />} />
+          {/*<Route path="tracker" element={<ImplementationTracker />} />*/}
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>
