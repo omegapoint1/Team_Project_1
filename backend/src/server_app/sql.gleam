@@ -39,6 +39,153 @@ INTO
   |> pog.execute(db)
 }
 
+/// A row you get from running the `intervention_get` query
+/// defined in `./src/server_app/sql/intervention_get.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type InterventionGetRow {
+  InterventionGetRow(
+    interventionid: String,
+    name: String,
+    category: Option(String),
+    description: Option(String),
+    cost: Option(String),
+    impact: Option(String),
+    feasibility: Option(Int),
+    tags: Option(String),
+    created_at: Option(String),
+  )
+}
+
+/// Runs the `intervention_get` query
+/// defined in `./src/server_app/sql/intervention_get.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn intervention_get(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(InterventionGetRow), pog.QueryError) {
+  let decoder = {
+    use interventionid <- decode.field(0, decode.string)
+    use name <- decode.field(1, decode.string)
+    use category <- decode.field(2, decode.optional(decode.string))
+    use description <- decode.field(3, decode.optional(decode.string))
+    use cost <- decode.field(4, decode.optional(decode.string))
+    use impact <- decode.field(5, decode.optional(decode.string))
+    use feasibility <- decode.field(6, decode.optional(decode.int))
+    use tags <- decode.field(7, decode.optional(decode.string))
+    use created_at <- decode.field(8, decode.optional(decode.string))
+    decode.success(InterventionGetRow(
+      interventionid:,
+      name:,
+      category:,
+      description:,
+      cost:,
+      impact:,
+      feasibility:,
+      tags:,
+      created_at:,
+    ))
+  }
+
+  "SELECT 
+  InterventionId,
+  Name,
+  Category,
+  Description,
+  cost,
+  impact,
+  feasibility,
+  tags,
+  created_at
+FROM intervention
+WHERE InterventionId = $1;"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `intervention_get_ids` query
+/// defined in `./src/server_app/sql/intervention_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type InterventionGetIdsRow {
+  InterventionGetIdsRow(interventionid: String)
+}
+
+/// Runs the `intervention_get_ids` query
+/// defined in `./src/server_app/sql/intervention_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn intervention_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(InterventionGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use interventionid <- decode.field(0, decode.string)
+    decode.success(InterventionGetIdsRow(interventionid:))
+  }
+
+  "SELECT InterventionId FROM intervention;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `intervention_insert` query
+/// defined in `./src/server_app/sql/intervention_insert.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn intervention_insert(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: String,
+  arg_3: String,
+  arg_4: String,
+  arg_5: Json,
+  arg_6: Json,
+  arg_7: Int,
+  arg_8: Json,
+  arg_9: String,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "INSERT INTO intervention (
+  InterventionId,
+  Name,
+  Category,
+  Description,
+  cost,
+  impact,
+  feasibility,
+  tags,
+  created_at
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.text(arg_4))
+  |> pog.parameter(pog.text(json.to_string(arg_5)))
+  |> pog.parameter(pog.text(json.to_string(arg_6)))
+  |> pog.parameter(pog.int(arg_7))
+  |> pog.parameter(pog.text(json.to_string(arg_8)))
+  |> pog.parameter(pog.text(arg_9))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `login` query
 /// defined in `./src/server_app/sql/login.sql`.
 ///
@@ -244,6 +391,36 @@ WHERE InterventionPlanId = $1;"
   |> pog.execute(db)
 }
 
+/// A row you get from running the `plan_get_ids` query
+/// defined in `./src/server_app/sql/plan_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type PlanGetIdsRow {
+  PlanGetIdsRow(interventionplanid: String)
+}
+
+/// Runs the `plan_get_ids` query
+/// defined in `./src/server_app/sql/plan_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn plan_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(PlanGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use interventionplanid <- decode.field(0, decode.string)
+    decode.success(PlanGetIdsRow(interventionplanid:))
+  }
+
+  "SELECT InterventionPlanId FROM inter_plans;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `plan_insert` query
 /// defined in `./src/server_app/sql/plan_insert.sql`.
 ///
@@ -368,6 +545,8 @@ pub type ReportGetRow {
     description: Option(String),
     locationofnoise: Option(String),
     zone: Option(String),
+    lat: Option(String),
+    long: Option(String),
     approved: Option(Bool),
     tag_list: List(String),
   )
@@ -390,8 +569,10 @@ pub fn report_get(
     use description <- decode.field(3, decode.optional(decode.string))
     use locationofnoise <- decode.field(4, decode.optional(decode.string))
     use zone <- decode.field(5, decode.optional(decode.string))
-    use approved <- decode.field(6, decode.optional(decode.bool))
-    use tag_list <- decode.field(7, decode.list(decode.string))
+    use lat <- decode.field(6, decode.optional(decode.string))
+    use long <- decode.field(7, decode.optional(decode.string))
+    use approved <- decode.field(8, decode.optional(decode.bool))
+    use tag_list <- decode.field(9, decode.list(decode.string))
     decode.success(ReportGetRow(
       noisetype:,
       datetime:,
@@ -399,20 +580,26 @@ pub fn report_get(
       description:,
       locationofnoise:,
       zone:,
+      lat:,
+      long:,
       approved:,
       tag_list:,
     ))
   }
 
   "SELECT 
+  
   r.Noisetype,
   r.Datetime,
   r.Severity,
   r.Description,
   r.Locationofnoise,
   r.Zone,
+  r.lat,
+  r.long,
   r.Approved,
-  ARRAY_AGG(t.Name) AS tag_list
+  COALESCE(ARRAY_AGG(t.Name) FILTER (WHERE t.Name IS NOT NULL), '{}') AS tag_list
+
 FROM REPORTS r
 LEFT JOIN REPORT_TAGS rt ON r.Reportid = rt.Report_id
 LEFT JOIN TAGS t ON rt.Tag_id = t.Tagid
@@ -478,6 +665,8 @@ pub fn reports_insert(
   arg_4: String,
   arg_5: String,
   arg_6: String,
+  arg_7: String,
+  arg_8: String,
 ) -> Result(pog.Returned(ReportsInsertRow), pog.QueryError) {
   let decoder = {
     use reportid <- decode.field(0, decode.int)
@@ -490,9 +679,11 @@ pub fn reports_insert(
   Severity,
   Description,
   Locationofnoise,
-  Zone
+  Zone,
+  Lat,
+  Long
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING ReportId;
 "
   |> pog.query
@@ -502,6 +693,8 @@ RETURNING ReportId;
   |> pog.parameter(pog.text(arg_4))
   |> pog.parameter(pog.text(arg_5))
   |> pog.parameter(pog.text(arg_6))
+  |> pog.parameter(pog.text(arg_7))
+  |> pog.parameter(pog.text(arg_8))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

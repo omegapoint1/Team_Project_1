@@ -22,6 +22,8 @@ REPORTS(
   Description varchar(2000),
   Locationofnoise varchar(2000),
   Zone varchar(255),
+  Lat varchar(255),
+  Long varchar(255),
   Approved BOOLEAN DEFAULT FALSE
 );
 
@@ -53,6 +55,18 @@ CREATE TABLE inter_plans (
   interventions JSONB,
   notes JSONB,
   evidence JSONB
+  );
+
+CREATE TABLE intervention (
+  InterventionId varchar(255) PRIMARY KEY,
+  Name varchar(255) NOT NULL,
+  Category varchar(255),
+  Description varchar(255),
+  cost JSONB,
+  impact JSONB,
+  feasibility int,
+  tags JSONB,
+  created_at varchar(255)
   );
 
 CREATE TABLE NOISE_DATA (

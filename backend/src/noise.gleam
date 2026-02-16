@@ -17,7 +17,17 @@ pub fn get_noise_data(req: Request, db: pog.Connection) -> Response {
   let min_level = get_param(params, "min_level", "0") |> parse_int(0)
   let max_level = get_param(params, "max_level", "0") |> parse_int(0)
 
-  case sql.noise_data_get(db, start_date, end_date, category, source, min_level, max_level) {
+  case
+    sql.noise_data_get(
+      db,
+      start_date,
+      end_date,
+      category,
+      source,
+      min_level,
+      max_level,
+    )
+  {
     Error(e) -> {
       wisp.log_alert("noise_data_get failed: " <> string_of_error(e))
       wisp.internal_server_error()
@@ -34,7 +44,10 @@ pub fn get_noise_data(req: Request, db: pog.Connection) -> Response {
               #("source", json.string(row.source)),
               #("noiseclass", json.string(option.unwrap(row.noiseclass, ""))),
               #("noiseleveldb", json.int(option.unwrap(row.noiseleveldb, 0))),
-              #("noisecategory", json.string(option.unwrap(row.noisecategory, ""))),
+              #(
+                "noisecategory",
+                json.string(option.unwrap(row.noisecategory, "")),
+              ),
               #("severity", json.int(option.unwrap(row.severity, 0))),
               #("recordedat", json.string(row.recordedat)),
             ])
@@ -59,7 +72,11 @@ pub fn get_noise_data(req: Request, db: pog.Connection) -> Response {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-fn get_param(params: List(#(String, String)), key: String, default: String) -> String {
+fn get_param(
+  params: List(#(String, String)),
+  key: String,
+  default: String,
+) -> String {
   case list.key_find(params, key) {
     Ok(value) -> value
     Error(_) -> default
@@ -85,7 +102,9 @@ fn string_of_error(e: pog.QueryError) -> String {
     pog.UnexpectedArgumentType(expected, got) ->
       "UnexpectedArgumentType: expected " <> expected <> " got " <> got
     pog.UnexpectedResultType(errors) ->
-      "UnexpectedResultType: " <> int.to_string(list.length(errors)) <> " decode errors"
+      "UnexpectedResultType: "
+      <> int.to_string(list.length(errors))
+      <> " decode errors"
     pog.QueryTimeout -> "QueryTimeout"
     pog.ConnectionUnavailable -> "ConnectionUnavailable"
   }

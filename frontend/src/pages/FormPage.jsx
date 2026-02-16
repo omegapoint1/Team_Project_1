@@ -83,13 +83,18 @@ function CheckValidity(noisetype, datetime, severity, description, address, zone
     }
     return true;
 }
-
+// converts address to coordinates
 async function ConvertToCoords(address) {
+    address = address.replace(" ", "+")
     const response = await fetch("https://nominatim.openstreetmap.org/search?q=" + address + "&format=json", {
             method: "GET",
     });
     const data = await response.json();
     const { lat, lon } = data[0];
+    // a default coord on failure
+    if (lat == null || lon == null) {
+        return { "lat" : "50.7392988", "long" : "-3.5456976" }
+    }
     return { "lat" : lat, "long" : lon };
 }
 
@@ -106,13 +111,13 @@ async function Submit(event) {
     if (!CheckValidity(noisetype, datetime, severity, description, address, zone, tags)) {
         return;
     }
-    const { lat, long } = ConvertToCoords(address);
+    const { lat, long } = await ConvertToCoords(address);
     const request = {
         "noisetype": noisetype,
         "datetime": datetime,
         "severity": severity,
         "description": description,
-        "address": address,
+        "location_of_noise": address,
         "zone": zone,
         "tags": tags,
         "lat" : lat,
