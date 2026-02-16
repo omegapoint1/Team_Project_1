@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import MapBackground from "../components/MapBackground";
+import MapModule from "../components/map/MapModule";
 import "./UserDashboard.css";
 
 
@@ -306,7 +306,7 @@ useEffect(() => {
         {/* Main row: map + right panel */}
         <div className="userDashboardMainRow">
             <div className="userDashboardMapCard">
-            <MapBackground />
+                <MapModule />
             </div>
 
             <div className="userDashboardRightPanel">
