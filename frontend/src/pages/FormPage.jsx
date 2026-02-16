@@ -163,19 +163,33 @@ function FormPage() {
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Severity</label>
-                                    <input id="severity" type="range" min="1" max="10" defaultValue="1" list="notches"></input>
-                                    <datalist id="notches">
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                        <option value="6"></option>
-                                        <option value="7"></option>
-                                        <option value="8"></option>
-                                        <option value="9"></option>
-                                        <option value="10"></option>
-                                    </datalist>
+                                    <div class="formflexcolumn">
+                                        <input id="severity" type="range" min="1" max="10" defaultValue="1" list="notches"></input>
+                                        <datalist id="notches">
+                                            <option value="1"></option>
+                                            <option value="2"></option>
+                                            <option value="3"></option>
+                                            <option value="4"></option>
+                                            <option value="5"></option>
+                                            <option value="6"></option>
+                                            <option value="7"></option>
+                                            <option value="8"></option>
+                                            <option value="9"></option>
+                                            <option value="10"></option>
+                                        </datalist>
+                                        <div class="slidernumbers">
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5</span>
+                                            <span>6</span>
+                                            <span>7</span>
+                                            <span>8</span>
+                                            <span>9</span>
+                                            <span>10</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Description</label>
@@ -211,10 +225,22 @@ function FormPage() {
                                         <div class="formflexrow formspacebetween">
                                             <label>Zone</label>
                                             <select id="zone">
-                                                <option value="A">Zone A</option>
-                                                <option value="B">Zone B</option>
-                                                <option value="C">Zone C</option>
-                                                <option value="D">Zone D</option>
+                                                <option value="North-West">North West</option>
+                                                <option value="North-Central-West">North Central West</option>
+                                                <option value="North-Central-East">North Central East</option>
+                                                <option value="North-East">North East</option>
+                                                <option value="Central-North-West">Central North West</option>
+                                                <option value="Central-North-Central-West">Central North Central West</option>
+                                                <option value="Central-North-Central-East">Central North Central East</option>
+                                                <option value="Central-North-East">Central North East</option>
+                                                <option value="Central-South-West">Central South West</option>
+                                                <option value="Central-South-Central-West">Central South Central-West</option>
+                                                <option value="Central-South-Central-East">Central South Central-East</option>
+                                                <option value="Central-South-East">Central South East</option>
+                                                <option value="South-West">South West</option>
+                                                <option value="South-Central-West">South Central West</option>
+                                                <option value="South-Central-East">South Central East</option>
+                                                <option value="South-East">South East</option>
                                             </select>
                                         </div>
                                     </div>
