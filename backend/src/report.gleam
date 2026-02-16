@@ -87,6 +87,10 @@ pub fn get_report_by_id(
 ) -> report_json.ReportItem {
   let assert Ok(report) = sql.report_get(db, report_id)
   let assert Ok(report_data) = list.first(report.rows)
+  let tag_l = case report_data.tag_list{
+    [_, .._] -> report_data.tag_list
+    [] -> [""]
+  }
   let report_item =
     report_json.ReportItem(
       noisetype: option.unwrap(report_data.noisetype, ""),
@@ -104,12 +108,13 @@ pub fn get_report_by_id(
 
 pub fn get_all_reports(db: pog.Connection) -> Response {
   let assert Ok(report_ids) = sql.report_get_ids(db)
+
   let reports =
     list.map(report_ids.rows, fn(row) { get_report_by_id(db, row.reportid) })
+
   let reports_encoded =
     json.array(reports, report_json.report_item_to_json)
     |> json.to_string()
-  wisp.log_alert(reports_encoded)
-  wisp.response(200)
-  |> wisp.json_body(reports_encoded)
+
+  wisp.json_response(reports_encoded, 200)
 }
