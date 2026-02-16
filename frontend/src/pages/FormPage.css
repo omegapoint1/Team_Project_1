@@ -267,6 +267,12 @@ select {
     padding-right: 6px;
 }
 
+.explaintextinput::placeholder {
+  color: #888;
+  opacity: 0.8;
+  font-style: italic;
+}
+
 @media (max-width: 900px) {
     .formlightgreybox {
         flex-direction: column !important;
