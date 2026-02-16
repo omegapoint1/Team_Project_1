@@ -64,7 +64,7 @@ const InterventionBuilderModal = ({
             costRange: { min: form.costMin, max: form.costMax },
             impact: [form.impactMin, form.impactMax],
             impactRange: { min: form.impactMin, max: form.impactMax },
-            feasibility: form.feasibility / 10,
+            feasibility: Math.round(form.feasibility),
             tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
             created_at: intervention?.created_at || new Date().toISOString()
         };
