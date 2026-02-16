@@ -168,7 +168,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         <div className="impact-info">
                             <div>Estimated Noise Reduction</div>
                             <div>
-                                {plan.impact?.min || 0}-{plan.impact?.max || 0} dB
+                                {plan.impact[0] || 0}-{plan.impact[1]|| 0} dB
                             </div>
                             <div>
                                 Expected reduction in noise levels after implementation
@@ -220,7 +220,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                 <h4>Comprised Interventions</h4>
                 <div className="interventions-info">
                     <span>Total Cost: £{plan.totalCost}</span>
-                    <span>Total Impact: {plan.impact?.min || 0}-{plan.impact?.max || 0} dB</span>
+                    <span>Total Impact: {plan.impact[0] || 0}-{plan.impact[1] || 0} dB</span>
                 </div>
             </div>
             
@@ -244,7 +244,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                             <div className="stat-box">
                                 <span>Impact Range</span>
                                 <span>
-                                    {intervention.impactRange.min}-{intervention.impactRange.max} dB
+                                    {intervention.impact[0]}-{intervention.impact[1]} dB
                                 </span>
                             </div>
                             <div className="stat-box">

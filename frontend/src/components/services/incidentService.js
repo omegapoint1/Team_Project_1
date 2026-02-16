@@ -25,7 +25,13 @@ const fetchAPI = async (url, options = {}) => {
         }
 
         if (response.status === 204) return null;
-        return await response.json();
+                const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            return { success: true, message: text, id: Date.now().toString() };
+        }
     } catch (error) {
         console.error('Error:', error);
     }
