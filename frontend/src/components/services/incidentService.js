@@ -11,7 +11,6 @@ const fetchAPI = async (url, options = {}) => {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
                 ...options.headers
             }
         });
@@ -44,10 +43,11 @@ const convertIncidentFromAPI = (data) => ({
     tags: data.tags || [],
     lat: data.lat,                      
     long: data.long,                       
-    status: data.status || 'pending'
+    status: data.approved || 'pending'
 });
 
 const convertIncidentToAPI = (data) => ({
+    id:data.id,
     noisetype: data.noisetype,
     datetime: data.datetime,
     severity: data.severity,
@@ -57,15 +57,13 @@ const convertIncidentToAPI = (data) => ({
     tags: data.tags,
     lat: data.lat,
     long: data.long,
-    status: data.status
+    approved: data.status
 });
 
 export const incidentServerService = {
     // get all incidents
     getAll: async (filters = {}) => {
-        const queryString = new URLSearchParams(filters).toString();
-        const url = `${API_URL}${INCIDENTS_ENDPOINT}${queryString ? `?${queryString}` : ''}`;
-        
+        const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
         const response = await fetchAPI(url);
         return Array.isArray(response) ? response.map(convertIncidentFromAPI) : [];
     },
@@ -79,8 +77,8 @@ export const incidentServerService = {
 
     // update incident
     update: async (updatedIncident) => {
-        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${updatedIncident.id}`, {
-            method: 'PUT',
+        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+            method: 'POST',
             body: JSON.stringify(convertIncidentToAPI(updatedIncident))
         });
         return convertIncidentFromAPI(response);
@@ -92,8 +90,8 @@ export const incidentServerService = {
 
     // delete incident
     delete: async (incidentId) => {
-        return await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`, {
-            method: 'DELETE'
+        return await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/delete`, {
+            method: 'POST'
         });
     },
 

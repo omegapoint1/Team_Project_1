@@ -10,7 +10,6 @@ const fetchAPI = async (url, options = {}) => {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
                 ...options.headers
             }
         });
@@ -68,10 +67,9 @@ const convertPlanToAPI = (plan) => ({
 
 export const planServerService = {
     getAll: async (filters = {}) => {
-        const queryString = new URLSearchParams(filters).toString();
-        const url = `${API_URL}${PLANS_ENDPOINT}${queryString ? `?${queryString}` : ''}`;
+        const url = `${API_URL}${PLANS_ENDPOINT}/get`;
         const response = await fetchAPI(url);
-        return Array.isArray(response) ? response.map(convertPlanFromAPI) : [];
+        return response.map(convertPlanFromAPI);
     },
 
     // get by id
@@ -81,7 +79,7 @@ export const planServerService = {
     },*/
     
     create: async (planData) => {
-        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}`, {
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
             method: 'POST',
             body: JSON.stringify(convertPlanToAPI(planData))
         });
@@ -91,8 +89,8 @@ export const planServerService = {
 
     // update plan
     update: async (updatedPlan) => {
-        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${updatedPlan.id}`, {
-            method: 'PUT',
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/store`, {
+            method: 'POST',
             body: JSON.stringify(convertPlanToAPI(updatedPlan))
         });
         return convertPlanFromAPI(response);
@@ -126,7 +124,7 @@ export const planServerService = {
 */
     // delete a specific plan
     delete: async (planId) => {
-        return await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {
+        return await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/delete`, {
             method: 'DELETE'
         });
     },
