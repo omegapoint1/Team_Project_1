@@ -31,6 +31,8 @@ function App() {
           <Link to="/dashboard" className="nav-link">Dashboard+</Link>
           <Link to="/game" className="nav-link">Quests</Link>
           <Link to="/dashboard/report" className="nav-link">Report incident</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard</Link>
+
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
           </Link>
