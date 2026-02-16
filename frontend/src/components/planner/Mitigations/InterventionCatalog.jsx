@@ -37,7 +37,9 @@ const InterventionCatalog = ({ onAddToPlan }) => {
 
     const handleCreate = async (newIntervention) => {
         try {
-            interventionServerService.create(newIntervention);
+            interventionServerService.create(completeIntervention).catch(error => {
+            console.log('Server create call failed ');
+        });
             setInterventions(prev => [...prev, newIntervention]);
             interventionLocalService.create(newIntervention);
         } catch (error) {
@@ -49,9 +51,12 @@ const InterventionCatalog = ({ onAddToPlan }) => {
 
     const handleUpdate = async (updatedIntervention) => {
         try {
-            interventionServerService.update(updatedIntervention);
-            setInterventions(prev => [...prev, updatedIntervention]);
-            interventionLocalService.update(serverResponse);
+        interventionServerService.update(completeIntervention).catch(error => {
+            console.log('Server update failed ');
+
+        })
+           setInterventions(prev => [...prev, updatedIntervention]);
+        interventionLocalService.update(serverResponse);
         } catch (error) {
             console.log('Server update failed, using local');
             setInterventions(prev => 

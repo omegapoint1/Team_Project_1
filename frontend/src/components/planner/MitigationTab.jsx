@@ -71,9 +71,9 @@ const MitigationTab = () => {
         };
         
         try {
-            const serverResponse = await planServerService.create(planWithId);
-            setPlans(prevPlans => [...prevPlans, serverResponse]);
-            planLocalService.create(serverResponse);
+            await planServerService.create(planWithId);
+            setPlans(prevPlans => [...prevPlans, newPlan]);
+            planLocalService.create(newPlan);
             setActiveTab('plans');
             return serverResponse;
         } catch (error) {
