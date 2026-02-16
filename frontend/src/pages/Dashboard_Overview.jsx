@@ -136,44 +136,6 @@ useEffect(() => {
   }, []);
 
   const sampleRequests = reports_data
-//  [
-//    {
-//      id: 1,
-//      location: "Exeter, St. Davids Station",
-//      tags: ["Train", "Crowd"],
-//      time: "15:00",
-//      severity: 8,
-//      status: "Pending",
-//      createdAt: Date.now() - 2 * 60 * 60 * 1000, // 2h
-//    },
-//    {
-//      id: 2,
-//      location: "Exeter, Western Way",
-//      tags: ["Traffic", "Music"],
-//      time: "17:25",
-//      severity: 7,
-//      status: "Pending",
-//      createdAt: Date.now() - 10 * 60 * 60 * 1000, // 10h
-//    },
-//    {
-//      id: 3,
-//      location: "Exeter, New North Road",
-//      tags: ["Train", "Cars"],
-//      time: "16:17",
-//      severity: 4,
-//      status: "Accepted",
-//      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3d
-//    },
-//    {
-//      id: 4,
-//      location: "Exeter, Stocker Road",
-//      tags: ["Crowd", "Music"],
-//      time: "15:00",
-//      severity: 5,
-//      status: "Rejected",
-//      createdAt: Date.now() - 20 * 60 * 60 * 1000, // 20h
-//    },
-//  ];
 
   const handleSearch = () => {
     console.log("Searching for:", search);
