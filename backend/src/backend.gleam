@@ -84,6 +84,7 @@ fn handle_request(
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
     Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
     Get, ["api", "hotspots"] -> hotspot.get_hotspots(req, db)
+    Post, ["api", "report", "accept"] -> report.approve_report(req, db)
     Post, ["api", "intervention-plan", "store"] ->
       plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)

@@ -531,6 +531,29 @@ INTO
   |> pog.execute(db)
 }
 
+/// Runs the `report_accept` query
+/// defined in `./src/server_app/sql/report_accept.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn report_accept(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "UPDATE REPORTS 
+SET Approved = $1
+WHERE ReportId = $2;"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `report_get` query
 /// defined in `./src/server_app/sql/report_get.sql`.
 ///
@@ -547,7 +570,7 @@ pub type ReportGetRow {
     zone: Option(String),
     lat: Option(String),
     long: Option(String),
-    approved: Option(Bool),
+    approved: Option(String),
     tag_list: List(String),
   )
 }
@@ -571,7 +594,7 @@ pub fn report_get(
     use zone <- decode.field(5, decode.optional(decode.string))
     use lat <- decode.field(6, decode.optional(decode.string))
     use long <- decode.field(7, decode.optional(decode.string))
-    use approved <- decode.field(8, decode.optional(decode.bool))
+    use approved <- decode.field(8, decode.optional(decode.string))
     use tag_list <- decode.field(9, decode.list(decode.string))
     decode.success(ReportGetRow(
       noisetype:,

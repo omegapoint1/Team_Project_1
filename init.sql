@@ -24,7 +24,7 @@ REPORTS(
   Zone varchar(255),
   Lat varchar(255),
   Long varchar(255),
-  Approved BOOLEAN DEFAULT FALSE
+  Approved varchar(255) DEFAULT 'Pending'
 );
 
 CREATE 

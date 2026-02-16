@@ -5,6 +5,7 @@ import gleam/option
 import pog
 import server_app/sql
 import shared/report_json
+import shared/accept_json
 import wisp.{type Request, type Response}
 
 pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
@@ -84,6 +85,88 @@ fn store_junction(db: pog.Connection, report_id: Int, tag_ids: List(Int)) {
 pub fn get_report_by_id(
   db: pog.Connection,
   report_id: Int,
+) -> ReportItemId {
+  let assert Ok(report) = sql.report_get(db, report_id)
+  let assert Ok(report_data) = list.first(report.rows)
+  let tag_l = case report_data.tag_list{
+    [_, .._] -> report_data.tag_list
+    [] -> [""]
+  }
+  let report_item =
+    ReportItemId(
+      id: report_id,
+      noisetype: option.unwrap(report_data.noisetype, ""),
+      datetime: option.unwrap(report_data.datetime, ""),
+      severity: option.unwrap(report_data.severity, ""),
+      description: option.unwrap(report_data.description, ""),
+      location_of_noise: option.unwrap(report_data.locationofnoise, ""),
+      zone: option.unwrap(report_data.zone, ""),
+      tags: report_data.tag_list,
+      lat: option.unwrap(report_data.lat, ""),
+      long: option.unwrap(report_data.long, ""),
+      approved: option.unwrap(report_data.approved, "Pending"),
+    )
+  report_item
+}
+
+pub fn get_all_reports(db: pog.Connection) -> Response {
+  let assert Ok(report_ids) = sql.report_get_ids(db)
+
+  let reports =
+    list.map(report_ids.rows, fn(row) { get_report_by_id(db, row.reportid) })
+
+  let reports_encoded =
+    json.array(reports, report_item_to_json)
+    |> json.to_string()
+
+  wisp.json_response(reports_encoded, 200)
+}
+
+pub fn report_item_to_json(report_item: ReportItemId) -> json.Json {
+  let ReportItemId(id:, noisetype:, datetime:, severity:, description:, location_of_noise:, zone:, tags:, lat:, long:, approved:) = report_item
+  json.object([
+    #("id", json.int(id)),
+    #("noisetype", json.string(noisetype)),
+    #("datetime", json.string(datetime)),
+    #("severity", json.string(severity)),
+    #("description", json.string(description)),
+    #("location_of_noise", json.string(location_of_noise)),
+    #("zone", json.string(zone)),
+    #("tags", json.array(tags, json.string)),
+    #("lat", json.string(lat)),
+    #("long", json.string(long)),
+    #("approved", json.string(approved)),
+  ])
+}
+
+pub type ReportItemId{
+  ReportItemId(
+    id: Int,
+    noisetype: String,
+    datetime: String,
+    severity: String,
+    description: String,
+    location_of_noise: String,
+    zone: String,
+    tags: List(String),
+    lat: String,
+    long: String,
+    approved: String)
+}
+
+
+
+pub fn approve_report(req: Request, db: pog.Connection) -> Response {
+  use json <- wisp.require_json(req)
+  let assert Ok(item) = decode.run(json, accept_json.accept_item_decoder())
+  let assert Ok(_) = sql.report_accept(db, item.accepted, item.id)
+  wisp.ok()
+}
+
+//for testing
+pub fn get_report_by_id_testing(
+  db: pog.Connection,
+  report_id: Int,
 ) -> report_json.ReportItem {
   let assert Ok(report) = sql.report_get(db, report_id)
   let assert Ok(report_data) = list.first(report.rows)
@@ -104,17 +187,4 @@ pub fn get_report_by_id(
       long: option.unwrap(report_data.long, ""),
     )
   report_item
-}
-
-pub fn get_all_reports(db: pog.Connection) -> Response {
-  let assert Ok(report_ids) = sql.report_get_ids(db)
-
-  let reports =
-    list.map(report_ids.rows, fn(row) { get_report_by_id(db, row.reportid) })
-
-  let reports_encoded =
-    json.array(reports, report_json.report_item_to_json)
-    |> json.to_string()
-
-  wisp.json_response(reports_encoded, 200)
 }
