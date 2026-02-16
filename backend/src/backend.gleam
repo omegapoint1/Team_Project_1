@@ -93,6 +93,7 @@ fn handle_request(
       intervention.extract_inter_store(req, db)
     Get, ["api", "intervention", "get"] ->
       intervention.get_all_interventions(db)
+    Get, ["api", "map-data", "get"] -> map_data.get_all_map_reports(db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }

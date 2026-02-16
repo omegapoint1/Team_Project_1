@@ -4,5 +4,6 @@ SELECT
   noise,
   time,
   category 
-FROM map_data;
+FROM map_data
+WHERE MapDataId = $1;
 

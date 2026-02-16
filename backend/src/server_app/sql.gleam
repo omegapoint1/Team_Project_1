@@ -247,6 +247,7 @@ pub type MapDataGetRow {
 ///
 pub fn map_data_get(
   db: pog.Connection,
+  arg_1: Int,
 ) -> Result(pog.Returned(MapDataGetRow), pog.QueryError) {
   let decoder = {
     use lat <- decode.field(0, decode.optional(decode.float))
@@ -263,10 +264,12 @@ pub fn map_data_get(
   noise,
   time,
   category 
-FROM map_data;
+FROM map_data
+WHERE MapDataId = $1;
 
 "
   |> pog.query
+  |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

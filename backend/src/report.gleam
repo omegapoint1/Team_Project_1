@@ -161,6 +161,7 @@ pub fn approve_report(req: Request, db: pog.Connection) -> Response {
   use json <- wisp.require_json(req)
   let assert Ok(item) = decode.run(json, accept_json.accept_item_decoder())
   let assert Ok(_) = sql.report_accept(db, item.accepted, item.id)
+  get_report_by_id(db, item.id)
   wisp.ok()
 }
 
