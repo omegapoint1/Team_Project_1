@@ -1,10 +1,10 @@
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const INCIDENTS_ENDPOINT = '/incidents';
+const STORAGE_KEY = 'incidents';
 
 // Helpers
-const fetchWithAuth = async (url, options = {}) => {
-    const token = localStorage.getItem('authToken');
+const fetchAPI = async (url, options = {}) => {
     
     try {
         const response = await fetch(url, {
@@ -35,78 +35,108 @@ const fetchWithAuth = async (url, options = {}) => {
 // 
 const convertIncidentFromAPI = (data) => ({
     id: data.id,
-    title: data.title,
-    description: data.description,
-    location: data.location,
-    zone: data.zone,
+    noisetype: data.noisetype,          
+    datetime: data.datetime,              
     severity: data.severity,
-    status: data.status,
-    reportedAt: data.reported_at,
-    attachments: data.attachments || []
-
+    description: data.description,
+    location_of_noise: data.location_of_noise, 
+    zone: data.zone,
+    tags: data.tags || [],
+    lat: data.lat,                      
+    long: data.long,                       
+    status: data.status || 'pending'
 });
 
 const convertIncidentToAPI = (data) => ({
-    ...data
+    noisetype: data.noisetype,
+    datetime: data.datetime,
+    severity: data.severity,
+    description: data.description,
+    location_of_noise: data.location_of_noise,
+    zone: data.zone,
+    tags: data.tags,
+    lat: data.lat,
+    long: data.long,
+    status: data.status
 });
 
-export const incidentService = {
+export const incidentServerService = {
     // get all incidents
     getAll: async (filters = {}) => {
         const queryString = new URLSearchParams(filters).toString();
         const url = `${API_URL}${INCIDENTS_ENDPOINT}${queryString ? `?${queryString}` : ''}`;
         
-        const response = await fetchWithAuth(url);
+        const response = await fetchAPI(url);
         return Array.isArray(response) ? response.map(convertIncidentFromAPI) : [];
     },
 
     /*// get a single incident
     getById: async (incidentId) => {
-        const response = await fetchWithAuth(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`);
+        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`);
         return convertIncidentFromAPI(response);
     },/=*/
 
 
     // update incident
-    update: async (incidentId, updates) => {
-        const response = await fetchWithAuth(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`, {
-            method: 'PATCH',
-            body: JSON.stringify(convertIncidentToAPI({
-                ...updates,
-            }))
+    update: async (updatedIncident) => {
+        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${updatedIncident.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(convertIncidentToAPI(updatedIncident))
         });
         return convertIncidentFromAPI(response);
     },
 
-    // update incident status
-    updateStatus: async (incidentId, status) => {
-        const response = await fetchWithAuth(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}/status`, {
-            method: 'PATCH',
-            body: JSON.stringify({ 
-                status,
-            })
-        });
-        return convertIncidentFromAPI(response);
-    },
+
 
 
 
     // delete incident
     delete: async (incidentId) => {
-        return await fetchWithAuth(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`, {
+        return await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`, {
             method: 'DELETE'
         });
     },
 
-    // get incidents by zone
-    getByZone: async (zone) => {
-        return incidentService.getAll({ zone });
+
+
+};
+export const incidentLocalService = {
+    getAll: () => {
+        try {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error('Error reading incidents:', error);
+            return [];
+        }
     },
 
-    // get incidents by status
-    getByStatus: async (status) => {
-        return incidentService.getAll({ status });
+    saveAll: (incidents) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(incidents));
+            return true;
+        } catch (error) {
+            console.error('Error saving incidents:', error);
+            return false;
+        }
     },
 
 
+
+    update: (updatedIncident) => {
+        const incidents = incidentLocalService.getAll();
+        const index = incidents.findIndex(i => i.id === updatedIncident.id);
+        if (index === -1) return null;
+        
+        incidents[index] = updatedIncident;
+        incidentLocalService.saveAll(incidents);
+        return updatedIncident;
+    },
+
+    delete: (id) => {
+        const incidents = incidentLocalService.getAll();
+        const filtered = incidents.filter(i => i.id !== id);
+        incidentLocalService.saveAll(filtered);
+        return true;
+    }
 };

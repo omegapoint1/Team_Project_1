@@ -1,10 +1,9 @@
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/plans';
-const STORAGE_KEY = 'noiseMitigationpPlans';
+const STORAGE_KEY = 'mitigationpPlans';
 
 /*Helper functions */
-const fetchWithAuth = async (url, options = {}) => {
-    const token = localStorage.getItem('authToken');
+const fetchAPI = async (url, options = {}) => {
     
     try {
         const response = await fetch(url, {
@@ -28,8 +27,7 @@ const fetchWithAuth = async (url, options = {}) => {
         if (response.status === 204) return null;
         return await response.json();
     } catch (error) {
-        console.error('Plan API Error:', error);
-        throw error;
+        console.error('Error:', error);
     }
 };
 
@@ -41,147 +39,68 @@ const convertPlanFromAPI = (data) => ({
     status: data.status,
     zone: data.zone,
     budget: data.budget,
-    totalCost: data.total_cost || data.totalCost,
+    total_cost: data.total_cost,
     timeline: data.timeline,
-    interventions: data.interventions || [],
+    interventions: data.interventions || [], 
     impact: data.impact,
-    notes: data.notes,
-    evidence: data.evidence || [],
-    createdAt: data.created_at || data.createdAt,
+    notes: data.notes || [],                 
+    evidence: data.evidence || [],            
+    created_at: data.created_at
 });
 
 const convertPlanToAPI = (plan) => ({
-    ...plan,
-    total_cost: plan.totalCost,
-    created_at: plan.createdAt,
+    id: plan.id,
+    name: plan.name,
+    status: plan.status,
+    zone: plan.zone,
+    budget: plan.budget,
+    total_cost: plan.total_cost || plan.totalCost,
+    timeline: plan.timeline,
+    interventions: plan.interventions || [],
+    impact: plan.impact,
+    notes: plan.notes || [],
+    evidence: plan.evidence || [],
+    created_at: plan.created_at || plan.createdAt
 });
 
 
-/*
-                    Local storage
-*/
-export const planLocalService = {
-    getAll: () => {
-        try {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
-        } catch (error) {
-            console.error('Error loading plans from localStorage:', error);
-            return [];
-        }
-    },
 
-    // save all to localStorage
-   /* saveAll: (plans) => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
-            return true;
-        } catch (error) {
-            console.error('Error saving plans to localStorage:', error);
-            return false;
-        }
-    },
-
-    // get by id
-    getById: (planId) => {
-        const plans = planLocalService.getAll();
-        return plans.find(p => p.id === planId) || null;
-    },*/
-
-
-
-    // update plan
-    update: (planId, updates) => {
-        const plans = planLocalService.getAll();
-        const index = plans.findIndex(p => p.id === planId);
-        
-        if (index === -1) return null;
-        
-        plans[index] = {
-            ...plans[index],
-            ...updates,
-        };
-        
-        planLocalService.saveAll(plans);
-        return plans[index];
-    },
-
-    // delete plan
-    delete: (planId) => {
-        const plans = planLocalService.getAll();
-        const filtered = plans.filter(p => p.id !== planId);
-        planLocalService.saveAll(filtered);
-        return true;
-    },
-
-    // update status only
-    /*updateStatus: (planId, status) => {
-        return planLocalService.update(planId, { status });
-    },
-
-    // update evidence
-    updateEvidence: (planId, newEvidenceArray) => {
-        const plans = planLocalService.getAll();
-        const planIndex = plans.findIndex(p => p.id === planId);
-        
-        if (planIndex === -1) return null;
-        
-        plans[planIndex].evidence = newEvidenceArray;  // Direct assignment
-        
-        
-        // Save entire plans dictionary
-        planLocalService.saveAll(plans);
-        
-        return plans[planIndex];
-    },
-
-    // update notes
-    updateNotes: (planId, notes) => {
-        return planLocalService.update(planId, { notes });
-    },
-
-}*/
-};
 
 export const planServerService = {
     getAll: async (filters = {}) => {
         const queryString = new URLSearchParams(filters).toString();
         const url = `${API_URL}${PLANS_ENDPOINT}${queryString ? `?${queryString}` : ''}`;
-        
-        const response = await fetchWithAuth(url);
+        const response = await fetchAPI(url);
         return Array.isArray(response) ? response.map(convertPlanFromAPI) : [];
     },
 
     // get by id
     /*getById: async (planId) => {
-        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`);
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${planId}`);
         return convertPlanFromAPI(response);
     },*/
     
-    addPlan: async (plan) => {
-        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}`, {
+    create: async (planData) => {
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}`, {
             method: 'POST',
-            body: JSON.stringify(convertPlanToAPI(plan))
+            body: JSON.stringify(convertPlanToAPI(planData))
         });
         return convertPlanFromAPI(response);
     },
 
 
-
     // update plan
-    update: async (planId, updates) => {
-        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {
-            method: 'PATCH',
-            body: JSON.stringify(convertPlanToAPI({
-                ...updates,
-            }))
+    update: async (updatedPlan) => {
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${updatedPlan.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(convertPlanToAPI(updatedPlan))
         });
         return convertPlanFromAPI(response);
     },
     /*
     // update status
     updateStatus: async (planId, status) => {
-        const response = await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}/status`, {
+        const response = await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${planId}/status`, {
             method: 'PATCH',
             body: JSON.stringify({ 
                 status,
@@ -194,7 +113,7 @@ export const planServerService = {
 
     // update evidence
      updateEvidence: async (planId, evidenceArray) => {
-        const response = await fetchWithAuth(`${API_BASE_URL}${PLANS_ENDPOINT}/${planId}/evidence`, {
+        const response = await fetchAPI(`${API_BASE_URL}${PLANS_ENDPOINT}/${planId}/evidence`, {
             method: 'PUT', 
             body: JSON.stringify({ 
                 evidence: evidenceArray,
@@ -207,11 +126,63 @@ export const planServerService = {
 */
     // delete a specific plan
     delete: async (planId) => {
-        return await fetchWithAuth(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {
+        return await fetchAPI(`${API_URL}${PLANS_ENDPOINT}/${planId}`, {
             method: 'DELETE'
         });
     },
 
 
 
+};
+
+
+
+export const planLocalService = {
+    getAll: () => {
+        try {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error('Error reading plans:', error);
+            return [];
+        }
+    },
+
+    saveAll: (plans) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
+            return true;
+        } catch (error) {
+            console.error('Error saving plans:', error);
+            return false;
+        }
+    },
+
+    create: (plan) => {
+        const plans = planLocalService.getAll();
+        const newPlan = {
+            ...plan,
+            id: plan.id
+        };
+        plans.push(newPlan);
+        planLocalService.saveAll(plans);
+        return newPlan;
+    },
+
+    update: (updatedPlan) => {
+        const plans = planLocalService.getAll();
+        const index = plans.findIndex(p => p.id === updatedPlan.id);
+        if (index === -1) return null;
+        
+        plans[index] = updatedPlan;
+        planLocalService.saveAll(plans);
+        return updatedPlan;
+    },
+
+    delete: (id) => {
+        const plans = planLocalService.getAll();
+        const filtered = plans.filter(p => p.id !== id);
+        planLocalService.saveAll(filtered);
+        return true;
+    }
 };
