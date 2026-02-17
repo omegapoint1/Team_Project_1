@@ -1,9 +1,16 @@
-function ImplementationTrackerPage() {
+import React, { useState } from 'react';
+import IncidentList from "../components/planner/Incidents/IncidentList";
+
+function Incidents() {
+
   return (
-    <div className="page">
-      <h1>Implementation Tracker</h1>
+    <div className="module incidents">
+      <div className="incidents-header">
+        <h2>🚨 Incident Management</h2>
+         <IncidentList/>
+      </div>
     </div>
   );
 }
 
-export default ImplementationTrackerPage;
+export default Incidents; 
