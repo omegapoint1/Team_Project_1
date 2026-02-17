@@ -26,7 +26,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
   \"hotspots\": [
     {
       \"id\": 1,
-      \"name\": \"Zone A - Severe Road Noise\",
+      \"name\": \"Zone North-East - Severe Road Noise\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[466965.0,458415.0],[466965.0,458405.0],[466955.0,458405.0],[466955.0,458415.0],[466965.0,458415.0]]]
@@ -42,7 +42,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
     },
     {
       \"id\": 2,
-      \"name\": \"Zone B - High Traffic Corridor\",
+      \"name\": \"Zone North-Central-West - High Traffic Corridor\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[420145.0,253935.0],[420135.0,253935.0],[420135.0,253945.0],[420145.0,253945.0],[420145.0,253935.0]]]
@@ -58,7 +58,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
     },
     {
       \"id\": 3,
-      \"name\": \"Zone C - Industrial Area\",
+      \"name\": \"Zone Central-North-Central-West - Industrial Area\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[530100.0,179200.0],[530110.0,179200.0],[530110.0,179210.0],[530100.0,179210.0],[530100.0,179200.0]]]
