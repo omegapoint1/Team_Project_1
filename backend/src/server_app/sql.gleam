@@ -39,6 +39,40 @@ INTO
   |> pog.execute(db)
 }
 
+/// A row you get from running the `get_hotspots` query
+/// defined in `./src/server_app/sql/get_hotspots.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type GetHotspotsRow {
+  GetHotspotsRow(zone: Option(String), occurrence_count: Int)
+}
+
+/// Runs the `get_hotspots` query
+/// defined in `./src/server_app/sql/get_hotspots.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn get_hotspots(
+  db: pog.Connection,
+) -> Result(pog.Returned(GetHotspotsRow), pog.QueryError) {
+  let decoder = {
+    use zone <- decode.field(0, decode.optional(decode.string))
+    use occurrence_count <- decode.field(1, decode.int)
+    decode.success(GetHotspotsRow(zone:, occurrence_count:))
+  }
+
+  "SELECT Zone, COUNT(Zone) AS occurrence_count
+FROM REPORTS
+GROUP BY Zone
+ORDER BY occurrence_count DESC;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `intervention_get` query
 /// defined in `./src/server_app/sql/intervention_get.sql`.
 ///

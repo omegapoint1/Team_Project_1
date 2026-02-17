@@ -37,6 +37,7 @@ pub fn main() {
     |> pog.start
   let db = pog.named_connection(pool_name)
   map_data.generate_map_data(db)
+  report.generate_reports(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)
@@ -84,8 +85,8 @@ fn handle_request(
     Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
     Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
-    Get, ["api", "hotspots"] -> hotspot.get_hotspots(req, db)
-    Post, ["api", "report", "accept"] -> report.approve_report(req, db)
+    Get, ["api", "hotspots"] -> hotspot.get_hotspots(db)
+    Post, ["api", "report", "accept"] -> report.extract_approve_report(req, db)
     Post, ["api", "intervention-plan", "store"] ->
       plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)

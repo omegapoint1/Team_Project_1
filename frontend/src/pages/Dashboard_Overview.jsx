@@ -64,6 +64,7 @@ function OverviewPage() {
   const [noiseReports, setNoiseReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reports_data, setReports] = useState([]);
+  const [hotspots, setHotspots] = useState([]);
 
 
   useEffect(() => {
@@ -107,6 +108,23 @@ function OverviewPage() {
     };
 
     fetchNoiseReports();
+  }, []);
+
+  useEffect(() => {
+    const getHotspots = async () => {
+      try {
+        const hotspot_response = await fetch("/api/hotspots", {
+          method: "GET",
+        });
+        const data = await hotspot_response.json();
+        console.log(data.hotspots);
+        setHotspots(data.hotspots || []);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        console.error("Error fetching hotspots:", error);
+      }
+    };
+    getHotspots();
   }, []);
 useEffect(() => {
     const getReports = async () => {
@@ -383,12 +401,19 @@ useEffect(() => {
 
         <div className="statsCard">
           <div className="statsTitle">Top Hotspots (Top 4)</div>
-          <ol className="statsList">
-            <li><span>St Davids Station</span><b>18 reports</b></li>
-            <li><span>Western Way</span><b>12 reports</b></li>
-            <li><span>New North Road</span><b>9 reports</b></li>
-            <li><span>Stocker Rd</span><b>7 reports</b></li>
-          </ol>
+
+          {hotspots.length > 0 ? (
+            <ol className="statsList">
+              {hotspots.slice(0, 4).map((h, i) => (
+                <li key={i}>
+                  <span>{h[1]}</span>
+                  <b>{h[0]} reports</b>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="statsBody">No hotspots data.</div>
+          )}
         </div>
 
         <div className="statsCard">

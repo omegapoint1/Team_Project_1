@@ -1,3 +1,4 @@
+import gleam/int
 import wisp.{type Request, type Response}
 import gleam/dynamic/decode
 import gleam/json
@@ -7,6 +8,7 @@ import pog
 import server_app/sql
 import shared/map_json
 import gleam/float
+import shared/report_json
 
 
 pub fn store_map_data(db: pog.Connection, data: map_json.MapDataItem) -> Int{
@@ -52,57 +54,8 @@ pub fn get_all_map_reports(db: pog.Connection) -> Response {
 
 
 pub fn generate_map_data(db: pog.Connection) -> Int {
-  float.random()
-  let init_data = [
-    
-    // Feb 
-    map_json.MapDataItem(lat: 50.7, long: -3.5, noise: 4, time: "2024-02-01T10:30:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.705, long: -3.505, noise: 7, time: "2024-02-01T14:35:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.695, long: -3.495, noise: 3, time: "2024-02-01T18:40:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.702, long: -3.508, noise: 8, time: "2024-02-02T09:45:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.698, long: -3.502, noise: 5, time: "2024-02-02T12:50:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.708, long: -3.498, noise: 6, time: "2024-02-02T16:55:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.697, long: -3.512, noise: 4, time: "2024-02-03T08:20:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.703, long: -3.503, noise: 7, time: "2024-02-03T11:15:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.710, long: -3.495, noise: 6, time: "2024-02-03T15:20:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.692, long: -3.507, noise: 4, time: "2024-02-04T07:45:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.706, long: -3.510, noise: 9, time: "2024-02-04T13:30:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.699, long: -3.493, noise: 5, time: "2024-02-04T17:15:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.704, long: -3.500, noise: 7, time: "2024-02-05T09:00:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.696, long: -3.505, noise: 3, time: "2024-02-05T12:30:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.709, long: -3.502, noise: 8, time: "2024-02-05T19:45:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.701, long: -3.497, noise: 6, time: "2024-02-06T08:15:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.707, long: -3.509, noise: 9, time: "2024-02-06T14:20:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.694, long: -3.501, noise: 5, time: "2024-02-06T18:30:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.698, long: -3.496, noise: 4, time: "2024-02-07T10:10:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.711, long: -3.504, noise: 7, time: "2024-02-07T13:45:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.693, long: -3.511, noise: 6, time: "2024-02-07T16:20:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.705, long: -3.499, noise: 8, time: "2024-02-08T09:30:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.700, long: -3.506, noise: 4, time: "2024-02-08T12:15:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.697, long: -3.503, noise: 7, time: "2024-02-08T17:40:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.708, long: -3.494, noise: 5, time: "2024-02-09T08:50:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.702, long: -3.513, noise: 8, time: "2024-02-09T11:25:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.695, long: -3.508, noise: 3, time: "2024-02-09T15:10:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.712, long: -3.492, noise: 6, time: "2024-02-10T10:05:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.691, long: -3.514, noise: 8, time: "2024-02-10T14:35:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.703, long: -3.498, noise: 5, time: "2024-02-10T18:50:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.699, long: -3.507, noise: 4, time: "2024-02-11T09:20:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.706, long: -3.491, noise: 7, time: "2024-02-11T13:10:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.694, long: -3.515, noise: 6, time: "2024-02-11T16:45:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.710, long: -3.500, noise: 8, time: "2024-02-12T08:30:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.696, long: -3.512, noise: 4, time: "2024-02-12T11:55:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.704, long: -3.493, noise: 7, time: "2024-02-12T15:25:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.701, long: -3.510, noise: 5, time: "2024-02-13T10:40:00", category: "Crowd" ),
-    map_json.MapDataItem(lat: 50.708, long: -3.498, noise: 6, time: "2024-02-13T15:55:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.697, long: -3.512, noise: 4, time: "2024-02-13T14:20:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.695, long: -3.506, noise: 7, time: "2024-02-14T09:15:00", category: "Train" ),
-    map_json.MapDataItem(lat: 50.709, long: -3.495, noise: 5, time: "2024-02-14T12:30:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.702, long: -3.504, noise: 8, time: "2024-02-14T16:50:00", category: "Construction" ),
-    map_json.MapDataItem(lat: 50.698, long: -3.501, noise: 6, time: "2024-02-15T08:25:00", category: "Traffic" ),
-    map_json.MapDataItem(lat: 50.705, long: -3.497, noise: 4, time: "2024-02-15T13:40:00", category: "Music" ),
-    map_json.MapDataItem(lat: 50.693, long: -3.509, noise: 7, time: "2024-02-15T17:55:00", category: "Train" ),
-  ]
-  list.map(init_data, fn(data) {
+  
+  list.map(generate_data(0, []), fn(data) {
     
     sql.map_data_insert(db, data.lat, data.long, data.noise, data.time, data.category)
   })
@@ -110,15 +63,25 @@ pub fn generate_map_data(db: pog.Connection) -> Int {
 }
 
 
-//fn generate_data(i: Int, acc: List(map_json.MapDataItem)) -> List(map_json.MapDataItem){
-//  case i{
-//    100 -> acc
-//    j ->{
-//      let lat = {{float.random()/5}+50.7}
-//      let long = {{float.random()/5}-3.51}
-//      
-//
-//    }
-//
-//  }
-//}
+fn generate_data(i: Int, acc: List(map_json.MapDataItem)) -> List(map_json.MapDataItem){
+  let catagories = ["Traffic", "Music", "Train", "Construction", "Crowd"]
+  case i{
+    100 -> acc
+    j ->{
+
+      let lat = {{float.random()/.12.0}+.50.65}
+      let long = {{float.random()/.6.5}-.3.58}
+      let assert Ok(category) = list.first(list.sample(catagories, 1))
+
+      let data = map_json.MapDataItem(
+        lat: lat,
+        long: long,
+        noise: int.random(10),
+        time: "2024-02-15T08:25:00",
+        category: category,
+      )
+    generate_data(i+1, [data, ..acc])
+    }
+
+  }
+}
