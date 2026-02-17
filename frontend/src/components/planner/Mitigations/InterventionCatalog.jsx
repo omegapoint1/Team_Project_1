@@ -1,31 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import './InterventionCatalog.css';
-import { interventionServerService,interventionLocalService } from '../../services/interventionService';
+import { interventionServerService, interventionLocalService } from '../../services/interventionService';
 import InterventionBuilderModal from './InterventionBuilderModal';
 
-const InterventionCatalog = ({ onAddToPlan }) => {
+const InterventionCatalog = ({ 
+  interventions: propInterventions, // Rename the prop to avoid conflict
+  onUpdateIntervention,
+  onCreateIntervention,
+  onDeleteIntervention,
+  onAddToPlan 
+}) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedCost, setSelectedCost] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const [interventions, setInterventions] = useState([]);
+    // FIXED: Use a different name for local state
+    const [localInterventions, setLocalInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedIntervention, setSelectedIntervention] = useState(null);
+
+    // Use either propInterventions or localInterventions based on what's passed
+    const interventions = propInterventions || localInterventions;
 
     const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
     const costBands = ['all', 'low', 'medium', 'high'];
 
     useEffect(() => {
+        if (propInterventions && propInterventions.length > 0) {
+            setLoading(false);
+            return;
+        }
+
         const loadInterventions = async () => {
             try {
                 const freshData = await interventionServerService.getAll();
-                setInterventions(freshData);
+                setLocalInterventions(freshData);
                 interventionLocalService.saveAll(freshData);
             } catch (error) {
                 console.log('Server fetch failed, loading from cache');
                 const cached = localStorage.getItem('interventions');
                 if (cached) {
-                    setInterventions(JSON.parse(cached));
+                    setLocalInterventions(JSON.parse(cached));
                 }
             } finally {
                 setLoading(false);
@@ -33,35 +48,44 @@ const InterventionCatalog = ({ onAddToPlan }) => {
         };
         
         loadInterventions();
-    }, []);
+    }, [propInterventions]);
 
     const handleCreate = async (newIntervention) => {
         try {
-            interventionServerService.create(newIntervention).catch(error => {
-            console.log('Server create call failed ');
-        });
-            setInterventions(prev => [...prev, newIntervention]);
-            interventionLocalService.create(newIntervention);
+            if (onCreateIntervention) {
+                // If parent handler exists, use it
+                await onCreateIntervention(newIntervention);
+            } else {
+                // Otherwise handle locally
+                interventionServerService.create(newIntervention).catch(error => {
+                    console.log('Server create call failed');
+                });
+                setLocalInterventions(prev => [...prev, newIntervention]);
+                interventionLocalService.create(newIntervention);
+            }
         } catch (error) {
             console.log('Server create failed, using local');
-            setInterventions(prev => [...prev, newIntervention]);
+            setLocalInterventions(prev => [...prev, newIntervention]);
             interventionLocalService.create(newIntervention);
         }
     };
 
     const handleUpdate = async (updatedIntervention) => {
         try {
-        interventionServerService.update(updatedIntervention).catch(error => {
-            console.log('Server update failed ');
-
-        })
-           setInterventions(prev => 
-                prev.map(i => i.id === validatedIntervention.id ? validatedIntervention : i)
-            );
-        interventionLocalService.update(updatedIntervention);
+            if (onUpdateIntervention) {
+                await onUpdateIntervention(updatedIntervention);
+            } else {
+                interventionServerService.update(updatedIntervention).catch(error => {
+                    console.log('Server update failed');
+                });
+                setLocalInterventions(prev => 
+                    prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+                );
+                interventionLocalService.update(updatedIntervention);
+            }
         } catch (error) {
             console.log('Server update failed, using local');
-            setInterventions(prev => 
+            setLocalInterventions(prev => 
                 prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
             );
             interventionLocalService.update(updatedIntervention);
@@ -75,17 +99,20 @@ const InterventionCatalog = ({ onAddToPlan }) => {
         }
 
         try {
-            interventionServerService.delete(id);
-            setInterventions(prev => prev.filter(i => i.id !== id));
-            interventionLocalService.delete(id);
+            if (onDeleteIntervention) {
+                await onDeleteIntervention(id);
+            } else {
+                interventionServerService.delete(id);
+                setLocalInterventions(prev => prev.filter(i => i.id !== id));
+                interventionLocalService.delete(id);
+            }
         } catch (error) {
             console.log('Server delete failed, fall back to local');
-            setInterventions(prev => prev.filter(i => i.id !== id));
+            setLocalInterventions(prev => prev.filter(i => i.id !== id));
             interventionLocalService.delete(id);
         }
     };
 
-    //modal handler functions
     const handleEditClick = (intervention) => {
         setSelectedIntervention(intervention);
         setModalOpen(true);
@@ -125,15 +152,16 @@ const InterventionCatalog = ({ onAddToPlan }) => {
         return '#ef4444';
     };
 
+    if (loading) {
+        return <div className="loading">Loading interventions..</div>;
+    }
+
     return (
         <div className="intervention-catalog">
             <div className="catalog-header">
                 <h2>Intervention Catalog</h2>
                 <p>Browse available interventions for noise mitigation</p>
-                <button 
-                    onClick={handleCreateNewClick}
-
-                >
+                <button onClick={handleCreateNewClick}>
                     + New Intervention
                 </button>
             </div>
@@ -230,10 +258,14 @@ const InterventionCatalog = ({ onAddToPlan }) => {
                         </div>
 
                         <div className="card-actions">
-                            {/*Add edit button */}
+                            {/*<button 
+                                className="edit-button"
+                                onClick={() => handleEditClick(intervention)}>
+                                Edit
+                            </button>*/}
                             <button 
                                 className="add-to-plan-button"
-                                onClick={() => onAddToPlan(intervention)}
+                                onClick={() => onAddToPlan && onAddToPlan(intervention)}
                             >
                                 Add to Plan
                             </button>

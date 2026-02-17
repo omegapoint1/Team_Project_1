@@ -3,9 +3,10 @@ import InterventionCatalog from './Mitigations/InterventionCatalog';
 import PlanBuilder from './Mitigations/PlanBuilder';
 import PlansList from './Mitigations/PlansList';
 import PlanDetailModal from './Mitigations/PlanDetailModal';
-import { interventionsData } from './PlannerData/mitigationsData';
-import { planServerService,planLocalService  } from '../services/planService';
-import { interventionLocalService } from '../services/interventionService';
+// Remove this line - don't import hardcoded data
+// import { interventionsData } from './PlannerData/mitigationsData';
+import { planServerService, planLocalService } from '../services/planService';
+import { interventionServerService, interventionLocalService } from '../services/interventionService';
 import './MitigationTab.css';
 
 const MitigationTab = () => {
@@ -15,23 +16,32 @@ const MitigationTab = () => {
     const [interventions, setInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    //load interventions from local storage 
     useEffect(() => {
-        const loadInterventions = () => {
-            const localInterventions = interventionLocalService.getAll();
-            if (localInterventions && localInterventions.length > 0) {
-                setInterventions(localInterventions);
-            } else {
-                // Seed local storage with imported data if empty
-                setInterventions(interventionsData);
-                interventionLocalService.saveAll(interventionsData);
+        const loadInterventions = async () => {
+            try {
+                const serverInterventions = await interventionServerService.getAll();
+                
+                if (serverInterventions && serverInterventions.length > 0) {
+                    setInterventions(serverInterventions);
+                    interventionLocalService.saveAll(serverInterventions);
+                } else {
+                    const localInterventions = interventionLocalService.getAll();
+                    if (localInterventions && localInterventions.length > 0) {
+                        setInterventions(localInterventions);
+                    } else {
+                        setInterventions([]);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load interventions from server:', error);
+                const localInterventions = interventionLocalService.getAll();
+                setInterventions(localInterventions || []);
             }
         };
 
         loadInterventions();
     }, []);
 
-    //Load plans from server
     useEffect(() => {
         const loadPlans = async () => {
             try {
@@ -55,14 +65,67 @@ const MitigationTab = () => {
         loadPlans();
     }, []);
 
+    const handleCreateIntervention = async (newIntervention) => {
+        const interventionWithId = {
+            ...newIntervention,
+            id: newIntervention.id || `int_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            created_at: new Date().toISOString()
+        };
+        
+        try {
+            await interventionServerService.create(interventionWithId);
+            setInterventions(prev => [...prev, interventionWithId]);
+            interventionLocalService.create(interventionWithId);
+        } catch (error) {
+            console.log('Failed to create intervention on server:', error);
+            setInterventions(prev => [...prev, interventionWithId]);
+            interventionLocalService.create(interventionWithId);
+        }
+    };
+
+    const handleUpdateIntervention = async (updatedIntervention) => {
+        try {
+            await interventionServerService.update(updatedIntervention);
+            
+            setInterventions(prev => 
+                prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+            );
+            interventionLocalService.update(updatedIntervention);
+        } catch (error) {
+            console.log('Failed to update intervention on server:', error);
+            setInterventions(prev => 
+                prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+            );
+            interventionLocalService.update(updatedIntervention);
+        }
+    };
+
+    const handleDeleteIntervention = async (id) => {
+        if (interventions.length <= 1) {
+            alert('Cannot delete: At least one intervention required');
+            return;
+        }
+        
+        try {
+            await interventionServerService.delete(id);
+            setInterventions(prev => prev.filter(i => i.id !== id));
+            interventionLocalService.delete(id);
+        } catch (error) {
+            console.log('Failed to delete intervention from server:', error);
+            setInterventions(prev => prev.filter(i => i.id !== id));
+            interventionLocalService.delete(id);
+        }
+    };
+
     const handleCreatePlan = async (newPlan) => {
-            let newId;
-            let isUnique = false;
-    
-           while (!isUnique) {
+        let newId;
+        let isUnique = false;
+
+        while (!isUnique) {
             newId = Math.floor(Math.random() * 999999) + 1;
             isUnique = !plans.some(plan => plan.id === newId.toString());
-    }
+        }
+        
         const planWithId = {
             ...newPlan,
             id: `${newId}`,
@@ -84,36 +147,36 @@ const MitigationTab = () => {
         }
     };
 
-const handleUpdatePlan = async (updatedPlan) => {
-    try {
-        planServerService.update(updatedPlan).catch(error => {
-            console.log('Server update failed (background):', error);
-        });
-        
-        setPlans(prevPlans => {
-            const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
-            return currentPlans.map(plan => 
-                plan && plan.id === updatedPlan.id ? updatedPlan : plan
-            );
-        });
-        
-        planLocalService.update(updatedPlan);
-        
-        if (selectedPlan && selectedPlan.id === updatedPlan.id) {
-            setSelectedPlan(updatedPlan);
+    const handleUpdatePlan = async (updatedPlan) => {
+        try {
+            planServerService.update(updatedPlan).catch(error => {
+                console.log('Server update failed (background):', error);
+            });
+            
+            setPlans(prevPlans => {
+                const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+                return currentPlans.map(plan => 
+                    plan && plan.id === updatedPlan.id ? updatedPlan : plan
+                );
+            });
+            
+            planLocalService.update(updatedPlan);
+            
+            if (selectedPlan && selectedPlan.id === updatedPlan.id) {
+                setSelectedPlan(updatedPlan);
+            }
+        } catch (error) {
+            console.log('Failed to update plan:', error);
+            
+            setPlans(prevPlans => {
+                const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+                return currentPlans.map(plan => 
+                    plan && plan.id === updatedPlan.id ? updatedPlan : plan
+                );
+            });
+            planLocalService.update(updatedPlan);
         }
-    } catch (error) {
-        console.log('Failed to update plan:', error);
-        
-        setPlans(prevPlans => {
-            const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
-            return currentPlans.map(plan => 
-                plan && plan.id === updatedPlan.id ? updatedPlan : plan
-            );
-        });
-        planLocalService.update(updatedPlan);
-    }
-};
+    };
 
     const handleDeletePlan = async (planId) => {
         try {
@@ -144,26 +207,45 @@ const handleUpdatePlan = async (updatedPlan) => {
         return plans.filter(plan => plan.status === status).length;
     };
     
-
     const renderActiveTab = () => {
         switch(activeTab) {
             case 'catalog':
-                return <InterventionCatalog interventions={interventions} />;
+                return (
+                    <InterventionCatalog 
+                        interventions={interventions}
+                        onCreateIntervention={handleCreateIntervention}
+                        onUpdateIntervention={handleUpdateIntervention}
+                        onDeleteIntervention={handleDeleteIntervention}
+                        onAddToPlan={(intervention) => {
+   
+                        }}
+                    />
+                );
             case 'builder':
-                return <PlanBuilder 
-                    interventions={interventions} 
-                    onCreatePlan={handleCreatePlan}
- 
-                />;
+                return (
+                    <PlanBuilder 
+                        interventions={interventions} 
+                        onCreatePlan={handleCreatePlan}
+                    />
+                );
             case 'plans':
-                return <PlansList 
-                    plans={plans} 
-                    onViewPlan={handleViewPlanDetails}
-                    onDeletePlan={handleDeletePlan}
-                    onUpdatePlan={handleUpdatePlan}
-                />;
+                return (
+                    <PlansList 
+                        plans={plans} 
+                        onViewPlan={handleViewPlanDetails}
+                        onDeletePlan={handleDeletePlan}
+                        onUpdatePlan={handleUpdatePlan}
+                    />
+                );
             default:
-                return <InterventionCatalog interventions={interventions} />;
+                return (
+                    <InterventionCatalog 
+                        interventions={interventions}
+                        onCreateIntervention={handleCreateIntervention}
+                        onUpdateIntervention={handleUpdateIntervention}
+                        onDeleteIntervention={handleDeleteIntervention}
+                    />
+                );
         }
     };
 
