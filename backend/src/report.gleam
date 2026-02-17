@@ -237,7 +237,7 @@ pub fn generate_reports(db: pog.Connection){
     let id = store_report(report, db)
     let accept_item = accept_json.AcceptItem(
       id: id,
-      accepted: "Approved",
+      accepted: "Accepted",
     )
     approve_report(accept_item, db)
   })

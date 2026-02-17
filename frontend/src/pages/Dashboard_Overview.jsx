@@ -113,7 +113,7 @@ function OverviewPage() {
   useEffect(() => {
     const getHotspots = async () => {
       try {
-        const hotspot_response = await fetch("/api/hotspots", {
+        const hotspot_response = await fetch("/api/hotspots/dashboard", {
           method: "GET",
         });
         const data = await hotspot_response.json();
@@ -372,7 +372,7 @@ useEffect(() => {
               />
             ))}
           </div>
-        </div>
+        </div>dashboard
       </div>
 
       <div className="analyticsSection">
