@@ -7,7 +7,6 @@ import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
   import MitigationPlans from './pages/Dashboard_MitigationPlans';
   import ScenarioComparison from './pages/Dashboard_ScenarioComparison';
-  import ScenarioTab from './components/planner/Scenarios';
   import IncidentManagement from './pages/Dashboard_IncidentManagement';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
