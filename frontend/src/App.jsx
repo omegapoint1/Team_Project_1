@@ -58,7 +58,7 @@ function App() {
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
           <Route path="ExportingReport" element={<Reports />} />
-          <Route path="tracker" element={<ImplementationTracker />} />
+          <Route path="tracker" element={<IncidentManagement />} />
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>
