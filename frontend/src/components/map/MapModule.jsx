@@ -11,6 +11,7 @@ import ZoneBoundaries from "./ZoneBoundaries";
 import NoiseLegend from "./NoiseLegend";
 import BarChartView from "./BarChartView";
 import VisualizationControls from "./VisualizationControls";
+import React, { useMemo, useEffect } from "react";
 
 // Main MapModule component
 function MapModule({
@@ -21,6 +22,35 @@ function MapModule({
     showLegend = true,
     showControls = true
 }) {
+    const [reports_data, setReports] = useState([]);
+    
+    useEffect(() => {
+        const getReports = async () => {
+          try {
+            const map_data_response = await fetch("/api/map-data/get", {
+              method: "GET",
+            });
+            const mapData = await map_data_response.json();
+
+            const map_data_decoded = mapData.map((map_data, index) => ({
+              lat: map_data.lat,
+              long: map_data.long,
+              decibels: (map_data.noise * 10),
+              time: map_data.time,
+              category: map_data.category
+            }));  
+            console.log(map_data_decoded)
+
+            setReports(map_data_decoded);
+          } catch (error) {
+            console.error("Error fetching reports:", error);
+          }
+        };
+        getReports();
+      }, []);
+
+    noiseData = reports_data;
+
     // Internal state for toggles (only used if showControls is true)
     const [internalVisualizationMode, setInternalVisualizationMode] = useState('points');
     const [chartMode, setChartMode] = useState('days'); // 'days' or 'weeks'

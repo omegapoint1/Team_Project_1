@@ -86,3 +86,13 @@ CREATE INDEX idx_noise_data_source    ON NOISE_DATA (Source);
 CREATE INDEX idx_noise_data_recorded  ON NOISE_DATA (RecordedAt);
 CREATE INDEX idx_noise_data_category  ON NOISE_DATA (NoiseCategory);
 CREATE INDEX idx_noise_data_geometry  ON NOISE_DATA USING GIN (Geometry);
+
+
+CREATE TABLE map_data (
+  MapDataId SERIAL PRIMARY KEY,
+  lat Float,
+  long Float,
+  noise Int,
+  time varchar(255),
+  category varchar(255)
+);

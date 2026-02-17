@@ -137,7 +137,7 @@ fn map_noiseclass(noiseclass: String) -> #(Int, Int, String) {
   }
 }
 
-fn insert_row(
+pub fn insert_row(
   db: pog.Connection,
   geometry_json: String,
   noiseclass: String,
