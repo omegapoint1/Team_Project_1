@@ -7,7 +7,7 @@ import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
   import MitigationPlans from './pages/Dashboard_MitigationPlans';
   import ScenarioComparison from './pages/Dashboard_ScenarioComparison';
-  import ImplementationTracker from './pages/Dashboard_ImplementationTracker';
+  import IncidentManagement from './pages/Dashboard_IncidentManagement';
   import GenerateReport from './pages/Dashboard_GenerateReport';
   import HotspotAnalytics from './pages/Dashboard_HotspotAnalytics';
   import FormPage from './pages/FormPage';
@@ -57,7 +57,7 @@ function App() {
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
           <Route path="ExportingReport" element={<Reports />} />
-          <Route path="tracker" element={<ImplementationTracker />} />
+          <Route path="tracker" element={<IncidentManagement />} />
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>
