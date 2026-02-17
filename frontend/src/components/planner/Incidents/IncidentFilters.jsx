@@ -25,9 +25,8 @@ const zones = [
  
 
   const [filters, setFilters] = useState({
-    status: initialFilters.status || ['valid'], // Default: valid only
+    status: initialFilters.status || ['pending'],
     zone: initialFilters.zone || 'all',
-    category: initialFilters.category || 'all',
     severity: initialFilters.severity || 'all',
     timeRange: initialFilters.timeRange || '7d'
   });
@@ -36,7 +35,6 @@ const zones = [
     let newFilters;
     
     if (filterType === 'status') {
-      // Toggle status in array
       newFilters = {
         ...filters,
         status: filters.status.includes(value)
@@ -63,7 +61,12 @@ const zones = [
         <h2>Filter Incidents</h2>
         <button 
           onClick={() => {
-            const reset = { status: ['valid'], zone: 'all', category: 'all', severity: 'all', timeRange: '7d' };
+            const reset = { 
+              status: ['pending'], 
+              zone: 'all', 
+              severity: 'all', 
+              timeRange: '7d' 
+            };
             setFilters(reset);
             onFilterChange(reset);
           }}
@@ -73,27 +76,8 @@ const zones = [
         </button>
       </div>
 
-      {/* Status Filter (Checkboxes) */}
-      <div className="filter-section">
-        <label className="filter-label">Status</label>
-        <div className="status-options">
-          {statusOptions.map(option => (
-            <label key={option.value} className="status-option">
-              <input
-                type="checkbox"
-                checked={filters.status.includes(option.value)}
-                onChange={() => handleFilterChange('status', option.value)}
-                className={`status-checkbox ${option.color}`}
-              />
-              <span className="status-label">{option.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Rest of filters in grid */}
       <div className="filters-grid">
-        {/* Zone filter with matching map zone*/}
+        {/*
         <div className="filter-group">
           <label className="filter-label">Zone</label>
           <select
@@ -109,26 +93,9 @@ const zones = [
             ))}
           </select>
         </div>
+        */}
 
-        {/* Category Filter 
-        
-             {/*  <div className="filter-group">
-          <label className="filter-label">Category</label>
-          <select
-            value={filters.category}
-            onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Categories</option>
-            <option value="construction">Construction</option>
-            <option value="music">Music</option>
-            <option value="traffic">Traffic</option>
-            <option value="events">Events</option>
-            <option value="other">Other</option>
-          </select>
-        </div>*/}
-
-        {/* Severity Filter  */}
+        {/*
         <div className="filter-group">
           <label className="filter-label">Severity (1-8)</label>
           <select
@@ -144,8 +111,9 @@ const zones = [
             ))}
           </select>
         </div>
+        */}
 
-        {/* Time Range Filter */}
+        {/*
         <div className="filter-group">
           <label className="filter-label">Time Range</label>
           <select
@@ -160,10 +128,11 @@ const zones = [
             <option value="all">All Time</option>
           </select>
         </div>
+        */}
       </div>
 
-      {/* Active Filters Summary */}
-     {filters.status.length > 0 && (
+      {/*
+      {filters.status.length > 0 && (
         <div className="active-filters">
           <div className="filters-summary">
             <span className="summary-label">Active filters:</span>
@@ -172,19 +141,10 @@ const zones = [
                 {statusOptions.find(s => s.value === status)?.label}
               </span>
             ))}
-            {filters.zone !== 'all' && (
-              <span className="filter-tag">
-                Zone: {filters.zone}
-              </span>
-            )}
-            {filters.severity !== 'all' && (
-              <span className="filter-tag">
-                Severity: {filters.severity}
-              </span>
-            )}
           </div>
         </div>
       )}
+      */}
     </div>
   );
 };

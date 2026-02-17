@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'; // CHANGE: Added useCallback
+import { useState, useEffect, useCallback } from 'react';
 import IncidentFilters from './IncidentFilters';
 import IncidentCard from './IncidentCard';
 import IncidentDetailModal from './IncidentDetailModal';
@@ -11,10 +11,30 @@ const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
+  
+  // Zone list matching the zones from IncidentFilters
+  const zones = [
+    { id: 1, name: "North-West" },
+    { id: 2, name: "North-Central-West" },
+    { id: 3, name: "North-Central-East" },
+    { id: 4, name: "North-East" },
+    { id: 5, name: "Central-North-West" },
+    { id: 6, name: "Central-North-Central-West" },
+    { id: 7, name: "Central-North-Central-East" },
+    { id: 8, name: "Central-North-East" },
+    { id: 9, name: "Central-South-West" },
+    { id: 10, name: "Central-South-Central-West" },
+    { id: 11, name: "Central-South-Central-East" },
+    { id: 12, name: "Central-South-East" },
+    { id: 13, name: "South-West" },
+    { id: 14, name: "South-Central-West" },
+    { id: 15, name: "South-Central-East" },
+    { id: 16, name: "South-East" },
+  ];
+
   const [filters, setFilters] = useState({
-    status: ['valid'],
+    status: ['pending'], 
     zone: 'all',
-    category: 'all',
     severity: 'all',
     timeRange: '7d'
   });
@@ -61,7 +81,6 @@ const IncidentList = () => {
     await loadIncidents(true);
   };
 
-  //Update incident. update server first, then local
   const handleIncidentUpdate = async (updatedIncident) => {
     try {
       try {
@@ -73,7 +92,7 @@ const IncidentList = () => {
       incidentLocalService.update(updatedIncident);
       
       setIncidents(prev => 
-        prev.map(inc => inc.id === updatedIncident.id)
+        prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc)
       );
       
     } catch (error) {
@@ -89,11 +108,11 @@ const IncidentList = () => {
     const updatedIncident = {
       ...currentIncident,
       status: newStatus,
-      ...(notes && { moderation_notes: notes })
+      ...(notes && { moderation_notes: notes }),
+      updated_at: new Date().toISOString()
     };
 
     try {
-
       await handleIncidentUpdate(updatedIncident);
       alert(`Incident ${incidentId} marked as ${newStatus}`);
     } catch (error) {
@@ -104,24 +123,31 @@ const IncidentList = () => {
   useEffect(() => {
     let filtered = [...incidents];
 
-    if (filters.status.length > 0) {
+    /*if (filters.status && filters.status.length > 0) {
       filtered = filtered.filter(incident => 
         filters.status.includes(incident.status)
       );
-    }
+    }*/
 
+    /*Zone filter 
     if (filters.zone !== 'all') {
-      filtered = filtered.filter(incident => incident.zone === filters.zone);
+      const selectedZone = zones.find(z => z.id.toString() === filters.zone.toString());
+      if (selectedZone) {
+        filtered = filtered.filter(incident => incident.zone === selectedZone.name);
+      }
     }
+    */
 
-    if (filters.category !== 'all') {
-      filtered = filtered.filter(incident => incident.category === filters.category);
-    }
-
+    /*sevrity filter
     if (filters.severity !== 'all') {
-      filtered = filtered.filter(incident => incident.severity === filters.severity);
+      const severityNum = parseInt(filters.severity);
+      filtered = filtered.filter(incident => 
+        parseInt(incident.severity) === severityNum
+      );
     }
+    */
 
+    /* time range filter 
     if (filters.timeRange !== 'all') {
       const days = parseInt(filters.timeRange);
       const cutoff = new Date();
@@ -132,9 +158,10 @@ const IncidentList = () => {
         return incidentDate >= cutoff;
       });
     }
+    */
 
     setFilteredIncidents(filtered);
-  }, [filters, incidents]);
+  }, [filters, incidents]); // Removed zones from dependencies
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -177,18 +204,12 @@ const IncidentList = () => {
           <div className="stat-label">Pending</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number valid">{getStatusCount('valid')}</div>
-          <div className="stat-label">Valid</div>
+          <div className="stat-number accepted">{getStatusCount('accepted')}</div>
+          <div className="stat-label">Accepted</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number processed">{getStatusCount('processed')}</div>
-          <div className="stat-label">Processed</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number filtered">
-            {getStatusCount('duplicate') + getStatusCount('invalid')}
-          </div>
-          <div className="stat-label">Filtered Out</div>
+          <div className="stat-number rejected">{getStatusCount('rejected')}</div>
+          <div className="stat-label">Rejected</div>
         </div>
       </div>
 

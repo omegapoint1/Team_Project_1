@@ -21,17 +21,22 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
 
     const calculateTotalCost = () => {
         return selectedInterventions.reduce((total, intervention) => {
-            return total + (intervention.costRange.min + intervention.costRange.max) / 2;
+            // Use cost array directly, not costRange
+            const costMin = intervention.cost?.[0] || 0;
+            const costMax = intervention.cost?.[1] || 0;
+            return total + (costMin + costMax) / 2;
         }, 0);
     };
 
     const calculateTotalImpact = () => {
-        const minImpact = selectedInterventions.reduce((total, intervention) => 
-            total + intervention.impact[0], 0
-        );
-        const maxImpact = selectedInterventions.reduce((total, intervention) => 
-            total + intervention.impact[1], 0
-        );
+        const minImpact = selectedInterventions.reduce((total, intervention) => {
+            return total + (intervention.impact?.[0] || 0);
+        }, 0);
+        
+        const maxImpact = selectedInterventions.reduce((total, intervention) => {
+            return total + (intervention.impact?.[1] || 0);
+        }, 0);
+        
         return { min: minImpact, max: maxImpact };
     };
 
@@ -40,7 +45,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
             alert('Please fill in all required fields and add at least one intervention');
             return;
         }
-          const interventionIds = selectedInterventions.map(intervention => String(intervention.id));
+        
+        const interventionIds = selectedInterventions.map(intervention => String(intervention.id));
 
         const plan = {
             name: planName,
@@ -117,8 +123,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
                                     <h4>{intervention.name}</h4>
                                     <p>{intervention.description}</p>
                                     <div className="intervention-stats">
-                                        <span>Cost: £{intervention.cost[0]}-{intervention.cost[1]}</span>
-                                        <span>Impact: {intervention.impact[0]}-{intervention.impact[1]} dB</span>
+                                        <span>Cost: £{intervention.cost?.[0] || 0}-{intervention.cost?.[1] || 0}</span>
+                                        <span>Impact: {intervention.impact?.[0] || 0}-{intervention.impact?.[1] || 0} dB</span>
                                     </div>
                                 </div>
                                 <button
@@ -143,8 +149,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
                                 <div key={intervention.id} className="selected-intervention">
                                     <div className="selected-intervention-info">
                                         <h4>{intervention.name}</h4>
-                                        <p>Cost: £{intervention.cost[0]}-{intervention.cost[1]}</p>
-                                        <p>Impact: {intervention.impact[0]}-{intervention.impact[1]} dB</p>
+                                        <p>Cost: £{intervention.cost?.[0] || 0}-{intervention.cost?.[1] || 0}</p>
+                                        <p>Impact: {intervention.impact?.[0] || 0}-{intervention.impact?.[1] || 0} dB</p>
                                     </div>
                                     <button
                                         onClick={() => handleRemoveIntervention(intervention.id)}

@@ -238,7 +238,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                             <div className="stat-box">
                                 <span>Cost Range</span>
                                 <span>
-                                    £{intervention.costRange.min} - £{intervention.costRange.max}
+                                    £{intervention.cost[0]} - £{intervention.cost[1]}
                                 </span>
                             </div>
                             <div className="stat-box">

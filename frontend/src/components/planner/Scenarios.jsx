@@ -6,7 +6,6 @@ import ComparisonTable from './Scenario/ComparisonTable';
 import RecommendationCard from './Scenario/RecommendationCard';
 import WeightControls from './Scenario/WeightControls';
 import ScenarioBuilder from './Scenario/ScenarioBuilder';
-
 import { mockScenarios } from './PlannerData/scenarioData';
 
 const ScenarioTab = () => {
