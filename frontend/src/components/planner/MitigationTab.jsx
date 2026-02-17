@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import InterventionCatalog from './Mitigations/InterventionCatalog';
-import PlanBuilder from './Mitigations/PlanBuilder';
-import PlansList from './Mitigations/PlansList';
-import PlanDetailModal from './Mitigations/PlanDetailModal';
-import { interventionsData } from './PlannerData/mitigationsData';
-import './MitigationTab.css';
+import InterventionCatalog from "./Mitigations/InterventionCatalog";
+import PlanBuilder from "./Mitigations/PlanBuilder";
+import PlansList from "./Mitigations/PlansList";
+import PlanDetailModal from "./Mitigations/PlanDetailModal";
+import { interventionsData } from "./PlannerData/mitigationsData";
+import "./MitigationTab.css";
 
 const MitigationTab = () => {
     const [activeTab, setActiveTab] = useState('catalog');
