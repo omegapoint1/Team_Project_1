@@ -1,22 +1,25 @@
 import ReactModal from 'react-modal';
 import { useState } from 'react';
 import './PlanDetailModal.css';
+import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
+//import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
+import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
+import PlanExportButtons from '../../common/PlanExportButtons.jsx';
+ReactModal.setAppElement('#root');
 
 /*Modal which shows plan details in a modal window with 3 tabbed sections
  */
 
-const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
+const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
+
+
     const [activeTab, setActiveTab] = useState('overview');
     const [isEditingName, setIsEditingName] = useState(false);
-    const [editedName, setEditedName] = useState(plan.name);
+    const [editedName, setEditedName] = useState(plan?.name || '');
+    const [attachedEvidence, setAttachedEvidence] = useState([]); 
+    const [selectedNewStatus, setSelectedNewStatus] = useState('');
 
-    const statusOptions = {
-        draft: { label: 'Draft', color: 'orange', bgColor: 'lightyellow' },
-        submitted: { label: 'Submitted', color: 'blue', bgColor: 'lightblue' },
-        approved: { label: 'Approved', color: 'purple', bgColor: 'lavender' },
-        implemented: { label: 'Implemented', color: 'green', bgColor: 'lightgreen' },
-        rejected: { label: 'Rejected', color: 'red', bgColor: 'lightpink' }
-    };
+    if (!plan) return null;
 
     const modalStyles = {
         content: {
@@ -32,34 +35,44 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
             borderRadius: '16px',
             padding: '0',
             border: 'none',
-            boxShadow: '0 25px 50px -12px white',
-            overflow: 'hidden'
+            boxShadow: '0 25px 50px -12px black', 
+            overflow: 'hidden',
+            zIndex: 1001
         },
         overlay: {
-            backgroundColor: 'white',
-            zIndex: 1000
+            backgroundColor: 'white', 
+            zIndex: 1000,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
         }
-    };
+    }
 
-    const getNextStatusOptions = () => {
+     const getNextStatusOptions = () => {
         switch(plan.status) {
-            case 'draft': return [{ value: 'submitted', label: 'Submit for Review', color: 'blue' }];
-            case 'submitted': return [
-                { value: 'approved', label: 'Approve Plan', color: 'purple' },
-                { value: 'rejected', label: 'Reject Plan', color: 'red' }
-            ];
-            case 'approved': return [{ value: 'implemented', label: 'Mark as Implemented', color: 'green' }];
-            case 'rejected': return [{ value: 'draft', label: 'Return to Draft', color: 'orange' }];
-            case 'implemented': return [{ value: 'submitted', label: 'Re-open for Review', color: 'blue' }];
-            default: return [];
-        }
-    };
+        case 'Planned': return [{ value: 'In Progress', label: 'Mark as Processed', color: 'blue', description: 'Action is currently in process for this plan' }];
+        case 'In Progress': return [
+            { value: 'Done', label: 'Mark as Completed', color: 'purple', description: 'Plan has been executed to completion' },
+            { value: 'Rejected/Cancelled', label: 'Rejected as Invalid', color: 'red', description: 'Rejected report - duplicate or invalid for other reason' }
+        ];
+        case 'Done': return [{ value: 'In Progress', label: 'Re-open Implementation', color: 'blue', description: 'Re-open for additional work' }];
+        case 'Rejected/Cancelled': return [{ value: 'Planned', label: 'Validate Incident', color: 'green', description: 'Accepted as genuine' }];
+        default: return [];
+    }
+};
 
     const handleStatusUpdate = (newStatus) => {
-        if (window.confirm(`Change status to "${statusOptions[newStatus].label}"?`)) {
-            onUpdateStatus(plan.id, newStatus);
-            onClose();
-        }
+        
+        const updatedPlan = {
+            ...plan,
+            status: newStatus,
+        };
+        
+        onUpdate(updatedPlan);
+            
+        
     };
 
     const calculateBudgetUtilization = () => {
@@ -73,6 +86,32 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
         return { color: 'green', label: 'Within Budget' };
     };
 
+    const handleEvidenceUploaded = (evidenceItems) => {
+        const newEvidence = [...attachedEvidence, ...evidenceItems];
+        setAttachedEvidence(newEvidence);
+
+
+        const updatedPlan = {
+            ...plan,
+            evidence: newEvidence,
+        };
+        
+        onUpdate(updatedPlan);
+    };
+
+    const handleEvidenceRemoval = (evidenceId) => {
+        //setAttachedEvidence(prev => prev.filter(item => item.id !== evidenceId));
+        const filteredEvidence = attachedEvidence.filter(item => item.id !== evidenceId);
+        setAttachedEvidence(filteredEvidence);
+
+        const updatedPlan = {
+            ...plan,
+            evidence: filteredEvidence,
+        };
+        
+        onUpdate(updatedPlan);
+    };
+
     const renderOverview = () => (
         <div className="overview-section">
             <div className="overview-grid">
@@ -81,16 +120,16 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                     <div className="budget-summary">
                         <div className="budget-item">
                             <span>Total Budget</span>
-                            <span>£{plan.budget.toLocaleString('en-GB')}</span>
+                            <span>£{plan.budget}</span>
                         </div>
                         <div className="budget-item">
                             <span>Plan Cost</span>
-                            <span>£{plan.totalCost.toLocaleString('en-GB')}</span>
+                            <span>£{plan.totalCost}</span>
                         </div>
                         <div className="budget-item">
                             <span>Remaining</span>
                             <span style={{ color: plan.budget - plan.totalCost >= 0 ? 'green' : 'red' }}>
-                                £{(plan.budget - plan.totalCost).toLocaleString('en-GB')}
+                                £{(plan.budget - plan.totalCost)}
                             </span>
                         </div>
                     </div>
@@ -129,7 +168,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                         <div className="impact-info">
                             <div>Estimated Noise Reduction</div>
                             <div>
-                                {plan.impact?.min || 0}-{plan.impact?.max || 0} dB
+                                {plan.impact[0] || 0}-{plan.impact[1]|| 0} dB
                             </div>
                             <div>
                                 Expected reduction in noise levels after implementation
@@ -176,12 +215,12 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
     );
 
     const renderInterventions = () => (
-        <div className="interventions-section">
-            <div className="interventions-header">
-                <h4>Selected Interventions ({plan.interventions.length})</h4>
-                <div className="interventions-summary">
-                    <span>Total Cost: £{plan.totalCost.toLocaleString('en-GB')}</span>
-                    <span>Total Impact: {plan.impact?.min || 0}-{plan.impact?.max || 0} dB</span>
+        <div >
+            <div >
+                <h4>Comprised Interventions</h4>
+                <div className="interventions-info">
+                    <span>Total Cost: £{plan.totalCost}</span>
+                    <span>Total Impact: {plan.impact[0] || 0}-{plan.impact[1] || 0} dB</span>
                 </div>
             </div>
             
@@ -199,13 +238,13 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                             <div className="stat-box">
                                 <span>Cost Range</span>
                                 <span>
-                                    £{intervention.costRange.min.toLocaleString('en-GB')} - £{intervention.costRange.max.toLocaleString('en-GB')}
+                                    £{intervention.cost[0]} - £{intervention.cost[1]}
                                 </span>
                             </div>
                             <div className="stat-box">
                                 <span>Impact Range</span>
                                 <span>
-                                    {intervention.impactRange.min}-{intervention.impactRange.max} dB
+                                    {intervention.impact[0]}-{intervention.impact[1]} dB
                                 </span>
                             </div>
                             <div className="stat-box">
@@ -233,15 +272,15 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                     Current Status: 
                     <span 
                         className="status-badge-modal"
-                        style={{
-                            backgroundColor: statusOptions[plan.status].bgColor,
-                            color: statusOptions[plan.status].color,
-                            borderColor: statusOptions[plan.status].color
-                        }}
+
                     >
-                        {statusOptions[plan.status].label}
+                        {plan.status}
                     </span>
                 </p>
+                    <div className="export-actions">
+      <h4>Export Plan</h4>
+      <PlanExportButtons plan={plan} />
+    </div>
                 
                 <div className="action-buttons">
                     {getNextStatusOptions().map(option => (
@@ -249,21 +288,30 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                             key={option.value}
                             onClick={() => handleStatusUpdate(option.value)}
                             style={{ backgroundColor: option.color }}
+                            title={option.description} 
                         >
                             {option.label}
                         </button>
                     ))}
                 </div>
             </div>
+            
 
-            <div className="additional-actions">
-                <h4>Additional Actions</h4>
-                <div className="action-buttons-grid">
-                    <button className="secondary">📄 Generate Report</button>
-                    <button className="secondary">📧 Share Plan</button>
-                    <button className="secondary">🔄 Duplicate Plan</button>
-                    <button className="danger">🗑️ Delete Plan</button>
-                </div>
+            
+
+            <div className="evidence-actions">
+                <h4>Attach Evidence & Documentation</h4>
+
+                    <EvidenceDisplay 
+                    evidence={attachedEvidence}
+                    onRemoveEvidence={handleEvidenceRemoval}
+                    />
+                <EvidenceUploader 
+                    onEvidenceUploaded={handleEvidenceUploaded}
+                    attachedEvidence={attachedEvidence}
+                    onRemoveEvidence={handleEvidenceRemoval}
+                    planId={plan.id}
+                />
             </div>
 
             <div className="plan-notes">
@@ -274,6 +322,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdateStatus }) => {
                     defaultValue={plan.notes || ''}
                 />
                 <button>Save Notes</button>
+            </div>
+            <div >
+                <h4>Additional Actions</h4>
+                <div className="action-buttons-grid">
+                    <button >📄 Generate Report</button>
+                    <button >🔄 Duplicate Plan</button>
+                    <button >🗑️ Delete Plan</button>
+                </div>
             </div>
         </div>
     );

@@ -3,58 +3,195 @@ import InterventionCatalog from './Mitigations/InterventionCatalog';
 import PlanBuilder from './Mitigations/PlanBuilder';
 import PlansList from './Mitigations/PlansList';
 import PlanDetailModal from './Mitigations/PlanDetailModal';
-import { interventionsData } from './PlannerData/mitigationsData';
+// Remove this line - don't import hardcoded data
+// import { interventionsData } from './PlannerData/mitigationsData';
+import { planServerService, planLocalService } from '../services/planService';
+import { interventionServerService, interventionLocalService } from '../services/interventionService';
 import './MitigationTab.css';
 
 const MitigationTab = () => {
     const [activeTab, setActiveTab] = useState('catalog');
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
-    const [interventions, setInterventions] = useState(interventionsData);
+    const [interventions, setInterventions] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    //load saved plans from localStorage
     useEffect(() => {
-        const savedPlans = localStorage.getItem('noiseMitigationPlans');
-        if (savedPlans) {
+        const loadInterventions = async () => {
             try {
-                setPlans(JSON.parse(savedPlans));
+                const serverInterventions = await interventionServerService.getAll();
+                
+                if (serverInterventions && serverInterventions.length > 0) {
+                    setInterventions(serverInterventions);
+                    interventionLocalService.saveAll(serverInterventions);
+                } else {
+                    const localInterventions = interventionLocalService.getAll();
+                    if (localInterventions && localInterventions.length > 0) {
+                        setInterventions(localInterventions);
+                    } else {
+                        setInterventions([]);
+                    }
+                }
             } catch (error) {
-                console.error('Error loading plans from localStorage:', error);
-                setPlans([]);
+                console.error('Failed to load interventions from server:', error);
+                const localInterventions = interventionLocalService.getAll();
+                setInterventions(localInterventions || []);
             }
-        }
+        };
+
+        loadInterventions();
     }, []);
 
-    //Save plans to localStorage whenever they change
     useEffect(() => {
-        localStorage.setItem('noiseMitigationPlans', JSON.stringify(plans));
-    }, [plans]);
+        const loadPlans = async () => {
+            try {
+                setLoading(true);
+                const serverPlans = await planServerService.getAll();
+                
+                if (serverPlans && serverPlans.length > 0) {
+                    setPlans(serverPlans);
+                    planLocalService.saveAll(serverPlans);
+                } else {
+                    setPlans([]);
+                }
+            } catch (error) {
+                console.error('Failed to load plans from server:', error);
+                setPlans([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleAddToPlan = (intervention) => {
+        loadPlans();
+    }, []);
 
-        alert(`Added ${intervention.name} to plan. Switch to "Build Plan" tab to continue.`);
-        localStorage.setItem('lastSelectedIntervention', JSON.stringify(intervention));
+    const handleCreateIntervention = async (newIntervention) => {
+        const interventionWithId = {
+            ...newIntervention,
+            id: newIntervention.id || `int_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            created_at: new Date().toISOString()
+        };
+        
+        try {
+            await interventionServerService.create(interventionWithId);
+            setInterventions(prev => [...prev, interventionWithId]);
+            interventionLocalService.create(interventionWithId);
+        } catch (error) {
+            console.log('Failed to create intervention on server:', error);
+            setInterventions(prev => [...prev, interventionWithId]);
+            interventionLocalService.create(interventionWithId);
+        }
     };
 
-    const handleCreatePlan = (newPlan) => {
+    const handleUpdateIntervention = async (updatedIntervention) => {
+        try {
+            await interventionServerService.update(updatedIntervention);
+            
+            setInterventions(prev => 
+                prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+            );
+            interventionLocalService.update(updatedIntervention);
+        } catch (error) {
+            console.log('Failed to update intervention on server:', error);
+            setInterventions(prev => 
+                prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+            );
+            interventionLocalService.update(updatedIntervention);
+        }
+    };
+
+    const handleDeleteIntervention = async (id) => {
+        if (interventions.length <= 1) {
+            alert('Cannot delete: At least one intervention required');
+            return;
+        }
+        
+        try {
+            await interventionServerService.delete(id);
+            setInterventions(prev => prev.filter(i => i.id !== id));
+            interventionLocalService.delete(id);
+        } catch (error) {
+            console.log('Failed to delete intervention from server:', error);
+            setInterventions(prev => prev.filter(i => i.id !== id));
+            interventionLocalService.delete(id);
+        }
+    };
+
+    const handleCreatePlan = async (newPlan) => {
+        let newId;
+        let isUnique = false;
+
+        while (!isUnique) {
+            newId = Math.floor(Math.random() * 999999) + 1;
+            isUnique = !plans.some(plan => plan.id === newId.toString());
+        }
+        
         const planWithId = {
             ...newPlan,
-            id: `plan-${Date.now()}`,
-            status: 'draft'
+            id: `${newId}`,
+            status: 'draft',
+            created_at: new Date().toISOString()
         };
-        setPlans([...plans, planWithId]);
-        setActiveTab('plans');
+        
+        try {
+            await planServerService.create(planWithId);
+            setPlans(prevPlans => [...prevPlans, planWithId]);
+            planLocalService.create(planWithId);
+            setActiveTab('plans');
+        } catch (error) {
+            console.log('Failed to create plan on server:', error);
+            setPlans(prevPlans => [...prevPlans, planWithId]);
+            planLocalService.create(planWithId);
+            setActiveTab('plans');
+            throw error;
+        }
     };
 
-    const handleUpdatePlanStatus = (planId, newStatus) => {
-        setPlans(plans.map(plan => 
-            plan.id === planId ? { ...plan, status: newStatus } : plan
-        ));
+    const handleUpdatePlan = async (updatedPlan) => {
+        try {
+            planServerService.update(updatedPlan).catch(error => {
+                console.log('Server update failed (background):', error);
+            });
+            
+            setPlans(prevPlans => {
+                const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+                return currentPlans.map(plan => 
+                    plan && plan.id === updatedPlan.id ? updatedPlan : plan
+                );
+            });
+            
+            planLocalService.update(updatedPlan);
+            
+            if (selectedPlan && selectedPlan.id === updatedPlan.id) {
+                setSelectedPlan(updatedPlan);
+            }
+        } catch (error) {
+            console.log('Failed to update plan:', error);
+            
+            setPlans(prevPlans => {
+                const currentPlans = Array.isArray(prevPlans) ? prevPlans : [];
+                return currentPlans.map(plan => 
+                    plan && plan.id === updatedPlan.id ? updatedPlan : plan
+                );
+            });
+            planLocalService.update(updatedPlan);
+        }
     };
 
-    const handleDeletePlan = (planId) => {
-        if (window.confirm('Are you sure you want to delete this plan?')) {
-            setPlans(plans.filter(plan => plan.id !== planId));
+    const handleDeletePlan = async (planId) => {
+        try {
+            await planServerService.delete(planId);
+            setPlans(prevPlans => prevPlans.filter(plan => plan.id !== planId));
+            planLocalService.delete(planId);
+            
+            if (selectedPlan && selectedPlan.id === planId) {
+                setSelectedPlan(null);
+            }
+        } catch (error) {
+            console.error('Failed to delete plan from server:', error);
+            setPlans(prevPlans => prevPlans.filter(plan => plan.id !== planId));
+            planLocalService.delete(planId);
+            throw error;
         }
     };
 
@@ -69,34 +206,59 @@ const MitigationTab = () => {
     const getStatusCount = (status) => {
         return plans.filter(plan => plan.status === status).length;
     };
-
+    
     const renderActiveTab = () => {
         switch(activeTab) {
             case 'catalog':
-                return <InterventionCatalog onAddToPlan={handleAddToPlan} />;
+                return (
+                    <InterventionCatalog 
+                        interventions={interventions}
+                        onCreateIntervention={handleCreateIntervention}
+                        onUpdateIntervention={handleUpdateIntervention}
+                        onDeleteIntervention={handleDeleteIntervention}
+                        onAddToPlan={(intervention) => {
+   
+                        }}
+                    />
+                );
             case 'builder':
-                return <PlanBuilder 
-                    interventions={interventions} 
-                    onCreatePlan={handleCreatePlan} 
-                />;
+                return (
+                    <PlanBuilder 
+                        interventions={interventions} 
+                        onCreatePlan={handleCreatePlan}
+                    />
+                );
             case 'plans':
-                return <PlansList 
-                    plans={plans} 
-                    onViewPlan={handleViewPlanDetails}
-                    onUpdateStatus={handleUpdatePlanStatus}
-                    onDeletePlan={handleDeletePlan}
-                />;
+                return (
+                    <PlansList 
+                        plans={plans} 
+                        onViewPlan={handleViewPlanDetails}
+                        onDeletePlan={handleDeletePlan}
+                        onUpdatePlan={handleUpdatePlan}
+                    />
+                );
             default:
-                return <InterventionCatalog onAddToPlan={handleAddToPlan} />;
+                return (
+                    <InterventionCatalog 
+                        interventions={interventions}
+                        onCreateIntervention={handleCreateIntervention}
+                        onUpdateIntervention={handleUpdateIntervention}
+                        onDeleteIntervention={handleDeleteIntervention}
+                    />
+                );
         }
     };
+
+    if (loading) {
+        return <div className="loading">Loading plans...</div>;
+    }
 
     return (
         <div className="mitigation-tab">
             <div className="tab-header">
-                <h1>Noise Mitigation Planner</h1>
+                <h1>Noise Interventions/Mitigations Creator</h1>
                 <p className="tab-description">
-                    Design and manage noise reduction strategies for different zones
+                    Create, manage and track implementations of plans for noise interventions
                 </p>
             </div>
 
@@ -149,9 +311,10 @@ const MitigationTab = () => {
 
             {selectedPlan && (
                 <PlanDetailModal 
-                    plan={selectedPlan}
+                    isOpen={true}
                     onClose={handleCloseModal}
-                    onUpdateStatus={handleUpdatePlanStatus}
+                    plan={selectedPlan}
+                    onUpdatePlan={handleUpdatePlan}
                 />
             )}
         </div>

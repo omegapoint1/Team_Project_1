@@ -1,20 +1,138 @@
-    import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './InterventionCatalog.css';
-import { interventionsData } from '../PlannerData/mitigationsData';
+import { interventionServerService, interventionLocalService } from '../../services/interventionService';
+import InterventionBuilderModal from './InterventionBuilderModal';
 
-const InterventionCatalog = ({ onAddToPlan }) => {
+const InterventionCatalog = ({ 
+  interventions: propInterventions, // Rename the prop to avoid conflict
+  onUpdateIntervention,
+  onCreateIntervention,
+  onDeleteIntervention,
+  onAddToPlan 
+}) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedCost, setSelectedCost] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    // FIXED: Use a different name for local state
+    const [localInterventions, setLocalInterventions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedIntervention, setSelectedIntervention] = useState(null);
+
+    // Use either propInterventions or localInterventions based on what's passed
+    const interventions = propInterventions || localInterventions;
 
     const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
     const costBands = ['all', 'low', 'medium', 'high'];
 
-    const filteredInterventions = interventionsData.filter(intervention => {
+    useEffect(() => {
+        if (propInterventions && propInterventions.length > 0) {
+            setLoading(false);
+            return;
+        }
+
+        const loadInterventions = async () => {
+            try {
+                const freshData = await interventionServerService.getAll();
+                setLocalInterventions(freshData);
+                interventionLocalService.saveAll(freshData);
+            } catch (error) {
+                console.log('Server fetch failed, loading from cache');
+                const cached = localStorage.getItem('interventions');
+                if (cached) {
+                    setLocalInterventions(JSON.parse(cached));
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadInterventions();
+    }, [propInterventions]);
+
+    const handleCreate = async (newIntervention) => {
+        try {
+            if (onCreateIntervention) {
+                // If parent handler exists, use it
+                await onCreateIntervention(newIntervention);
+            } else {
+                // Otherwise handle locally
+                interventionServerService.create(newIntervention).catch(error => {
+                    console.log('Server create call failed');
+                });
+                setLocalInterventions(prev => [...prev, newIntervention]);
+                interventionLocalService.create(newIntervention);
+            }
+        } catch (error) {
+            console.log('Server create failed, using local');
+            setLocalInterventions(prev => [...prev, newIntervention]);
+            interventionLocalService.create(newIntervention);
+        }
+    };
+
+    const handleUpdate = async (updatedIntervention) => {
+        try {
+            if (onUpdateIntervention) {
+                await onUpdateIntervention(updatedIntervention);
+            } else {
+                interventionServerService.update(updatedIntervention).catch(error => {
+                    console.log('Server update failed');
+                });
+                setLocalInterventions(prev => 
+                    prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+                );
+                interventionLocalService.update(updatedIntervention);
+            }
+        } catch (error) {
+            console.log('Server update failed, using local');
+            setLocalInterventions(prev => 
+                prev.map(i => i.id === updatedIntervention.id ? updatedIntervention : i)
+            );
+            interventionLocalService.update(updatedIntervention);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (interventions.length <= 16) {
+            alert('Cannot delete: Minimum 16 interventions required');
+            return;
+        }
+
+        try {
+            if (onDeleteIntervention) {
+                await onDeleteIntervention(id);
+            } else {
+                interventionServerService.delete(id);
+                setLocalInterventions(prev => prev.filter(i => i.id !== id));
+                interventionLocalService.delete(id);
+            }
+        } catch (error) {
+            console.log('Server delete failed, fall back to local');
+            setLocalInterventions(prev => prev.filter(i => i.id !== id));
+            interventionLocalService.delete(id);
+        }
+    };
+
+    const handleEditClick = (intervention) => {
+        setSelectedIntervention(intervention);
+        setModalOpen(true);
+    };
+
+    const handleCreateNewClick = () => {
+        setSelectedIntervention(null);
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setModalOpen(false);
+        setSelectedIntervention(null);
+    };
+
+    const filteredInterventions = interventions.filter(intervention => {
         const matchesCategory = selectedCategory === 'all' || intervention.category === selectedCategory;
         const matchesCost = selectedCost === 'all' || intervention.costBand === selectedCost;
-        const matchesSearch = intervention.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             intervention.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = intervention.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             intervention.description?.toLowerCase().includes(searchTerm.toLowerCase());
         
         return matchesCategory && matchesCost && matchesSearch;
     });
@@ -34,11 +152,18 @@ const InterventionCatalog = ({ onAddToPlan }) => {
         return '#ef4444';
     };
 
+    if (loading) {
+        return <div className="loading">Loading interventions..</div>;
+    }
+
     return (
         <div className="intervention-catalog">
             <div className="catalog-header">
                 <h2>Intervention Catalog</h2>
                 <p>Browse available interventions for noise mitigation</p>
+                <button onClick={handleCreateNewClick}>
+                    + New Intervention
+                </button>
             </div>
 
             <div className="catalog-filters">
@@ -104,15 +229,15 @@ const InterventionCatalog = ({ onAddToPlan }) => {
                                     className="detail-value"
                                     style={{ color: getCostColor(intervention.costBand) }}
                                 >
-                                    {intervention.costBand.toUpperCase()} 
-                                    (£{intervention.costRange.min}-£{intervention.costRange.max})
+                                    {intervention.costBand?.toUpperCase()} 
+                                    (£{intervention.costRange?.min}-£{intervention.costRange?.max})
                                 </span>
                             </div>
 
                             <div className="detail-item">
                                 <span className="detail-label">Impact:</span>
                                 <span className="detail-value">
-                                    {intervention.impactRange.min}-{intervention.impactRange.max} dB reduction
+                                    {intervention.impact[0]}-{intervention.impact[1]} dB reduction
                                 </span>
                             </div>
 
@@ -132,12 +257,19 @@ const InterventionCatalog = ({ onAddToPlan }) => {
                             </div>
                         </div>
 
-                        <button 
-                            className="add-to-plan-button"
-                            onClick={() => onAddToPlan(intervention)}
-                        >
-                            Add to Plan
-                        </button>
+                        <div className="card-actions">
+                            {/*<button 
+                                className="edit-button"
+                                onClick={() => handleEditClick(intervention)}>
+                                Edit
+                            </button>*/}
+                            <button 
+                                className="add-to-plan-button"
+                                onClick={() => onAddToPlan && onAddToPlan(intervention)}
+                            >
+                                Add to Plan
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -149,6 +281,16 @@ const InterventionCatalog = ({ onAddToPlan }) => {
                     <p>Try adjusting your filters or search term</p>
                 </div>
             )}
+
+            <InterventionBuilderModal
+                isOpen={modalOpen}
+                onClose={handleModalClose}
+                intervention={selectedIntervention}
+                onCreate={handleCreate}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+                totalCount={interventions.length}
+            />
         </div>
     );
 };

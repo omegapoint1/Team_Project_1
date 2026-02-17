@@ -4,12 +4,12 @@ import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
 import './IncidentDetailModal.css';
+import { incidentServerService } from '../../services/incidentService'; 
 
-
-/*Modal for the expanded details of each incident card*/
 const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   const [selectedStatus, setSelectedStatus] = useState(incident?.status || 'pending');
   const [processingNotes, setProcessingNotes] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const modalStyles = {
     content: {
@@ -35,14 +35,32 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     }
   };
 
-  const handleStatusUpdate = () => {
-    if (incident) {
-      onUpdateStatus(incident.id, selectedStatus, processingNotes);
+  const handleStatusUpdate = async () => {
+    if (!incident) return;
+    
+    setIsUpdating(true);
+    
+    try {
+      // Ensure consistent casing
+      const statusToUpdate = selectedStatus.toLowerCase();
+      
+      const updatedIncident = await incidentServerService.update(incident.id, {
+        status: statusToUpdate,
+        processingNotes: processingNotes 
+      });
+      
+      onUpdateStatus(incident.id, statusToUpdate, processingNotes, updatedIncident);
       onClose();
+    } catch (error) {
+      console.error('Error occurred. Failed to update incident:', error);
+      alert(`Failed to update: ${error.message}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Date not available';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       weekday: 'long',
@@ -54,12 +72,38 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     });
   };
 
+  // Helper function to get severity description based on 1-8 scale
+  const getSeverityDescription = (severity) => {
+    const level = parseInt(severity);
+    if (level >= 7) return 'Critical - Immediate action required';
+    if (level >= 5) return 'High - Urgent attention needed';
+    if (level >= 3) return 'Moderate - Standard response';
+    return 'Low - Minor disturbance';
+  };
+
+  // Helper function to get severity color
+  const getSeverityColor = (severity) => {
+    const level = parseInt(severity);
+    if (level >= 7) return '#ef4444'; // red
+    if (level >= 5) return '#f97316'; // orange
+    if (level >= 3) return '#eab308'; // yellow
+    return '#10b981'; // green
+  };
+
+  // Helper function to get severity label
+  const getSeverityLabel = (severity) => {
+    const level = parseInt(severity);
+    if (level >= 7) return 'Critical';
+    if (level >= 5) return 'High';
+    if (level >= 3) return 'Medium';
+    return 'Low';
+  };
+
   const statusOptions = [
     { value: 'pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
-    { value: 'valid', label: 'Validate Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
-    { value: 'processed', label: 'Mark as Processed', icon: '✓', color: 'blue', description: 'Action has been taken' },
-    { value: 'duplicate', label: 'Flag as Duplicate', icon: '↻', color: 'orange', description: 'Merge with similar report' },
-    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'red', description: 'False or inaccurate report' }
+    { value: 'valid', label: 'Validated Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
+    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'orange', description: 'False or inaccurate report' },
+    { value: 'processed', label: 'Mark as Processed', icon: '✅', color: 'blue', description: 'Action has been taken' }
   ];
 
   if (!incident) return null;
@@ -97,7 +141,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
         <div className="header-content">
           <div className="header-left">
             <div className="header-icon">
-     
+              {/* Add icon here if needed */}
             </div>
             <div>
               <h2>Process Incident</h2>
@@ -107,8 +151,9 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
           <button
             onClick={onClose}
             className="close-button"
+            aria-label="Close"
           >
-
+            ×
           </button>
         </div>
       </div>
@@ -120,10 +165,10 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               <h3>Zone & Location</h3>
               <div className="zone-card">
                 <div className={`zone-badge ${getZoneColor()}`}>
-                  <span>{incident.zone.charAt(incident.zone.length - 1).toUpperCase()}</span>
+                  <span>{incident.zone?.charAt(incident.zone.length - 1).toUpperCase()}</span>
                 </div>
                 <div>
-                  <div className="zone-name">{incident.zone.replace('_', ' ').toUpperCase()}</div>
+                  <div className="zone-name">{incident.zone?.replace('_', ' ').toUpperCase()}</div>
                   <div className="zone-type">Residential Area</div>
                 </div>
               </div>
@@ -133,7 +178,11 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               <h3>Reported Time</h3>
               <div className="time-card">
                 <div className="time-display">{formatDate(incident.timestamp)}</div>
-                <div className="time-ago">2 hours ago</div>
+                <div className="time-ago">
+                  {incident.timestamp ? 
+                    `${Math.round((new Date() - new Date(incident.timestamp)) / 3600000)} hours ago` : 
+                    'Time not available'}
+                </div>
               </div>
             </div>
           </div>
@@ -149,21 +198,33 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                 <div className="status-description">
                   {incident.status === 'pending' && 'Awaiting review'}
                   {incident.status === 'valid' && 'Verified and accepted'}
+                  {incident.status === 'invalid' && 'Rejected as invalid'}
                   {incident.status === 'processed' && 'Action has been taken'}
-                  {incident.status === 'duplicate' && 'Merged with similar report'}
-                  {incident.status === 'invalid' && 'Rejected as inaccurate'}
                 </div>
               </div>
             </div>
 
             <div className="info-section">
-              <h3>Noise Severity</h3>
+              <h3>Noise Severity (1-8 scale)</h3>
               <div className="severity-card">
-                <SeverityBadge severity={incident.severity} />
-                <div className="severity-description">
-                  {incident.severity === 'high' && 'Urgent attention required'}
-                  {incident.severity === 'medium' && 'Moderate impact'}
-                  {incident.severity === 'low' && 'Minor disturbance'}
+                <div className="custom-severity-display">
+                  <div 
+                    className="severity-indicator"
+                    style={{ 
+                      backgroundColor: getSeverityColor(incident.severity),
+                      width: `${(parseInt(incident.severity) / 8) * 100}%`
+                    }}
+                  >
+                    <span className="severity-value">{incident.severity}/8</span>
+                  </div>
+                </div>
+                <div className="severity-details">
+                  <span className="severity-label">
+                    {getSeverityLabel(incident.severity)} Level
+                  </span>
+                  <span className="severity-description">
+                    {getSeverityDescription(incident.severity)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -188,14 +249,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               <div className="tags-card">
                 <div className="tags-container">
                   {incident.tags?.map((tag, index) => (
-                    <Tag key={index} label={tag} color="gray" />
+                    <Tag key={index} label={tag} color="grey" />
                   ))}
-                  {incident.description.toLowerCase().includes('drilling') && (
-                    <Tag label="Drilling" color="red" />
-                  )}
-                  {incident.description.toLowerCase().includes('night') && (
-                    <Tag label="Night Time" color="purple" />
-                  )}
                 </div>
               </div>
             </div>
@@ -205,7 +260,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
         <div className="description-section">
           <h3>Full Description</h3>
           <div className="description-card">
-            <p>{incident.description}</p>
+            <p>{incident.description || 'No description provided'}</p>
           </div>
         </div>
 
@@ -220,6 +275,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                   key={option.value}
                   onClick={() => setSelectedStatus(option.value)}
                   className={`status-option ${selectedStatus === option.value ? 'selected' : ''} ${option.color}`}
+                  disabled={isUpdating}
                 >
                   <div className="status-icon">{option.icon}</div>
                   <div className="status-label">{option.label}</div>
@@ -237,6 +293,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               placeholder="Add any notes about why you're changing the status, additional context, or follow-up actions needed..."
               className="notes-textarea"
               rows={4}
+              disabled={isUpdating}
             />
           </div>
 
@@ -244,15 +301,16 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
             <button
               onClick={onClose}
               className="cancel-button"
+              disabled={isUpdating}
             >
               Cancel
             </button>
             <button
               onClick={handleStatusUpdate}
               className="save-button"
+              disabled={isUpdating}
             >
-
-              Update Status & Save
+              {isUpdating ? 'Updating...' : 'Update Status & Save'}
             </button>
           </div>
         </div>
@@ -261,10 +319,14 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
       <div className="modal-footer">
         <div className="footer-content">
           <div className="footer-left">
-            Last updated 2 hours ago
+            Last updated {incident.updated_at ? 
+              formatDate(incident.updated_at) : 
+              'Not available'}
           </div>
           <div className="footer-right">
-            Priority: <span>Medium</span>
+            Priority: <span style={{ color: getSeverityColor(incident.severity) }}>
+              {getSeverityLabel(incident.severity)}
+            </span>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ Reusable Tag ui component displays label icon and badge according to the
 */
 
 //Perhaps simplify to avoid complexity 
+//simplify
 
 const Tag = ({      //Parameters
   label,           // text of the tag

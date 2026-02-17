@@ -16,19 +16,9 @@ function PlannerScreenTabManager() {
 
   const tabs = [
     { 
-      id: 'overview', 
-      label: '📊OVERVIEW', 
-      component: <Overview />,
-    },
-    { 
       id: 'incidents', 
       label: '🚨INCIDENTS', 
       component: <Incidents/>,
-    },
-    { 
-      id: 'hotspots', 
-      label: '📍HOTSPOTS', 
-      component: <Hotspots />,
     },
     { 
       id: 'plans', 
