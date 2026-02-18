@@ -44,7 +44,6 @@ const StatusBadge = ({ status}) => {
       borderRadius: '16px',
       fontWeight: '600',
       textTransform: 'capitalize',
-      font
     }}>
       {status}
     </span>
