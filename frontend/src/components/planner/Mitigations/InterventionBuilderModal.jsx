@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import { calculateInterventionImpact } from './impactModel';
-<<<<<<< HEAD
 
 ReactModal.setAppElement('#root');
 /*
@@ -9,11 +8,6 @@ component rendering modal which builds the Interventions and calls impact model 
 */
 
 
-=======
-import './InterventionBuilderModal.css';
-
-ReactModal.setAppElement('#root');
->>>>>>> origin/main
 
 const InterventionBuilderModal = ({ 
     isOpen, 
