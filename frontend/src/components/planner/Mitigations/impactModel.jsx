@@ -46,7 +46,7 @@ export const calculateCombinedImpact = (interventions, zoneType = 'mixed') => {
     if (!interventions?.length) return { min: 0, max: 0, reduction: '0 dB' };
     
     const count = interventions.length;
-    const factor = Math.sqrt(count) / count; // 1 for 1, 0.7 for 2, 0.58 for 3
+    const factor = Math.sqrt(count) / count; // 1 for 1, 0.7 for 2, 0.28 for 3
     
     let totalMin = 0, totalMax = 0;
     

@@ -21,7 +21,7 @@ const IncidentCard = ({ incident, onViewMore }) => {
 
   const getZoneClass = () => {
     const zoneName = incident.zone || '';
-    
+    //maybe remove 
     // Color zones based on their position/region
     if (zoneName.includes('North')) return 'zone-blue';
     if (zoneName.includes('South')) return 'zone-green';
@@ -53,10 +53,10 @@ const IncidentCard = ({ incident, onViewMore }) => {
             <span>{incident.zone.charAt(incident.zone.length - 1).toUpperCase()}</span>
           </div>
           <div>
-            <h3 className="zone-name">
-              {incident.zone.replace('_', ' ').toUpperCase()}
-            </h3>
-            <p className="zone-time">
+            <h4>
+              {incident.description.toLowerCase()}
+            </h4>
+            <p className="time">
               {formatDate(incident.timestamp)}
             </p>
           </div>
@@ -82,23 +82,14 @@ const IncidentCard = ({ incident, onViewMore }) => {
           }
         />
         
-        {incident.description.toLowerCase().includes('drilling') && (
-          <Tag label="Drilling" color="red" />
-        )}
-        {incident.description.toLowerCase().includes('night') && (
-          <Tag label="Night Time" color="purple" />
-        )}
-        {incident.description.toLowerCase().includes('weekend') && (
-          <Tag label="Weekend" color="green" />
-        )}
-        {incident.severity === 'high' && (
-          <Tag label="Urgent" color="red" />
-        )}
         
         {incident.tags?.map((tag, index) => (
           <Tag key={index} label={tag} color="gray" />
         ))}
       </div>
+          <p className="zone-name">
+              {incident.zone.replace('_', ' ').toUpperCase()}
+        </p>
 
       <div className="card-footer">
         <span className="incident-id">

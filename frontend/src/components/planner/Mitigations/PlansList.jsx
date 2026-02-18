@@ -239,7 +239,7 @@ const statusOptions = [
                                     <div className="plan-impact">
                                         <div className="impact-label">Estimated Impact</div>{/*Predicted impact?*/}
                                         <div className="impact-value">
-                                            {plan.impact[0] || 0}-{plan.impact[1] || 0} dB reduction
+                                            {plan.impact || 0} dB reduction
                                         </div>
                                     </div>
 
@@ -278,8 +278,7 @@ const statusOptions = [
                             <div className="summary-stat">
                                 <span className="stat-label">Average Impact</span>
                                 <span className="stat-value">
-                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[0] || 0), 0) / plans.length)}-
-                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[1] || 0), 0) / plans.length)} dB
+                                    {Math.round(plans.impact)} dB
                                 </span>
                             </div>
                             <div className="summary-stat">

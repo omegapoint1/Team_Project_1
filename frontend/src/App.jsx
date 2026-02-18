@@ -53,9 +53,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
-          <Route path="mitigation" element={<MitigationPlans />} />
-          <Route path="comparison" element={<ScenarioComparison />} />
-          <Route path="tracker" element={<ImplementationTracker />} />
+          <Route path="mitigation" element={<MitigationTab />} />
+          <Route path="comparison" element={<ScenarioTab />} />
+          <Route path="tracker" element={<Incidents/>} />
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>

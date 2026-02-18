@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import { calculateInterventionImpact } from './impactModel';
-import './InterventionBuilderModal.css';
 
 ReactModal.setAppElement('#root');
 
