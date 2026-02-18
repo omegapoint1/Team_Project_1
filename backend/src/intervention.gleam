@@ -101,10 +101,10 @@ pub fn get_all_interventions(db: pog.Connection) -> Response {
     list.map(inter_ids.rows, fn(row) {
       extract_intervention_get(db, row.interventionid)
     })
-  let plans_encoded =
+  let inter_encoded =
     json.array(interventions, intervention_json.intervention_item_to_json)
     |> json.to_string()
-  wisp.log_alert(plans_encoded)
+  wisp.log_alert(inter_encoded)
   wisp.response(200)
-  |> wisp.json_body(plans_encoded)
+  |> wisp.json_body(inter_encoded)
 }

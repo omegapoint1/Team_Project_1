@@ -297,7 +297,10 @@ const MitigationTab = () => {
                     isOpen={true}
                     onClose={handleCloseModal}
                     plan={selectedPlan}
+<<<<<<< HEAD
                     interventions={interventions}
+=======
+>>>>>>> origin/main
                     onUpdatePlan={handleUpdatePlan}
                 />
             )}

@@ -147,6 +147,7 @@ useEffect(() => {
       });
     }
 
+    /*Zone filter
     if (filters.zone !== 'all') {
       filtered = filtered.filter(incident => 
         incident.zone?.toLowerCase() === filters.zone.toLowerCase()
@@ -154,6 +155,7 @@ useEffect(() => {
     }
     
 
+    /*sevrity filter
     if (filters.severity !== 'all') {
       const severityNum = parseInt(filters.severity);
       filtered = filtered.filter(incident => 
@@ -162,6 +164,7 @@ useEffect(() => {
     }
     
 
+    /* time range filter 
     if (filters.timeRange !== 'all') {
       const days = parseInt(filters.timeRange);
       const cutoff = new Date();
