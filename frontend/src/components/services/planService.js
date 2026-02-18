@@ -2,6 +2,13 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/intervention-plan';
 const STORAGE_KEY = 'intervention-plan';
 
+/*
+Calls to server and local storage for getting ,storing , and deleting intervention plans
+
+*/
+
+
+
 /*Helper functions */
 const fetchAPI = async (url, options = {}) => {
     

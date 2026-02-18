@@ -1,44 +1,4 @@
 
-//example Mock interventions fields aswell are placeholders 
-
-export const mockInterventions = [
-  {
-    id: 'int1',
-    name: 'Quiet zone signage',
-    description: 'Install signs indicating quiet zones',
-    cost: 800,
-    impact: { min: 2, max: 4 },
-    feasibility: 0.9,
-    timeline: '1-2 weeks'
-  },
-  {
-    id: 'int2',
-    name: 'Time restrictions',
-    description: 'Implement time-based restrictions',
-    cost: 200,
-    impact: { min: 1, max: 3 },
-    feasibility: 0.7,
-    timeline: '2-3 weeks'
-  },
-  {
-    id: 'int3',
-    name: 'Noise barriers',
-    description: 'Install acoustic barriers',
-    cost: 4000,
-    impact: { min: 8, max: 12 },
-    feasibility: 0.6,
-    timeline: '4-6 weeks'
-  },
-  {
-    id: 'int4',
-    name: 'Community awareness',
-    description: 'Educational campaign about noise',
-    cost: 150,
-    impact: { min: 1, max: 2 },
-    feasibility: 0.8,
-    timeline: '3-4 weeks'
-  }
-];
 
 //example mock scenarios
 

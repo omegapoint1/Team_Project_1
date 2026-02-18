@@ -1,8 +1,7 @@
 import ReactModal from 'react-modal';
 import { useState } from 'react';
 import './PlanDetailModal.css';
-import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
-//import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
+import EvidenceUploader from '../../common/EvidenceUploader.jsx'; 
 import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
 import PlanExportButtons from '../../common/PlanExportButtons.jsx';
 ReactModal.setAppElement('#root');
@@ -60,7 +59,12 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
     { value: 'Done', color: 'purple' },
     { value: 'Rejected/Cancelled', color: 'red' }];
 
-    const handleStatusUpdate = () => {
+    useEffect(() => {
+        setSelectedStatus(plan?.status || '');
+        setEditedName(plan?.name || '');
+    }, [plan]);
+    
+    const handleStatusUpdate = (e) => {
             const newStatus = e.target.value;        
             setSelectedStatus(newStatus);  
         const updatedPlan = {
@@ -76,7 +80,6 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
     const calculateBudgetUtilization = () => {
         return Math.min(Math.round((plan.totalCost / plan.budget) * 100), 100);
     };
-   //unnecessary bloat
     const getBudgetStatus = () => {
         const utilization = calculateBudgetUtilization();
         if (utilization > 100) return { color: 'red', label: 'Over Budget' };
@@ -155,7 +158,8 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
                     <h4>Timeline & Impact</h4>
                     <div className="timeline-impact">
                         <div className="timeline-info">
-                            <div>Implementation Timeline</div>{/*Reminder potentially Remove timelines*/}
+                            <div>Implementation Timeline</div>
+                            {/*Reminder potentially Remove timelines*/}
                             <div>
                                 <span>{plan.timeline} weeks</span>
                                 <span>

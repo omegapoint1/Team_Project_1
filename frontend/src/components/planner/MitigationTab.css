@@ -1,5 +1,5 @@
 .mitigation-tab {
-    background-color: #f8fafc;
+    background-color: rgb(190,190,190);
     min-height: 100vh;
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,12 +11,11 @@
 
 .tab-header h1 {
     color: #1e293b;
-    font-size: 28px;
-    margin-bottom: 8px;
+
 }
 
 .tab-header p {
-    color: #64748b;
+    color: black;
     font-size: 16px;
 }
 
@@ -90,7 +89,7 @@
     background: none;
     border: none;
     font-size: 16px;
-    color: #64748b;
+    color: black;
     cursor: pointer;
     border-radius: 8px 8px 0 0;
     transition: all 0.2s;
@@ -144,7 +143,7 @@
 }
 
 .button-primary {
-    background-color: #3b82f6;
+    background-color: rgb(130, 224, 130);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -155,7 +154,7 @@
 }
 
 .button-primary:hover {
-    background-color: #2563eb;
+    background-color: brightness(0.98);
 }
 
 .button-secondary {

@@ -3,8 +3,6 @@ import InterventionCatalog from './Mitigations/InterventionCatalog';
 import PlanBuilder from './Mitigations/PlanBuilder';
 import PlansList from './Mitigations/PlansList';
 import PlanDetailModal from './Mitigations/PlanDetailModal';
-// Remove this line - don't import hardcoded data
-// import { interventionsData } from './PlannerData/mitigationsData';
 import { planServerService, planLocalService } from '../services/planService';
 import { interventionServerService, interventionLocalService } from '../services/interventionService';
 import './MitigationTab.css';
@@ -268,7 +266,7 @@ const MitigationTab = () => {
                     onClick={() => setActiveTab('catalog')}
                 >
                     <span className="tab-icon">📚</span>
-                    <span className="tab-label">Catalog</span>
+                    <span className="tab-label">Catalog : </span>
                     <span className="tab-count">{interventions.length}</span>
                 </button>
                 
@@ -285,24 +283,9 @@ const MitigationTab = () => {
                     onClick={() => setActiveTab('plans')}
                 >
                     <span className="tab-icon">📋</span>
-                    <span className="tab-label">My Plans</span>
+                    <span className="tab-label">My Plans : </span>
                     <span className="tab-count">{plans.length}</span>
                 </button>
-                
-                <div className="tab-status-indicators">
-                    <span className="status-indicator draft">
-                        <span className="status-dot"></span>
-                        Draft: {getStatusCount('draft')}
-                    </span>
-                    <span className="status-indicator submitted">
-                        <span className="status-dot"></span>
-                        Submitted: {getStatusCount('submitted')}
-                    </span>
-                    <span className="status-indicator implemented">
-                        <span className="status-dot"></span>
-                        Implemented: {getStatusCount('implemented')}
-                    </span>
-                </div>
             </div>
 
             <div className="tab-content">

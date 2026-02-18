@@ -1,18 +1,19 @@
 
 /*
-   impact model for noise reduction calculations based on intervention type and zone context. 
-   Produce more conext based on the map and deeper information late
+ Simple impact model for noise reduction calculations based on intervention type and zone context. 
+   To be expanded more to a context based model on incident and hotspot analus
  */
 
-const ZONE_FACTORS = {//variable factor impact based on type
+const ZONE_FACTORS = {
+    // Variable factor impact based on type
     residential: 1.2,  
     commercial: 0.8,    
     campus: 1.3,        
-    event: 0.6,         // Temporary event
-    mixed: 1.0          //average
+    event: 0.6,         
+    mixed: 1.0          
 };
 
-//effectiveness by intervention type
+// Effectiveness by intervention type
 const INTERVENTION_BASE = {
     barrier: { min: 5, max: 15 },
     signage: { min: 1, max: 3 },
@@ -46,7 +47,7 @@ export const calculateCombinedImpact = (interventions, zoneType = 'mixed') => {
     if (!interventions?.length) return { min: 0, max: 0, reduction: '0 dB' };
     
     const count = interventions.length;
-    const factor = Math.sqrt(count) / count; // 1 for 1, 0.7 for 2, 0.28 for 3
+    const factor = Math.sqrt(count) / count; 
     
     let totalMin = 0, totalMax = 0;
     

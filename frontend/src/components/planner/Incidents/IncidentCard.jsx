@@ -3,6 +3,17 @@ import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
 import './IncidentCard.css';
 
+/*
+
+The container displaying the incident reports information displayed in the scrollable grid container
+Onclick calls the incident detail modal for processing.
+uses the severity badge and status badge components which can later be simplified and integrated inside 
+
+
+*/
+
+
+
 const IncidentCard = ({ incident, onViewMore }) => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -14,10 +25,6 @@ const IncidentCard = ({ incident, onViewMore }) => {
     });
   };
 
-  const truncateText = (text, maxLength = 100) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
 
   const getZoneClass = () => {
     const zoneName = incident.zone || '';
@@ -49,9 +56,6 @@ const IncidentCard = ({ incident, onViewMore }) => {
     <div className="incident-card">
       <div className="card-header">
         <div className="zone-info">
-          <div className={`zone-badge ${getZoneClass()}`}>
-            <span>{incident.zone.charAt(incident.zone.length - 1).toUpperCase()}</span>
-          </div>
           <div>
             <h4>
               {incident.description.toLowerCase()}
@@ -65,27 +69,16 @@ const IncidentCard = ({ incident, onViewMore }) => {
           <SeverityBadge severity={incident.severity} />
           <StatusBadge status={incident.status} />
         </div>
-      </div>
+      </div><div>
+      <p className="noisetype-label">
+              {incident.noisetype}
+        </p>
+        </div>
+     <div className="card-tags">
 
-      <p className="card-description">
-        {truncateText(incident.description)}
-      </p>
-
-      <div className="card-tags">
-        <Tag 
-          label={incident.category} 
-          color={
-            incident.category === 'construction' ? 'yellow' :
-            incident.category === 'music' ? 'purple' :
-            incident.category === 'traffic' ? 'blue' :
-            incident.category === 'events' ? 'green' : 'gray'
-          }
-        />
         
         
-        {incident.tags?.map((tag, index) => (
-          <Tag key={index} label={tag} color="gray" />
-        ))}
+        {incident.tags?.map((tag, index) => (<Tag key={index} label={tag} color="grey" />))}
       </div>
           <p className="zone-name">
               {incident.zone.replace('_', ' ').toUpperCase()}

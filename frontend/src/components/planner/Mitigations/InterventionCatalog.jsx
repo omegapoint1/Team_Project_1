@@ -3,8 +3,16 @@ import './InterventionCatalog.css';
 import { interventionServerService, interventionLocalService } from '../../services/interventionService';
 import InterventionBuilderModal from './InterventionBuilderModal';
 
+/*
+Component rendering tab displaying interventions and interventionBuilder modal for adding new interventions.
+Handles logic for intervention made. Passes interventions up
+
+*/
+
+
+
 const InterventionCatalog = ({ 
-  interventions: propInterventions, // Rename the prop to avoid conflict
+  interventions: propInterventions, 
   onUpdateIntervention,
   onCreateIntervention,
   onDeleteIntervention,
@@ -13,13 +21,11 @@ const InterventionCatalog = ({
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedCost, setSelectedCost] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    // FIXED: Use a different name for local state
     const [localInterventions, setLocalInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedIntervention, setSelectedIntervention] = useState(null);
 
-    // Use either propInterventions or localInterventions based on what's passed
     const interventions = propInterventions || localInterventions;
 
     const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
@@ -53,10 +59,8 @@ const InterventionCatalog = ({
     const handleCreate = async (newIntervention) => {
         try {
             if (onCreateIntervention) {
-                // If parent handler exists, use it
                 await onCreateIntervention(newIntervention);
             } else {
-                // Otherwise handle locally
                 interventionServerService.create(newIntervention).catch(error => {
                     console.log('Server create call failed');
                 });
@@ -226,11 +230,9 @@ const InterventionCatalog = ({
                             <div className="detail-item">
                                 <span className="detail-label">Cost:</span>
                                 <span 
-                                    className="detail-value"
-                                    style={{ color: getCostColor(intervention.costBand) }}
-                                >
+                                    className="detail-value"                                >
                                     {intervention.costBand?.toUpperCase()} 
-                                    (£{intervention.costRange?.min}-£{intervention.costRange?.max})
+                                    (£{intervention.cost[0]}-£{intervention.cost[1]})
                                 </span>
                             </div>
 
@@ -247,7 +249,7 @@ const InterventionCatalog = ({
                                     className="detail-value"
                                     style={{ color: getFeasibilityColor(intervention.feasibility) }}
                                 >
-                                    {Math.round(intervention.feasibility * 100)}%
+                                    {Math.round(intervention.feasibility )}/10
                                 </span>
                             </div>
 
@@ -258,17 +260,6 @@ const InterventionCatalog = ({
                         </div>
 
                         <div className="card-actions">
-                            {/*<button 
-                                className="edit-button"
-                                onClick={() => handleEditClick(intervention)}>
-                                Edit
-                            </button>*/}
-                            <button 
-                                className="add-to-plan-button"
-                                onClick={() => onAddToPlan && onAddToPlan(intervention)}
-                            >
-                                Add to Plan
-                            </button>
                         </div>
                     </div>
                 ))}

@@ -3,12 +3,6 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
         return null; 
     }
 
-    /*const getFileIcon = (fileType) => {
-        if (fileType.includes('pdf')) return '';
-        if (fileType.includes('image')) return '';
-        return '';
-    };*/
-
     return (
         <div className="evidence-display">
             <div >

@@ -1,7 +1,11 @@
 import ScrollableContainer from '../../common/ScrollableContainer';
 import IncidentCard from './IncidentCard';
 import './ScrollableGrid.css';
-/*Specific element display for incidentCards. displayed inside Scrolable container*/
+
+/*
+Specific element display for incidentCards. displayed inside Scrollable container
+*/
+
 const IncidentScrollableGrid = ({ 
   incidents, 
   onViewMore,

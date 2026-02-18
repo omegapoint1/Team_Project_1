@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import './PlansList.css';
 
+/*
+
+Component renders the list of plans for the modules
+*/
+
+
+
+
+
 const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [sortBy, setSortBy] = useState('createdAt');
@@ -23,21 +32,27 @@ const statusOptions = [
     ];
 
     const filteredPlans = plans.filter(plan => {
-        if (filterStatus === 'all') return true;
-        return plan.status === filterStatus;
-    });
+    if (filterStatus === 'all') return true;
+    
+    if (!plan || !plan.status) return false;
+    
+    const planStatus = String(plan.status).toLowerCase();
+    const filterValue = String(filterStatus).toLowerCase();
+    
+    return planStatus === filterValue;
+});
 
     const sortedPlans = [...filteredPlans].sort((a, b) => {
         let aValue = a[sortBy];
         let bValue = b[sortBy];
 
-        //Handle date sorting
+        //Handles date sorting
         if (sortBy === 'createdAt') {
             aValue = new Date(aValue);
             bValue = new Date(bValue);
         }
 
-        //Handle string sorting
+        //Handles string sorting
         if (typeof aValue === 'string') {
             aValue = aValue.toLowerCase();
             bValue = bValue.toLowerCase();

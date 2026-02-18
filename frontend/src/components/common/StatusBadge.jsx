@@ -9,80 +9,47 @@
  @param {string} [props.size='md'] - Size variation 'sm','md'
  @returns Rendered status badge (jsx)
  */
-const StatusBadge = ({ status, size = 'md' }) => {
 
   const STATUS_CONFIG = {
     pending: { 
-      className: 'status-pending', 
-      label: 'Pending', 
-      icon: '⏳',
+      label: 'pending', 
     },
-    valid: { 
-      className: 'status-valid', 
-      label: 'Valid', 
-      icon: '✓' 
+    accepted : { 
+      label: 'accepted', 
     },
-    duplicate: { 
-      className: 'status-duplicate', 
-      label: 'Duplicate', 
-      icon: '↻' 
+     rejected: { 
+      label: 'rejected', 
     },
-    invalid: { 
-      className: 'status-invalid', 
-      label: 'Invalid', 
-      icon: '✗' 
-    },
-    processed: { 
-      className: 'status-processed', 
-      label: 'Processed', 
-      icon: '✓' 
-    }
+
   };
   
   /*
     gets the configuration for the given status
     @returns {Object}- className, label, and icon
    */
-  const getStatusConfig = () => {
-    const config = STATUS_CONFIG[status];
-    
-    if (!config) {
-      // Handle invalid status with warning 
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`Invalid status value: "${status}". Defaulting to "pending".`);
-      }
-      return STATUS_CONFIG.pending;
-    }
-    
-    return config;
-  };
 
-  const { className, label, icon } = getStatusConfig();
+
   
   //Map size to CSS by mapping class
   //use tail wind which will work if the program is running on it else make css files 
-  const sizeClasses = {
-    sm: 'status-small',
-    md: 'status-medium',
-    lg: 'status-large' 
-  };
+ 
+
+
   
-  const sizeClass = sizeClasses[size] || sizeClasses.md;
-
+const StatusBadge = ({ status}) => {
   return (
-    <span 
-      className={`status-badge ${className} ${sizeClass}`}
-      role="status" 
-
-    >
-      <span 
-        className="status-icon"
-      >
-        {icon}
-      </span>
-      <span className="status-label">{label}</span>
+    <span style={{
+      backgroundColor: 'light green',
+      color: 'black',
+      borderRadius: '16px',
+      fontWeight: '600',
+      textTransform: 'capitalize',
+      font
+    }}>
+      {status}
     </span>
   );
 };
+
 
 export default StatusBadge;
