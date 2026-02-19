@@ -13,6 +13,12 @@
     border-bottom: 2px solid lightgrey;
 }
 
+.header-left h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: darkblue;
+    margin-bottom: 8px;
+}
 
 .plan-count {
     color: grey;

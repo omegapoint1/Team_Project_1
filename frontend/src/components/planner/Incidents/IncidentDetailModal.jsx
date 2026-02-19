@@ -6,13 +6,6 @@ import Tag from '../../common/Tag';
 import './IncidentDetailModal.css';
 import { incidentServerService } from '../../services/incidentService'; 
 
-/*
-Code for Modal that appears when the incident card 'View more' is pressed. 
-Calls reactModal library for modal component and displays incident information
-*/
-
-
-
 const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   const [selectedStatus, setSelectedStatus] = useState(incident?.status || 'pending');
   const [processingNotes, setProcessingNotes] = useState('');
@@ -48,6 +41,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     setIsUpdating(true);
     
     try {
+      // Ensure consistent casing
       const statusToUpdate = selectedStatus.toLowerCase();
       
       const updatedIncident = await incidentServerService.update(incident.id, {
@@ -78,6 +72,14 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     });
   };
 
+  // Helper function to get severity description based on 1-8 scale
+  const getSeverityDescription = (severity) => {
+    const level = parseInt(severity);
+    if (level >= 7) return 'Critical - Immediate action required';
+    if (level >= 5) return 'High - Urgent attention needed';
+    if (level >= 3) return 'Moderate - Standard response';
+    return 'Low - Minor disturbance';
+  };
 
   // Helper function to get severity color
   const getSeverityColor = (severity) => {
@@ -98,9 +100,10 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   };
 
   const statusOptions = [
-    { value: 'Pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs review' },
-    { value: 'Accepted', label: 'Validated Incident', icon: '✓', color: 'green', description: 'Accept as genuine/accurate report' },
-    { value: 'Rejected', label: 'Reject as Invalid', icon: '✗', color: 'red', description: 'False or inaccurate report' },
+    { value: 'pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
+    { value: 'valid', label: 'Validated Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
+    { value: 'invalid', label: 'Reject as Invalid', icon: '✗', color: 'orange', description: 'False or inaccurate report' },
+    { value: 'processed', label: 'Mark as Processed', icon: '✅', color: 'blue', description: 'Action has been taken' }
   ];
 
   if (!incident) return null;
@@ -138,6 +141,7 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
         <div className="header-content">
           <div className="header-left">
             <div className="header-icon">
+              {/* Add icon here if needed */}
             </div>
             <div>
               <h2>Process Incident</h2>
@@ -188,19 +192,20 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               <h3>Current Status</h3>
               <div className="status-card">
                 <div className="status-header">
-                  <StatusBadge status={selectedStatus} />
+                  <StatusBadge status={incident.status} />
                   <span className="incident-id">ID: {incident.id}</span>
                 </div>
                 <div className="status-description">
-                  {incident.status.toLowerCase() === 'pending' && 'Awaiting review'}
-                  {incident.status.toLowerCase() === 'accepted' && 'Verified and accepted'}
-                  {incident.status.toLowerCase() === 'rejected' && 'Rejected as invalid'}
+                  {incident.status === 'pending' && 'Awaiting review'}
+                  {incident.status === 'valid' && 'Verified and accepted'}
+                  {incident.status === 'invalid' && 'Rejected as invalid'}
+                  {incident.status === 'processed' && 'Action has been taken'}
                 </div>
               </div>
             </div>
 
             <div className="info-section">
-              <h3>Noise Severity (1-10 scale)</h3>
+              <h3>Noise Severity (1-8 scale)</h3>
               <div className="severity-card">
                 <div className="custom-severity-display">
                   <div 
@@ -217,12 +222,28 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                   <span className="severity-label">
                     {getSeverityLabel(incident.severity)} Level
                   </span>
+                  <span className="severity-description">
+                    {getSeverityDescription(incident.severity)}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="info-column">
+            <div className="info-section">
+              <h3>Category</h3>
+              <div className="category-card">
+                <Tag label={incident.category} color={getCategoryColor()} />
+                <div className="category-description">
+                  {incident.category === 'construction' && 'Building or demolition work'}
+                  {incident.category === 'music' && 'Entertainment or social noise'}
+                  {incident.category === 'traffic' && 'Road or vehicle noise'}
+                  {incident.category === 'events' && 'Organized event noise'}
+                </div>
+              </div>
+            </div>
+
             <div className="info-section">
               <h3>Tags & Keywords</h3>
               <div className="tags-card">
@@ -248,16 +269,15 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
           
           <div className="status-selection">
             <h4>Update Status</h4>
-             <div className="status-options">
+            <div className="status-options">
               {statusOptions.map(option => (
                 <button
                   key={option.value}
                   onClick={() => setSelectedStatus(option.value)}
-                  style={{
-                    backgroundColor: selectedStatus.toLowerCase === option.value.toLowerCase() ? `${option.color}20` : 'white'
-                  }}
+                  className={`status-option ${selectedStatus === option.value ? 'selected' : ''} ${option.color}`}
                   disabled={isUpdating}
                 >
+                  <div className="status-icon">{option.icon}</div>
                   <div className="status-label">{option.label}</div>
                   <div className="status-desc">{option.description}</div>
                 </button>

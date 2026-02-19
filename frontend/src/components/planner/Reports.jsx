@@ -15,7 +15,7 @@ function Reports() {
 
       <div className='grid'>
         <div className='sideba'>
-          {/*<ReportTemplates/>*/}
+          <ReportTemplates/>
           <SavedReports/>
         </div>
         <div className='main'>

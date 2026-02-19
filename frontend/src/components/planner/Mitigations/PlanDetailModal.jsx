@@ -1,7 +1,8 @@
 import ReactModal from 'react-modal';
 import { useState } from 'react';
 import './PlanDetailModal.css';
-import EvidenceUploader from '../../common/EvidenceUploader.jsx'; 
+import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
+//import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
 import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
 import PlanExportButtons from '../../common/PlanExportButtons.jsx';
 ReactModal.setAppElement('#root');
@@ -9,20 +10,16 @@ ReactModal.setAppElement('#root');
 /*Modal which shows plan details in a modal window with 3 tabbed sections
  */
 
-const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
+const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
 
 
     const [activeTab, setActiveTab] = useState('overview');
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(plan?.name || '');
     const [attachedEvidence, setAttachedEvidence] = useState([]); 
-    const [selectedStatus, setSelectedStatus] = useState(plan?.status || '');
+    const [selectedNewStatus, setSelectedNewStatus] = useState('');
 
     if (!plan) return null;
-
-    const planInterventions = plan.interventions
-        .map(id => interventions.find(int => int.id === id))
-        .filter(Boolean);
 
     const modalStyles = {
         content: {
@@ -53,20 +50,21 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
         }
     }
 
-     const statusOptions = [
-    { value: 'Planned', color: 'grey' },
-    { value: 'In Progress', color: 'blue' },
-    { value: 'Done', color: 'purple' },
-    { value: 'Rejected/Cancelled', color: 'red' }];
+     const getNextStatusOptions = () => {
+        switch(plan.status) {
+        case 'Planned': return [{ value: 'In Progress', label: 'Mark as Processed', color: 'blue', description: 'Action is currently in process for this plan' }];
+        case 'In Progress': return [
+            { value: 'Done', label: 'Mark as Completed', color: 'purple', description: 'Plan has been executed to completion' },
+            { value: 'Rejected/Cancelled', label: 'Rejected as Invalid', color: 'red', description: 'Rejected report - duplicate or invalid for other reason' }
+        ];
+        case 'Done': return [{ value: 'In Progress', label: 'Re-open Implementation', color: 'blue', description: 'Re-open for additional work' }];
+        case 'Rejected/Cancelled': return [{ value: 'Planned', label: 'Validate Incident', color: 'green', description: 'Accepted as genuine' }];
+        default: return [];
+    }
+};
 
-    useEffect(() => {
-        setSelectedStatus(plan?.status || '');
-        setEditedName(plan?.name || '');
-    }, [plan]);
-    
-    const handleStatusUpdate = (e) => {
-            const newStatus = e.target.value;        
-            setSelectedStatus(newStatus);  
+    const handleStatusUpdate = (newStatus) => {
+        
         const updatedPlan = {
             ...plan,
             status: newStatus,
@@ -80,6 +78,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
     const calculateBudgetUtilization = () => {
         return Math.min(Math.round((plan.totalCost / plan.budget) * 100), 100);
     };
+
     const getBudgetStatus = () => {
         const utilization = calculateBudgetUtilization();
         if (utilization > 100) return { color: 'red', label: 'Over Budget' };
@@ -159,7 +158,6 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
                     <div className="timeline-impact">
                         <div className="timeline-info">
                             <div>Implementation Timeline</div>
-                            {/*Reminder potentially Remove timelines*/}
                             <div>
                                 <span>{plan.timeline} weeks</span>
                                 <span>
@@ -170,10 +168,10 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
                         <div className="impact-info">
                             <div>Estimated Noise Reduction</div>
                             <div>
-                                {plan.impact} dB
+                                {plan.impact[0] || 0}-{plan.impact[1]|| 0} dB
                             </div>
                             <div>
-                                Estimated reduction in noise levels after implementation
+                                Expected reduction in noise levels after implementation
                             </div>
                         </div>
                     </div>
@@ -220,15 +218,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
         <div >
             <div >
                 <h4>Comprised Interventions</h4>
-                {/*<div className="interventions-info">
+                <div className="interventions-info">
                     <span>Total Cost: £{plan.totalCost}</span>
                     <span>Total Impact: {plan.impact[0] || 0}-{plan.impact[1] || 0} dB</span>
-                </div>*/}
+                </div>
             </div>
             
             <div className="interventions-list">
-                {planInterventions.map((intervention, index) => (
-
+                {plan.interventions.map((intervention, index) => (
                     <div key={index} className="intervention-detail">
                         <div className="intervention-header-detail">
                             <h5>{intervention.name}</h5>
@@ -266,7 +263,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
             </div>
         </div>
     );
-                
+
     const renderActions = () => (
         <div className="actions-section">
             <div className="status-actions">
@@ -277,29 +274,26 @@ const PlanDetailModal = ({ isOpen, onClose, plan,interventions, onUpdate}) => {
                         className="status-badge-modal"
 
                     >
-                        {selectedStatus}
+                        {plan.status}
                     </span>
                 </p>
-                <div className="status-dropdown-container">
-                    <select 
-                        value={selectedStatus}
-                        onChange={handleStatusUpdate}
-                        className="status-dropdown"
-                        //add style logic when find time
-                    >
-                        {statusOptions.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.value}
-                            </option>
-                        ))}
-                    </select>
-                </div>
                     <div className="export-actions">
       <h4>Export Plan</h4>
       <PlanExportButtons plan={plan} />
     </div>
                 
- 
+                <div className="action-buttons">
+                    {getNextStatusOptions().map(option => (
+                        <button
+                            key={option.value}
+                            onClick={() => handleStatusUpdate(option.value)}
+                            style={{ backgroundColor: option.color }}
+                            title={option.description} 
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
             </div>
             
 
