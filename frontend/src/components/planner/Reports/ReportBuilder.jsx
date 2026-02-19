@@ -121,6 +121,7 @@ function ReportBuilder() {
     };
     console.log('Generating report with config:', reportConfig);
     
+    // Unfished Simulation for report generation
     const exportFormats = Object.entries(report.exportOptions)
       .filter(([_, enabled]) => enabled)
       .map(([format]) => format.toUpperCase())

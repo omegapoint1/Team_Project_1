@@ -1,3 +1,6 @@
+
+//example Mock interventions fields aswell are placeholders 
+
 export const mockInterventions = [
   {
     id: 'int1',

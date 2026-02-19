@@ -1,14 +1,5 @@
 import { useState } from 'react';
 import './IncidentFilters.css';
-/*
-Filter UI for incidentcard list. Onclick the values are passed back up to incident list
-which calls the filter logic.
-Renders the filter buttons and returns the target value.
-
-*/
-
-
-
 
 const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
 
@@ -30,14 +21,14 @@ const zones = [
     { id: 15, name: "South-Central-East" },
     { id: 16, name: "South-East" },
   ];
- const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8,9,10];
+ const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8];
  
 
   const [filters, setFilters] = useState({
-    status: initialFilters.status || ['Pending', 'Accepted', 'Rejected'],
+    status: initialFilters.status || ['pending'],
     zone: initialFilters.zone || 'all',
     severity: initialFilters.severity || 'all',
-    timeRange: initialFilters.timeRange || 'all'
+    timeRange: initialFilters.timeRange || '7d'
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -59,9 +50,9 @@ const zones = [
   };
 
   const statusOptions = [
-    { value: 'Pending', label: 'Pending', color: 'yellow' },
-    { value: 'Accepted', label: 'Accepted', color: 'green' },
-    { value: 'Rejected', label: 'Rejected', color: 'red' }
+    { value: 'pending', label: 'Pending', color: 'yellow' },
+    { value: 'accepted', label: 'Accepted', color: 'green' },
+    { value: 'rejected', label: 'Rejected', color: 'red' }
   ];
 
   return (
@@ -71,10 +62,10 @@ const zones = [
         <button 
           onClick={() => {
             const reset = { 
-              status: ['Pending', 'Accepted', 'Rejected'], 
+              status: ['pending'], 
               zone: 'all', 
               severity: 'all', 
-              timeRange: 'all' 
+              timeRange: '7d' 
             };
             setFilters(reset);
             onFilterChange(reset);
@@ -86,21 +77,7 @@ const zones = [
       </div>
 
       <div className="filters-grid">
-        <div className="filter-group">
-          <label className="filter-label">Status</label>
-          <div className="status-checkboxes">
-            {statusOptions.map(option => (
-              <label key={option.value} className="status-checkbox">
-                <input
-                  type="checkbox"
-                  checked={filters.status.includes(option.value)}
-                  onChange={() => handleFilterChange('status', option.value)}
-                />
-                <span >{option.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        {/*
         <div className="filter-group">
           <label className="filter-label">Zone</label>
           <select
@@ -116,9 +93,9 @@ const zones = [
             ))}
           </select>
         </div>
-        
+        */}
 
-        
+        {/*
         <div className="filter-group">
           <label className="filter-label">Severity (1-8)</label>
           <select
@@ -127,16 +104,16 @@ const zones = [
             className="filter-select"
           >
             <option value="all">All Severities</option>
-            {severityOptions.map(severity => (
-              <option key={severity} value={severity}>
-               {severity}
+            {severityOptions.map(level => (
+              <option key={level} value={level}>
+                Level {level} - {level === 1 ? 'Lowest' : level === 8 ? 'Highest' : ''}
               </option>
             ))}
           </select>
         </div>
-        
+        */}
 
-        
+        {/*
         <div className="filter-group">
           <label className="filter-label">Time Range</label>
           <select
@@ -151,8 +128,23 @@ const zones = [
             <option value="all">All Time</option>
           </select>
         </div>
-        
+        */}
       </div>
+
+      {/*
+      {filters.status.length > 0 && (
+        <div className="active-filters">
+          <div className="filters-summary">
+            <span className="summary-label">Active filters:</span>
+            {filters.status.map(status => (
+              <span key={status} className="filter-tag">
+                {statusOptions.find(s => s.value === status)?.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      */}
     </div>
   );
 };
