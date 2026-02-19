@@ -38,12 +38,12 @@
 }
 
 .scenario-item:hover {
-  border-color: #007bff;
+  border-color: #4CAF50;
   background: #f8f9fa;
 }
 
 .scenario-item.selected {
-  border-color: #007bff;
+  border-color: #4CAF50;
   background: #e7f3ff;
 }
 
@@ -90,7 +90,7 @@
 .add-button {
   width: 100%;
   padding: 12px;
-  background: #007bff;
+  background: #4CAF50;
   color: white;
   border: none;
   border-radius: 6px;
@@ -100,5 +100,5 @@
 }
 
 .add-button:hover {
-  background: #0056b3;
+  background: #3e8f40;
 }

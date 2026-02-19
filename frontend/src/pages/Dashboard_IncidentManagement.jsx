@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import IncidentList from "../components/planner/Incidents/IncidentList";
+import IncidentList from "../components/planner/Incidents";
 
 function Incidents() {
 
@@ -7,7 +7,7 @@ function Incidents() {
     <div className="module incidents">
       <div className="incidents-header">
         <h2>🚨 Incident Management</h2>
-         <IncidentList/>
+         <Incidents/>
       </div>
     </div>
   );

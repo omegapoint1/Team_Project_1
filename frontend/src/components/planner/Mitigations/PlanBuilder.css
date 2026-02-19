@@ -124,18 +124,17 @@
 
 .add-button {
     padding: 8px 16px;
-    background-color: #3b82f6;
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
     min-width: 80px;
-    transition: background-color 0.2s;
 }
 
 .add-button:hover {
-    background-color: #2563eb;
+    background-color: #419244;
 }
 
 .add-button:disabled {

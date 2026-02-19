@@ -4,7 +4,6 @@ import './Scenario.css';
 import ScenarioSelector from './Scenario/ScenarioSelector';
 import ComparisonTable from './Scenario/ComparisonTable';
 import RecommendationCard from './Scenario/RecommendationCard';
-import WeightControls from './Scenario/WeightControls';
 import ScenarioBuilder from './Scenario/ScenarioBuilder';
 import { mockScenarios } from './PlannerData/scenarioData';
 
@@ -15,10 +14,8 @@ const ScenarioTab = () => {
   const [weights, setWeights] = useState({ cost: 40, impact: 40, feasibility: 20 });
   const [showBuilder, setShowBuilder] = useState(false);
 
-  // Getting selected scenarios
   const selectedScenarios = scenarios.filter(s => selectedIds.includes(s.id));
 
-  // Handler functions
 
   
   const handleScenarioSelect = (id) => {
@@ -50,11 +47,6 @@ const ScenarioTab = () => {
             selectedIds={selectedIds}
             onSelect={handleScenarioSelect}
             onAddNew={() => setShowBuilder(true)}
-          />
-          
-          <WeightControls
-            weights={weights}
-            onChange={setWeights}
           />
         </div>
 

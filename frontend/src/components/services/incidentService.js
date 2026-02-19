@@ -3,6 +3,11 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const INCIDENTS_ENDPOINT = '/report';
 const STORAGE_KEY = 'report';
 
+
+/*
+Calls to server and local storage for getting ,storing , and deleting noise incident reports.
+*/
+
 // Helpers
 const fetchAPI = async (url, options = {}) => {
     

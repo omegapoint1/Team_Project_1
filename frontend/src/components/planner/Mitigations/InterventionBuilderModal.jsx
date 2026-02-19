@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import { calculateInterventionImpact } from './impactModel';
-import './InterventionBuilderModal.css';
 
 ReactModal.setAppElement('#root');
+/*
+component rendering modal which builds the Interventions and calls impact model method 
+*/
+
+
 
 const InterventionBuilderModal = ({ 
     isOpen, 
@@ -171,7 +175,7 @@ const InterventionBuilderModal = ({
                                 type="number"
                                 value={form.impactMin}
                                 onChange={e => setForm({...form, impactMin: +e.target.value})}
-                                min="0" max="30"
+                                min="0" max="1000"
                             />
                         </div>
                         <div className="imb-field">
