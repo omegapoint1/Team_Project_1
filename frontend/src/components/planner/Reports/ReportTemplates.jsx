@@ -71,7 +71,9 @@ const ReportTemplates = ({ loadTemplate }) => {
                   </span>
                 </div>
               </div>
-  
+              <span className="time-badge">
+                {/* Previous span for estimated time*/}
+              </span>
             </div>
           </button>
         ))}

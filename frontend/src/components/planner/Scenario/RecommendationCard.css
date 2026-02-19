@@ -27,5 +27,15 @@
   margin: 0;
 }
 
+.score {
+  font-size: 18px;
+  font-weight: 600;
+  color: #28a745;
+}
 
-
+.reason {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}

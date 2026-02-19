@@ -6,23 +6,13 @@ import ScrollableContainer from '../../common/ScrollableContainer';
 import { incidentServerService } from '../../services/incidentService';
 import { incidentLocalService } from '../../services/incidentService';
 import './IncidentList.css';
-/*
-The container for the list of incident cards representing the reports made by users and generals
 
-
-*/
 const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
-    const [filters, setFilters] = useState({
-    status: ['Pending', 'Accepted', 'Rejected'], 
-    zone: 'all',
-    severity: 'all',
-    timeRange: 'all'
-  });
-
-  // Zone list matching the global zones from reporting incidents and map modules
+  
+  // Zone list matching the zones from IncidentFilters
   const zones = [
     { id: 1, name: "North-West" },
     { id: 2, name: "North-Central-West" },
@@ -42,7 +32,12 @@ const IncidentList = () => {
     { id: 16, name: "South-East" },
   ];
 
-
+  const [filters, setFilters] = useState({
+    status: ['pending'], 
+    zone: 'all',
+    severity: 'all',
+    timeRange: '7d'
+  });
 
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -138,57 +133,49 @@ useEffect(() => {
       alert('Failed to update incident status');
     }
   };
-  // debug
-useEffect(() => {
-  if (incidents.length > 0) {
-    console.log('All incident statuses:', incidents.map(i => ({
-      id: i.id,
-      status: i.status,
-      statusLower: i.status?.toLowerCase()
-    })));
-  }
-}, [incidents]);
+
   useEffect(() => {
     let filtered = [...incidents];
 
-        if (filters.status  && filters.status.length < 3) {
-      filtered = filtered.filter(incident => {
-        const incidentStatus = incident.status?.toLowerCase() || '';
-        return filters.status.some(status => 
-          status.toLowerCase() === incidentStatus.toLowerCase()
-        );
-      });
-    }
-
-    if (filters.zone !== 'all') {
+    /*if (filters.status && filters.status.length > 0) {
       filtered = filtered.filter(incident => 
-        incident.zone?.toLowerCase() === filters.zone.toLowerCase()
+        filters.status.includes(incident.status)
       );
-    }
-    
+    }*/
 
+    /*Zone filter 
+    if (filters.zone !== 'all') {
+      const selectedZone = zones.find(z => z.id.toString() === filters.zone.toString());
+      if (selectedZone) {
+        filtered = filtered.filter(incident => incident.zone === selectedZone.name);
+      }
+    }
+    */
+
+    /*sevrity filter
     if (filters.severity !== 'all') {
       const severityNum = parseInt(filters.severity);
       filtered = filtered.filter(incident => 
         parseInt(incident.severity) === severityNum
       );
     }
-    
+    */
 
+    /* time range filter 
     if (filters.timeRange !== 'all') {
       const days = parseInt(filters.timeRange);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
       
       filtered = filtered.filter(incident => {
-        const incidentDate = new Date(incident.datetime);
+        const incidentDate = new Date(incident.timestamp || incident.datetime);
         return incidentDate >= cutoff;
       });
     }
-    
+    */
 
     setFilteredIncidents(filtered);
-  }, [filters, incidents]); 
+  }, [filters, incidents]); // Removed zones from dependencies
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -199,8 +186,8 @@ useEffect(() => {
   };
 
   const getStatusCount = (status) => {
-    return incidents.filter(inc => inc.status.toLowerCase() === status.toLowerCase()).length;
-};
+    return incidents.filter(inc => inc.status === status).length;
+  };
 
   const handleExport = () => {
     alert(`Exporting ${filteredIncidents.length} incidents as CSV`);

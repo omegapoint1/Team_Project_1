@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import './PlanBuilder.css';
-
-
-/*
-Component rendering tab for building plans from interventions.
-
-*/
-
-
+import { zones } from '../PlannerData/mitigationsData';
 
 const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
     const [planName, setPlanName] = useState('');
@@ -15,24 +8,7 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
     const [selectedInterventions, setSelectedInterventions] = useState([]);
     const [budget, setBudget] = useState(5000);
     const [timeline, setTimeline] = useState(4);
-const zones = [
-    { id: 1, name: "North-West" },
-     { id: 2, name: "North-Central-West" },
-    { id: 3, name: "North-Central-East" },
-    { id: 4, name: "North-East" },
-    { id: 5, name: "Central-North-West" },
-    { id: 6, name: "Central-North-Central-West" },
-    { id: 7, name: "Central-North-Central-East" },
-    { id: 8, name: "Central-North-East" },
-    { id: 9, name: "Central-South-West" },
-    { id: 10, name: "Central-South-Central-West" },
-    { id: 11, name: "Central-South-Central-East" },
-    { id: 12, name: "Central-South-East" },
-    { id: 13, name: "South-West" },
-    { id: 14, name: "South-Central-West" },
-    { id: 15, name: "South-Central-East" },
-    { id: 16, name: "South-East" },
-  ];
+
     const handleAddIntervention = (intervention) => {
         if (!selectedInterventions.find(item => item.id === intervention.id)) {
             setSelectedInterventions([...selectedInterventions, intervention]);
@@ -66,7 +42,7 @@ const zones = [
 
     const handleSubmit = () => {
         if (!planName || !selectedZone || selectedInterventions.length === 0) {
-            alert('Please fill in all required fields. At least one intervention is required');
+            alert('Please fill in all required fields and add at least one intervention');
             return;
         }
         
@@ -131,7 +107,7 @@ const zones = [
                             <option value="">Select a zone</option>
                             {zones.map(zone => (
                                 <option key={zone.id} value={zone.id}>
-                                    {zone.name} 
+                                    {zone.name} - {zone.type} ({zone.priority} priority)
                                 </option>
                             ))}
                         </select>
@@ -142,7 +118,7 @@ const zones = [
                     <h3>Available Interventions</h3>
                     <div className="available-interventions">
                         {interventions.map(intervention => (
-                            <div className="available-intervention">
+                            <div key={intervention.id} className="available-intervention">
                                 <div className="available-intervention-info">
                                     <h4>{intervention.name}</h4>
                                     <p>{intervention.description}</p>

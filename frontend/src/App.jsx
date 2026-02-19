@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Link, NavLink} from 'react-router-dom';
 import LoginPage from './pages/LoginPage'; 
+import PlannerPage from './pages/PlannerPage';  
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
@@ -42,6 +43,7 @@ function App() {
 
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
+        <Route path="/planner"  element={<PlannerPage/>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
@@ -51,9 +53,11 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
+          <Route path="reportProcessing" element={<Incidents />} />
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
-          <Route path="tracker" element={<Incidents/>} />
+          <Route path="ExportingReport" element={<Reports />} />
+          <Route path="tracker" element={<IncidentManagement />} />
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
         </Route>

@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import './PlansList.css';
 
-/*
-
-Component renders the list of plans for the modules
-*/
-
-
-
-
-
 const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [sortBy, setSortBy] = useState('createdAt');
@@ -32,27 +23,21 @@ const statusOptions = [
     ];
 
     const filteredPlans = plans.filter(plan => {
-    if (filterStatus === 'all') return true;
-    
-    if (!plan || !plan.status) return false;
-    
-    const planStatus = String(plan.status).toLowerCase();
-    const filterValue = String(filterStatus).toLowerCase();
-    
-    return planStatus === filterValue;
-});
+        if (filterStatus === 'all') return true;
+        return plan.status === filterStatus;
+    });
 
     const sortedPlans = [...filteredPlans].sort((a, b) => {
         let aValue = a[sortBy];
         let bValue = b[sortBy];
 
-        //Handles date sorting
+        //Handle date sorting
         if (sortBy === 'createdAt') {
             aValue = new Date(aValue);
             bValue = new Date(bValue);
         }
 
-        //Handles string sorting
+        //Handle string sorting
         if (typeof aValue === 'string') {
             aValue = aValue.toLowerCase();
             bValue = bValue.toLowerCase();
@@ -254,7 +239,7 @@ const statusOptions = [
                                     <div className="plan-impact">
                                         <div className="impact-label">Estimated Impact</div>{/*Predicted impact?*/}
                                         <div className="impact-value">
-                                            {plan.impact || 0} dB reduction
+                                            {plan.impact[0] || 0}-{plan.impact[1] || 0} dB reduction
                                         </div>
                                     </div>
 
@@ -293,7 +278,8 @@ const statusOptions = [
                             <div className="summary-stat">
                                 <span className="stat-label">Average Impact</span>
                                 <span className="stat-value">
-                                    {Math.round(plans.impact)} dB
+                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[0] || 0), 0) / plans.length)}-
+                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[1] || 0), 0) / plans.length)} dB
                                 </span>
                             </div>
                             <div className="summary-stat">
