@@ -114,22 +114,12 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     }
   };
 
-  const getCategoryColor = () => {
-    switch(incident.category) {
-      case 'construction': return 'yellow';
-      case 'music': return 'purple';
-      case 'traffic': return 'blue';
-      case 'events': return 'green';
-      default: return 'gray';
-    }
-  };
 
   return (
     <ReactModal
       isOpen={isOpen}
       onRequestClose={onClose}
       style={modalStyles}
-      ariaHideApp={false}
       shouldCloseOnOverlayClick={true}
       shouldCloseOnEsc={true}
       preventScroll={true}
@@ -254,8 +244,10 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
                   key={option.value}
                   onClick={() => setSelectedStatus(option.value)}
                   style={{
-                    backgroundColor: selectedStatus.toLowerCase === option.value.toLowerCase() ? `${option.color}20` : 'white'
-                  }}
+                    backgroundColor: selectedStatus.toLowerCase() === option.value.toLowerCase() ? `light green` : 'white',
+                    border: selectedStatus.toLowerCase() === option.value.toLowerCase() ? `2px solid dark green` : '1px solid black',
+                    fontWeight: selectedStatus.toLowerCase() === option.value.toLowerCase() ? 'bold' : 'normal'
+}}
                   disabled={isUpdating}
                 >
                   <div className="status-label">{option.label}</div>
