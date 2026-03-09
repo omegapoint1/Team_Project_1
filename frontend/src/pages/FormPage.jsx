@@ -2,6 +2,20 @@ import './FormPage.css';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { useState } from 'react';
 
+// apparently vite breaks leaflet popup icon so this is a jank fix for it
+import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+});
+
 // function to remove the tag
 function RemoveTag(event) {
     const button = event.target;
@@ -118,12 +132,12 @@ async function Submit(event) {
     }
 }
 
+// the function called at map click
 function MapClick() {
     const [position, setPosition] = useState(null);
     useMapEvents({
         click(e) {
             const { lat, lng } = e.latlng;
-            console.log('Clicked at: ', lat, lng);
             setPosition(e.latlng);
             document.getElementById("position").value = `${lat},${lng}`;
         }
