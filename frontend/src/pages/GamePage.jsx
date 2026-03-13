@@ -45,7 +45,7 @@ export default function GamePage() {
                             <p>{q.description}</p>
                         </div>
                         <button className= "game-accept">
-                            Accept Quest
+                            Accept <br /> Quest
                         </button>
                     </div>    
                 ))}
