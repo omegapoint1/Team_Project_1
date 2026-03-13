@@ -1,5 +1,5 @@
 import gleam/erlang/process
-import gleam/http.{Get, Post}
+import gleam/http.{Get, Options, Post}
 import gleam/io
 import gleam/option
 import hotspot
@@ -16,6 +16,7 @@ import pog
 import report
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
+import map_data
 
 pub fn main() {
   wisp.configure_logger()
@@ -35,7 +36,8 @@ pub fn main() {
     |> pog.host("db")
     |> pog.start
   let db = pog.named_connection(pool_name)
-
+  map_data.generate_map_data(db)
+  report.generate_reports(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)
@@ -59,7 +61,11 @@ fn app_middleware(
   use <- wisp.rescue_crashes
   use req <- wisp.handle_head(req)
   use <- wisp.serve_static(req, under: "/static", from: static_directory)
-  next(req)
+  let response = next(req)
+  response
+  |> wisp.set_header("Access-Control-Allow-Origin", "http://localhost:5173")
+  |> wisp.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+  |> wisp.set_header("Access-Control-Allow-Headers", "Content-Type")
 }
 
 fn handle_request(
@@ -69,20 +75,27 @@ fn handle_request(
 ) -> Response {
   use req <- app_middleware(req, static_directory)
   case req.method, wisp.path_segments(req) {
+    Options, _ ->
+      wisp.response(200)
+      |> wisp.set_header("Access-Control-Allow-Origin", "http://localhost:5173")
+      |> wisp.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+      |> wisp.set_header("Access-Control-Allow-Headers", "Content-Type")
     Post, ["api", "login"] -> login.extract_login_check(req, db)
     Post, ["api", "register"] -> login.extract_register(req, db)
     Post, ["api", "report", "store"] -> report.extract_report_store(req, db)
     Get, ["api", "report", "get"] -> report.get_all_reports(db)
     Get, ["api", "noise-data"] -> noise.get_noise_data(req, db)
     Get, ["api", "hotspots"] -> hotspot.get_hotspots(req, db)
+    Get, ["api", "hotspots", "dashboard"] -> hotspot.get_hotspots_small(db)
+    Post, ["api", "report", "accept"] -> report.extract_approve_report(req, db)
     Post, ["api", "intervention-plan", "store"] ->
       plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)
     Post, ["api", "intervention", "store"] ->
       intervention.extract_inter_store(req, db)
-
     Get, ["api", "intervention", "get"] ->
       intervention.get_all_interventions(db)
+    Get, ["api", "map-data", "get"] -> map_data.get_all_map_reports(db)
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }

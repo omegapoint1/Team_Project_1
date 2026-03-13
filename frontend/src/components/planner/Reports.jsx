@@ -1,28 +1,25 @@
-import React from 'react';
 import ReportBuilder from './Reports/ReportBuilder';
-import QuickActions from './Reports/QuickActions';
 import ReportTemplates from './Reports/ReportTemplates';
 import SavedReports from './Reports/SavedReports';
-//import styles from './Reports.css';
+import './Reports.css';
 
 function Reports() {
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Report Generation</h2>
-        <p className={styles.description}>
+    <div className='container'>
+      <div className='header'>
+        <h2 className='title'>Report Generation</h2>
+        <p className='description'>
           Create professional reports for stakeholders, funding proposals, and public updates
         </p>
       </div>
 
-      <div className={styles.grid}>
-        <div className={styles.sidebar}>
-          <ReportTemplates />
-          <QuickActions />
-          <SavedReports />
+      <div className='grid'>
+        <div className='sideba'>
+          <ReportTemplates/>
+          <SavedReports/>
         </div>
-        <div className={styles.main}>
-          <ReportBuilder />
+        <div className='main'>
+          <ReportBuilder/>
         </div>
       </div>
     </div>

@@ -76,10 +76,7 @@
   font-weight: 500;
 }
 
-.time-ago {
-  color: #666;
-  font-size: 14px;
-}
+
 
 .status-selection {
   margin: 24px 0;
@@ -101,9 +98,6 @@
   min-width: 100px;
 }
 
-.status-option:hover {
-  border-color: #ccc;
-}
 
 .status-option.selected {
   border-color: #4CAF50;
@@ -149,9 +143,7 @@
   font-weight: 500;
 }
 
-.save-button:hover {
-  background: #388E3C;
-}
+
 
 .modal-footer {
   background: #f9f9f9;

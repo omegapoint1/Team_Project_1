@@ -20,13 +20,30 @@ const IncidentCard = ({ incident, onViewMore }) => {
   };
 
   const getZoneClass = () => {
-    switch(incident.zone) {
-      case 'zone_a': return 'zone-red';
-      case 'zone_b': return 'zone-blue';
-      case 'zone_c': return 'zone-green';
-      default: return 'zone-purple';
-    }
+    const zoneName = incident.zone || '';
+    
+    // Color zones based on their position/region
+    if (zoneName.includes('North')) return 'zone-blue';
+    if (zoneName.includes('South')) return 'zone-green';
+    if (zoneName.includes('East')) return 'zone-yellow';
+    if (zoneName.includes('West')) return 'zone-red';
+    if (zoneName.includes('Central')) return 'zone-purple';
+    
+    return 'zone-gray'; // default
   };
+
+  const getZoneInitial = () => {
+    const zoneName = incident.zone || '';
+    
+    if (zoneName.includes('North')) return 'N';
+    if (zoneName.includes('South')) return 'S';
+    if (zoneName.includes('East')) return 'E';
+    if (zoneName.includes('West')) return 'W';
+    if (zoneName.includes('Central')) return 'C';
+    
+    return '?';
+  };
+
 
   return (
     <div className="incident-card">

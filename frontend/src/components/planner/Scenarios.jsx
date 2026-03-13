@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './Scenario.css';
 
 import ScenarioSelector from './Scenario/ScenarioSelector';
@@ -6,7 +6,6 @@ import ComparisonTable from './Scenario/ComparisonTable';
 import RecommendationCard from './Scenario/RecommendationCard';
 import WeightControls from './Scenario/WeightControls';
 import ScenarioBuilder from './Scenario/ScenarioBuilder';
-
 import { mockScenarios } from './PlannerData/scenarioData';
 
 const ScenarioTab = () => {
@@ -39,7 +38,7 @@ const ScenarioTab = () => {
     <div className="scenario-tab">
       {/* Header */}
       <div className="tab-header">
-        <h1>⚖️ Scenario Comparison</h1>
+        <h1> Scenario Comparison</h1>
         <p>Compare intervention strategies side by side</p>
       </div>
 

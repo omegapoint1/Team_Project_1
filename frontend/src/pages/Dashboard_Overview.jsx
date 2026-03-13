@@ -63,6 +63,9 @@ function OverviewPage() {
 
   const [noiseReports, setNoiseReports] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reports_data, setReports] = useState([]);
+  const [hotspots, setHotspots] = useState([]);
+
 
   useEffect(() => {
     const fetchNoiseReports = async () => {
@@ -70,6 +73,7 @@ function OverviewPage() {
         setLoading(true);
         const response = await fetch('http://localhost:3000/api/noise-data');
 
+            
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -106,44 +110,50 @@ function OverviewPage() {
     fetchNoiseReports();
   }, []);
 
-  const sampleRequests = [
-    {
-      id: 1,
-      location: "Exeter, St. Davids Station",
-      tags: ["Train", "Crowd", "gang"],
-      time: "15:00",
-      severity: 8,
-      status: "Pending",
-      createdAt: Date.now() - 2 * 60 * 60 * 1000, // 2h
-    },
-    {
-      id: 2,
-      location: "Exeter, Western Way",
-      tags: ["Traffic", "Music", "gang"],
-      time: "17:25",
-      severity: 7,
-      status: "Pending",
-      createdAt: Date.now() - 10 * 60 * 60 * 1000, // 10h
-    },
-    {
-      id: 3,
-      location: "Exeter, New North Road",
-      tags: ["Train", "Cars", "gang"],
-      time: "16:17",
-      severity: 4,
-      status: "Accepted",
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3d
-    },
-    {
-      id: 4,
-      location: "Exeter, Stocker Road",
-      tags: ["Crowd", "Music"],
-      time: "15:00",
-      severity: 5,
-      status: "Rejected",
-      createdAt: Date.now() - 20 * 60 * 60 * 1000, // 20h
-    },
-  ];
+  useEffect(() => {
+    const getHotspots = async () => {
+      try {
+        const hotspot_response = await fetch("/api/hotspots/dashboard", {
+          method: "GET",
+        });
+        const data = await hotspot_response.json();
+        console.log(data.hotspots);
+        setHotspots(data.hotspots || []);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        console.error("Error fetching hotspots:", error);
+      }
+    };
+    getHotspots();
+  }, []);
+useEffect(() => {
+    const getReports = async () => {
+      try {
+        const report_response = await fetch("/api/report/get", {
+          method: "GET",
+        });
+        const reportData = await report_response.json();
+
+        const reports = reportData.map((report, index) => ({
+          id: report.id || index,
+          location: report.locationofnoise || report.location_of_noise || "Unknown",
+          tags: report.tag_list || report.tags || [],
+          time: Date.now(),
+          severity: report.severity,
+          status: report.approved,
+          createdAt: report.datetime ? new Date(report.datetime).getTime() : Date.now(),
+        }));  
+        console.log(reports)
+
+        setReports(reports);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+    };
+    getReports();
+  }, []);
+
+  const sampleRequests = reports_data
 
   const handleSearch = () => {
     console.log("Searching for:", search);
@@ -167,7 +177,36 @@ function OverviewPage() {
           : true
       )
       .sort((a, b) => b.createdAt - a.createdAt);
-  }, [search, status, timeRange]);
+  }, [search, status, timeRange, sampleRequests]);
+
+  const onAccept = async (id) => {
+    console.log("accept", id);
+          const response = await fetch('/api/report/accept', {
+        method: 'Post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          accepted: "Accepted"
+        })
+      });
+  }
+  const onReject = async(id) => {
+    console.log("reject", id);
+          const response = await fetch('/api/report/accept', {
+        method: 'Post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          accepted: "Rejected"
+        })
+      });}
+  const onViewMore = (id) => {
+    console.log("view more", id);
+  };
 
   /* Key stats */
   const keyStats = useMemo(() => {
@@ -253,9 +292,6 @@ function OverviewPage() {
 
 
 
-  const onAccept = (id) => console.log("accept", id);
-  const onReject = (id) => console.log("reject", id);
-  const onViewMore = (id) => console.log("view more", id);
 
   return (
     <div className="overviewPage">
@@ -336,7 +372,7 @@ function OverviewPage() {
               />
             ))}
           </div>
-        </div>
+        </div>dashboard
       </div>
 
       <div className="analyticsSection">
@@ -365,12 +401,19 @@ function OverviewPage() {
 
         <div className="statsCard">
           <div className="statsTitle">Top Hotspots (Top 4)</div>
-          <ol className="statsList">
-            <li><span>St Davids Station</span><b>18 reports</b></li>
-            <li><span>Western Way</span><b>12 reports</b></li>
-            <li><span>New North Road</span><b>9 reports</b></li>
-            <li><span>Stocker Rd</span><b>7 reports</b></li>
-          </ol>
+
+          {hotspots.length > 0 ? (
+            <ol className="statsList">
+              {hotspots.slice(0, 4).map((h, i) => (
+                <li key={i}>
+                  <span>{h[1]}</span>
+                  <b>{h[0]} reports</b>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="statsBody">No hotspots data.</div>
+          )}
         </div>
 
         <div className="statsCard">

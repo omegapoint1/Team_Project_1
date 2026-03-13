@@ -1,0 +1,1 @@
+SELECT MapDataId FROM map_data;

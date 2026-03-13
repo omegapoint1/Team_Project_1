@@ -1,5 +1,24 @@
+import gleam/json
+import gleam/option
+import server_app/sql
 import pog
-import wisp.{type Request, type Response}
+import gleam/list
+import shared/hotspots_json
+import wisp.{type Response, type Request}
+
+
+
+pub fn get_hotspots_small(db: pog.Connection) -> Response {
+  let assert Ok(hotspots) = sql.get_hotspots(db)
+  let hotspots_decoded = list.map(hotspots.rows, fn(row) {
+    #(row.occurrence_count, option.unwrap(row.zone, ""))
+  })
+  let hotspots_finished = hotspots_json.HotspotsItem(hotspots: hotspots_decoded)
+  let hotspots_encoded = hotspots_json.hotspots_item_to_json(hotspots_finished)
+  wisp.json_response(json.to_string(hotspots_encoded), 200)
+}
+
+
 
 pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
   let json =
@@ -7,7 +26,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
   \"hotspots\": [
     {
       \"id\": 1,
-      \"name\": \"Zone A - Severe Road Noise\",
+      \"name\": \"Zone North-East - Severe Road Noise\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[466965.0,458415.0],[466965.0,458405.0],[466955.0,458405.0],[466955.0,458415.0],[466965.0,458415.0]]]
@@ -23,7 +42,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
     },
     {
       \"id\": 2,
-      \"name\": \"Zone B - High Traffic Corridor\",
+      \"name\": \"Zone North-Central-West - High Traffic Corridor\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[420145.0,253935.0],[420135.0,253935.0],[420135.0,253945.0],[420145.0,253945.0],[420145.0,253935.0]]]
@@ -39,7 +58,7 @@ pub fn get_hotspots(_req: Request, _db: pog.Connection) -> Response {
     },
     {
       \"id\": 3,
-      \"name\": \"Zone C - Industrial Area\",
+      \"name\": \"Zone Central-North-Central-West - Industrial Area\",
       \"geometry\": {
         \"type\": \"Polygon\",
         \"coordinates\": [[[530100.0,179200.0],[530110.0,179200.0],[530110.0,179210.0],[530100.0,179210.0],[530100.0,179200.0]]]

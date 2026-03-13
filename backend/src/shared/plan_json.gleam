@@ -75,6 +75,3 @@ pub fn plan_item_decoder() -> decode.Decoder(PlanItem) {
   use created_at <- decode.field("created_at", decode.string)
   decode.success(PlanItem(id:, name:, status:, zone:, budget:, total_cost:, timeline:, interventions:, impact:, notes:, evidence:, created_at:))
 }
-
-
-

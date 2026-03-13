@@ -1,11 +1,20 @@
 import './FormPage.css';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { useState } from 'react';
 
-// updates the google maps embed based on the address input
-function AddressUpdater() {
-    const address = document.getElementById("address");
-    let map = document.getElementById("map");
-    map.src = "https://maps.google.com/maps?q=" + address.value + "&output=embed";
-}
+// apparently vite breaks leaflet popup icon so this is a jank fix for it
+import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+});
 
 // function to remove the tag
 function RemoveTag(event) {
@@ -57,8 +66,8 @@ function GetAllTags() {
 }
 
 // checks the validity of all the values that need validating
-function CheckValidity(noisetype, datetime, severity, description, address, zone, tags) {
-    if (noisetype === "" || datetime === "" || description === "" || address === "") {
+function CheckValidity(noisetype, datetime, severity, description, zone, tags) {
+    if (noisetype === "" || datetime === "" || description === "") {
         alert("Make sure you have filled out all values");
         return false
     }
@@ -83,20 +92,6 @@ function CheckValidity(noisetype, datetime, severity, description, address, zone
     }
     return true;
 }
-// converts address to coordinates
-async function ConvertToCoords(address) {
-    address = address.replace(" ", "+")
-    const response = await fetch("https://nominatim.openstreetmap.org/search?q=" + address + "&format=json", {
-            method: "GET",
-    });
-    const data = await response.json();
-    const { lat, lon } = data[0];
-    // a default coord on failure
-    if (lat == null || lon == null) {
-        return { "lat" : "50.7392988", "long" : "-3.5456976" }
-    }
-    return { "lat" : lat, "long" : lon };
-}
 
 // performs the submission of the form in a json format while also doing some basid validity checking
 async function Submit(event) {
@@ -105,23 +100,23 @@ async function Submit(event) {
     const datetime = document.getElementById("datetime").value;
     const severity = document.getElementById("severity").value;
     const description = document.getElementById("description").value;
-    const address = document.getElementById("address").value;
+    const position = document.getElementById("position").value;
     const zone = document.getElementById("zone").value;
     const tags = GetAllTags();
-    if (!CheckValidity(noisetype, datetime, severity, description, address, zone, tags)) {
+    if (!CheckValidity(noisetype, datetime, severity, description, zone, tags)) {
         return;
     }
-    const { lat, long } = await ConvertToCoords(address);
+    const [lat, long] = position.split(",");
     const request = {
         "noisetype": noisetype,
         "datetime": datetime,
         "severity": severity,
         "description": description,
-        "location_of_noise": address,
+        "location_of_noise": "nil",
         "zone": zone,
         "tags": tags,
-        "lat" : lat,
-        "long" : long,
+        "lat": lat,
+        "long": long,
     };
     const response = await fetch("/api/report/store", {
         method: "POST",
@@ -137,7 +132,29 @@ async function Submit(event) {
     }
 }
 
+// the function called at map click
+function MapClick() {
+    const [position, setPosition] = useState(null);
+    useMapEvents({
+        click(e) {
+            const { lat, lng } = e.latlng;
+            setPosition(e.latlng);
+            document.getElementById("position").value = `${lat},${lng}`;
+        }
+    });
+    return position === null ? null : (
+        <Marker position={position}>
+            <Popup>
+                Lat: {position.lat.toFixed(5)}<br />
+                Lng: {position.lng.toFixed(5)}
+            </Popup>
+        </Marker>
+    );
+
+}
+
 function FormPage() {
+    let position = [50.737277, -3.537556];
     return (
         <div class="formflexcolumn formcenter formalittlegap formmargin">
             <form onSubmit={Submit} class="formflexcolumn formcenter">
@@ -163,23 +180,43 @@ function FormPage() {
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Severity</label>
-                                    <input id="severity" type="range" min="1" max="10" defaultValue="1" list="notches"></input>
-                                    <datalist id="notches">
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                        <option value="6"></option>
-                                        <option value="7"></option>
-                                        <option value="8"></option>
-                                        <option value="9"></option>
-                                        <option value="10"></option>
-                                    </datalist>
+                                    <div class="formflexcolumn">
+                                        <input id="severity" type="range" min="1" max="10" defaultValue="1" list="notches"></input>
+                                        <datalist id="notches">
+                                            <option value="1"></option>
+                                            <option value="2"></option>
+                                            <option value="3"></option>
+                                            <option value="4"></option>
+                                            <option value="5"></option>
+                                            <option value="6"></option>
+                                            <option value="7"></option>
+                                            <option value="8"></option>
+                                            <option value="9"></option>
+                                            <option value="10"></option>
+                                        </datalist>
+                                        <div class="slidernumbers">
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5</span>
+                                            <span>6</span>
+                                            <span>7</span>
+                                            <span>8</span>
+                                            <span>9</span>
+                                            <span>10</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>Description</label>
-                                    <textarea id="description" rows="5" cols="25" class="explaintextinput"></textarea>
+                                    <textarea
+                                        id="description"
+                                        rows="5"
+                                        cols="25"
+                                        class="explaintextinput"
+                                        placeholder="Please do not include any personal or sensitive information."
+                                    ></textarea>
                                 </div>
                                 <div class="formflexrow formspacebetween formalittlegap">
                                     <label>tags</label>
@@ -195,26 +232,35 @@ function FormPage() {
                                 <h1>Location</h1>
                             </div>
                             <div class="formflexcolumn formalittlegap">
-                                <iframe
-                                    id="map"
-                                    src="https://maps.google.com/maps?q=University+of+exeter&output=embed"
-                                    allowfullscreen loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '400px', width: '100%' }}>
+                                    <TileLayer
+                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+                                    <MapClick />
+                                </MapContainer>
+                                <input type="hidden" id="position" value={position}></input>
                                 <div>
                                     <div class="formflexcolumn formspacebetween">
                                         <div class="formflexrow formspacebetween">
-                                            <label>Address</label>
-                                            <div>
-                                                <input type="text" id="address" onInput={AddressUpdater} class="textinput"></input>
-                                            </div>
-                                        </div>
-                                        <div class="formflexrow formspacebetween">
                                             <label>Zone</label>
                                             <select id="zone">
-                                                <option value="A">Zone A</option>
-                                                <option value="B">Zone B</option>
-                                                <option value="C">Zone C</option>
-                                                <option value="D">Zone D</option>
+                                                <option value="North-West">North West</option>
+                                                <option value="North-Central-West">North Central West</option>
+                                                <option value="North-Central-East">North Central East</option>
+                                                <option value="North-East">North East</option>
+                                                <option value="Central-North-West">Central North West</option>
+                                                <option value="Central-North-Central-West">Central North Central West</option>
+                                                <option value="Central-North-Central-East">Central North Central East</option>
+                                                <option value="Central-North-East">Central North East</option>
+                                                <option value="Central-South-West">Central South West</option>
+                                                <option value="Central-South-Central-West">Central South Central-West</option>
+                                                <option value="Central-South-Central-East">Central South Central-East</option>
+                                                <option value="Central-South-East">Central South East</option>
+                                                <option value="South-West">South West</option>
+                                                <option value="South-Central-West">South Central West</option>
+                                                <option value="South-Central-East">South Central East</option>
+                                                <option value="South-East">South East</option>
                                             </select>
                                         </div>
                                     </div>

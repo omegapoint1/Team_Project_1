@@ -1,5 +1,4 @@
 
-import React from 'react';
 import PlannerScreenTabManager from "../components/planner/PlannerTabs.jsx";
 
 function PlannerPage() {

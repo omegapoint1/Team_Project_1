@@ -49,6 +49,3 @@ coverage/
 #system files
 .DS_Store
 Thumbs.db
-
-#APIS
-.env
