@@ -42,40 +42,54 @@ const IncidentList = () => {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadIncidents = useCallback(async (showRefreshingState = false) => {
-    try {
-      if (showRefreshingState) {
-        setIsRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      let freshData;
-      try {
-        freshData = await incidentServerService.getAll();
-      } catch (serverError) {
-        console.log('Failed to load incidents from server:', serverError);
-        freshData = incidentLocalService.getAll();
-      }
-
-      if (freshData && freshData.length > 0) {
-        incidentLocalService.saveAll(freshData);
-      }
-
-      setIncidents(freshData || []);
-    } catch (error) {
-      console.error('Error loading incidents:', error);
-      const localData = incidentLocalService.getAll();
-      setIncidents(localData || []);
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
+  const loadIncidents = async (showRefreshingState = false) => {
+  try {
+    if (showRefreshingState) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
     }
-  }, []);
 
-  useEffect(() => {
-    loadIncidents();
-  }, [loadIncidents]);
+    let freshData;
+    try {
+      freshData = await incidentServerService.getAll();
+    } catch (serverError) {
+      console.log('Failed to load incidents from server:', serverError);
+      freshData = incidentLocalService.getAll();
+    }
+
+    if (freshData && freshData.length > 0) {
+      const uniqueIncidents = [];
+      const ids = new Set();
+      
+      freshData.forEach(incident => {
+        if (!ids.has(incident.id)) {
+          ids.add(incident.id);
+          uniqueIncidents.push(incident);
+        }
+      });
+      
+      console.log(`Loaded ${uniqueIncidents.length} unique incidents`);
+      
+      incidentLocalService.saveAll(uniqueIncidents);
+      setIncidents(uniqueIncidents);
+    }
+  } catch (error) {
+    console.error('Error loading incidents:', error);
+    const localData = incidentLocalService.getAll();
+    setIncidents(localData || []);
+  } finally {
+    setLoading(false);
+    setIsRefreshing(false);
+  }
+};
+
+useEffect(() => {
+  loadIncidents();
+}, []); 
+  
+
+
 
   const handleRefresh = async () => {
     await loadIncidents(true);
@@ -252,8 +266,6 @@ const IncidentList = () => {
         footer={
           <div className="scrollable-footer">
             <div>
-              <span className="bold">{filteredIncidents.length}</span> of{' '}
-              <span className="bold">{incidents.length}</span> incidents
               {isRefreshing && <span className="refreshing-text"> (Refreshing...)</span>}
             </div>
             <div className="footer-actions">

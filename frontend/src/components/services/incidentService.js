@@ -79,38 +79,41 @@ getAll: async (filters = {}) => {
             }
                 return response.map(convertIncidentFromAPI);
         } catch (error) {
-            console.error('Error in getAll incidents:', error.message || error);
+            console.log('Error from getAll incidents call :', error.message || error);
             //Return empty array on error
             return [];
         }
     },
 
-    /*// get a single incident
-    getById: async (incidentId) => {
-        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/${incidentId}`);
-        return convertIncidentFromAPI(response);
-    },/=*/
 
-
-    // update incident
+// update incident
 update: async (updatedIncident) => {
-        try {
-            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
-                method: 'POST',
-                body: JSON.stringify(convertIncidentToAPI(updatedIncident))
-            });
+    try {
+        const originalId = updatedIncident.id;
+        
+        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+            method: 'POST',
+            body: JSON.stringify(convertIncidentToAPI(updatedIncident))
+        });
 
-            if (!response) {
-                console.log('No response from server');
-            }
-
-            return convertIncidentFromAPI(response);
-        } catch (error) {
-            console.log('Error in update incident:', error);
-    
+        if (!response) {
+            console.log('No response from server');
+            return updatedIncident; 
         }
-    },
 
+        const converted = convertIncidentFromAPI(response);
+        
+        if (converted.id !== originalId) {
+            console.log(`Server changed ID from ${originalId} to ${converted.id}, preserving original`);
+            converted.id = originalId;
+        }
+        
+        return converted;
+    } catch (error) {
+        console.log('Error in update incident:', error);
+        return updatedIncident; 
+    }
+},
 
 
 
