@@ -37,7 +37,7 @@ export default function GamePage() {
                     <div key={i} className="game-card">
                         <div className="game-meta">
                             {q.status}<br />
-                            {q.difficulty}< br/>
+                            {q.difficulty}<br />
                             {q.xp}
                         </div>
                         <div className="game-main">
@@ -45,7 +45,7 @@ export default function GamePage() {
                             <p>{q.description}</p>
                         </div>
                         <button className= "game-accept">
-                            Accept<br /> Quest
+                            Accept <br /> Quest
                         </button>
                     </div>    
                 ))}

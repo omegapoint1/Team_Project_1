@@ -20,7 +20,8 @@
     border-radius: 12px;
     margin: 16px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    width: calc(100% - 72px);
+    width: calc(100% - 32px);
+    box-sizing: border-box;
 }
 
 .search-section {
@@ -97,7 +98,10 @@
 
 /*quest list*/
 .game-list{
-    padding: 0 20px;
+    padding: 0;
+    width: calc(100% - 32px);
+    margin: 0 16px;
+    box-sizing: border-box;
 }
 .game-card{
     display:grid;
@@ -109,12 +113,15 @@
     margin-bottom: 14px;
     border: 2px solid rgb(119, 119, 119);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .game-meta {
     font-size: 14px;
     line-height: 1.6;
     font-weight: 600;
+    padding-left: 0;
 }
 .game-main{
     text-align: center;
@@ -140,6 +147,7 @@
     cursor: pointer;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 0 rgba(0, 0, 0, 0.25);
     transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+    margin-right: 0;
 }
 
 .game-accept:hover{
