@@ -24,9 +24,16 @@ function LoginPage() {
         })
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-//        const data = await response.json();
-        navigate('/dashboard');
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+      if (data.user.role === 'planner') {
+          navigate('/Dashboard_Overview');
+        } else {
+          navigate('/UserDashboard');
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Invalid email or password');
