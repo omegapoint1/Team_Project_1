@@ -1,133 +1,161 @@
-import "./Dashboard_MitigationPlans.css"
+import React, { useState, useEffect } from 'react';
+import InterventionCatalog from "../components/planner/Mitigations/InterventionCatalog";
+import PlanBuilder from "../components/planner/Mitigations/PlanBuilder";
+import PlansList from "../components/planner/Mitigations/PlansList";
+import PlanDetailModal from "../components/planner/Mitigations/PlanDetailModal";
+import { interventionsData } from "../components/planner/PlannerData/mitigationsData";
+import "../components/planner/MitigationTab.css";
 
-function MitigationPlansPage() {
-  return (
-    <div className="mitigationCreation">
-      <section className="mitigationCreationCard">
-        <h2 className="mitigationCreationTitle">Mitigation Creation</h2>
+const MitigationTab = () => {
+    const [activeTab, setActiveTab] = useState('catalog');
+    const [plans, setPlans] = useState([]);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [interventions, setInterventions] = useState(interventionsData);
 
-        <div className="mitigationField">
-          <label className="mitigationLabel">Select Zone</label>
-          <div className="mitigationSelectWrap">
-            <select className="mitigationSelect">
-              <option>Zone ▼</option>
-            </select>
-          </div>
-        </div>
+    //load saved plans from localStorage
+    useEffect(() => {
+        const savedPlans = localStorage.getItem('noiseMitigationPlans');
+        if (savedPlans) {
+            try {
+                setPlans(JSON.parse(savedPlans));
+            } catch (error) {
+                console.error('Error loading plans from localStorage:', error);
+                setPlans([]);
+            }
+        }
+    }, []);
 
-                <div className="mitigationField">
-          <label className="mitigationLabel">Intervention 1</label>
-          <div className="mitigationSelectWrap">
-            <select className="mitigationSelect">
-              <option>Intervention ▼</option>
-            </select>
-          </div>
-        </div>
+    //Save plans to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('noiseMitigationPlans', JSON.stringify(plans));
+    }, [plans]);
 
-        <div className="mitigationField">
-          <label className="mitigationLabel">Intervention 2</label>
-          <div className="mitigationSelectWrap">
-            <select className="mitigationSelect">
-              <option>Intervention ▼</option>
-            </select>
-          </div>
-        </div>
+    const handleAddToPlan = (intervention) => {
 
-        <div className="addIntervensionRow">
-          <button className="addInterventionButton" type="button">+</button>
-          <span className="addInterventionText">Add Intervention</span>
-        </div>
+        alert(`Added ${intervention.name} to plan. Switch to "Build Plan" tab to continue.`);
+        localStorage.setItem('lastSelectedIntervention', JSON.stringify(intervention));
+    };
 
-        <div className="mitigationTable">
-          <div className="mitigationTableHeader">
-            <span>Intervention</span>
-            <span>Cost (£)</span>
-            <span>Number</span>
-            <span>Impact (dB)</span>
-            <span>Estimate Total Cost (£)</span>
-          </div>
-        </div>
+    const handleCreatePlan = (newPlan) => {
+        const planWithId = {
+            ...newPlan,
+            id: `plan-${Date.now()}`,
+            status: 'draft'
+        };
+        setPlans([...plans, planWithId]);
+        setActiveTab('plans');
+    };
 
-        <div className="mitigationTableEmpty">
-          No Interventions added yet.
-        </div>
+    const handleUpdatePlanStatus = (planId, newStatus) => {
+        setPlans(plans.map(plan => 
+            plan.id === planId ? { ...plan, status: newStatus } : plan
+        ));
+    };
 
-        <div className="bottomSection">
-          <div className="bottomLeft">
-            <div className="belowTable">
-              <div className="mitigationField">
-                <label className="mitigationLabel">Target Timeframe</label>
-                <div className="mitigationSelectWrap">
-                  <select className="mitigationSelect">
-                    <option>Timeframe ▼</option>
-                    <option>Short-Term</option>
-                    <option>Medium-Term</option>
-                    <option>Long-Term</option>
-                  </select>
+    const handleDeletePlan = (planId) => {
+        if (window.confirm('Are you sure you want to delete this plan?')) {
+            setPlans(plans.filter(plan => plan.id !== planId));
+        }
+    };
+
+    const handleViewPlanDetails = (plan) => {
+        setSelectedPlan(plan);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedPlan(null);
+    };
+
+    const getStatusCount = (status) => {
+        return plans.filter(plan => plan.status === status).length;
+    };
+
+    const renderActiveTab = () => {
+        switch(activeTab) {
+            case 'catalog':
+                return <InterventionCatalog onAddToPlan={handleAddToPlan} />;
+            case 'builder':
+                return <PlanBuilder 
+                    interventions={interventions} 
+                    onCreatePlan={handleCreatePlan} 
+                />;
+            case 'plans':
+                return <PlansList 
+                    plans={plans} 
+                    onViewPlan={handleViewPlanDetails}
+                    onUpdateStatus={handleUpdatePlanStatus}
+                    onDeletePlan={handleDeletePlan}
+                />;
+            default:
+                return <InterventionCatalog onAddToPlan={handleAddToPlan} />;
+        }
+    };
+
+    return (
+        <div className="mitigation-tab">
+            <div className="tab-header">
+                <h1>Noise Mitigation Planner</h1>
+                <p className="tab-description">
+                    Design and manage noise reduction strategies for different zones
+                </p>
+            </div>
+
+            <div className="tab-navigation">
+                <button 
+                    className={`tab-button ${activeTab === 'catalog' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('catalog')}
+                >
+                    <span className="tab-icon">📚</span>
+                    <span className="tab-label">Catalog</span>
+                    <span className="tab-count">{interventions.length}</span>
+                </button>
+                
+                <button 
+                    className={`tab-button ${activeTab === 'builder' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('builder')}
+                >
+                    <span className="tab-icon">🛠️</span>
+                    <span className="tab-label">Build Plan</span>
+                </button>
+                
+                <button 
+                    className={`tab-button ${activeTab === 'plans' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('plans')}
+                >
+                    <span className="tab-icon">📋</span>
+                    <span className="tab-label">My Plans</span>
+                    <span className="tab-count">{plans.length}</span>
+                </button>
+                
+                <div className="tab-status-indicators">
+                    <span className="status-indicator draft">
+                        <span className="status-dot"></span>
+                        Draft: {getStatusCount('draft')}
+                    </span>
+                    <span className="status-indicator submitted">
+                        <span className="status-dot"></span>
+                        Submitted: {getStatusCount('submitted')}
+                    </span>
+                    <span className="status-indicator implemented">
+                        <span className="status-dot"></span>
+                        Implemented: {getStatusCount('implemented')}
+                    </span>
                 </div>
-              </div>
             </div>
 
-            <div className="mitigationField">
-              <label className="mitigationLabel">Status</label>
-              <div className="mitigationSelectWrap">
-                <select className="mitigationSelect">
-                  <option>Status ▼</option>
-                  <option>Draft</option>
-                  <option>Planned</option>
-                  <option>In Progress</option>
-                  <option>Completed</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="notesCard">
-            <label className="mitigationLabel">Notes</label>
-            <textarea className="notesInput"/>
-          </div>
-
-        </div>
-
-        <div className="mitigationActions">
-          <div className="mitigationActionsLeft">
-            <button type="button" className="actionBtn">Save</button>
-            <button type="button" className="actionBtn">Clear</button>
-        </div>
-
-        <div className="mitigationActionsRight">
-          <button type="button" className="actionBtn actionBtnPrimary">Export</button>
-        </div>
-      </div>
-
-
-      </section>
-
-
-      <section className="mitigationPlansCard">
-        <h2 className="mitigationPlansTitle">Mitigation Plans</h2>
-
-        <div className="plansList">
-          <div className="planItem">
-            <div className="planDetails">
-              <div className="planName">Name</div>
-              <div className="planData">Saved Date:</div>
-              <div className="planData">Intervention 1:</div>
-              <div className="planData">Intervention 2:</div>
-              <div className="planData">Intervention 3:</div>
+            <div className="tab-content">
+                {renderActiveTab()}
             </div>
 
-            <div className="plansButton">
-              <button type="button" className="actionBtn actionBtnPrimary">Open</button>
-              <button type="button" className="actionBtn actionBtnPrimary">Export</button>
-            </div>
-          </div>
+            {selectedPlan && (
+                <PlanDetailModal 
+                    plan={selectedPlan}
+                    onClose={handleCloseModal}
+                    onUpdateStatus={handleUpdatePlanStatus}
+                />
+            )}
         </div>
-      </section>
+    );
+};
 
-
-    </div>
-  );
-}
-
-export default MitigationPlansPage;
+export default MitigationTab;
