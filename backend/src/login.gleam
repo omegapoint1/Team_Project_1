@@ -1,5 +1,7 @@
 import argus
 import gleam/dynamic/decode
+import gleam/json
+import gleam/option.{None, Some}
 import pog
 import server_app/sql
 import shared/login_json
@@ -9,26 +11,54 @@ pub fn extract_login_check(req: Request, db: pog.Connection) -> Response {
   use json <- wisp.require_json(req)
   let assert Ok(item) = decode.run(json, login_json.login_item_decoder())
   case handle_login_check(item, db) {
-    1 -> wisp.ok()
-    _ -> wisp.bad_request("Request failed")
+    Ok(user_info) -> {
+      let role = case user_info.admin {
+        Ok(True) -> "planner"
+        Ok(False) -> "citizen"
+        Error(_) -> "citizen"
+      }
+      let response_json =
+        json.object([
+          #("user", json.object([#("role", json.string(role))])),
+        ])
+      wisp.json_response(json.to_string(response_json), 200)
+    }
+    Error(_) -> wisp.bad_request("Invalid email or password")
   }
 }
 
-pub fn handle_login_check(item: login_json.LoginItem, db: pog.Connection) -> Int {
+pub fn handle_login_check(
+  item: login_json.LoginItem,
+  db: pog.Connection,
+) -> Result(LoginWithUserInfo, Nil) {
   let password = item.password
   let username = item.username
-  let assert Ok(data) = sql.login(db, username)
 
-  let db_password = case data.rows {
-    [row] -> row.password
-    _ -> ""
+  case sql.login_with_user(db, username) {
+    Ok(data) -> {
+      case data.rows {
+        [row] -> {
+          case argus.verify(row.password, password) {
+            Ok(True) -> {
+              let admin = case row.admin {
+                Some(value) -> Ok(value)
+                None -> Error(Nil)
+              }
+              Ok(LoginWithUserInfo(admin:))
+            }
+            Ok(False) -> Error(Nil)
+            Error(_) -> Error(Nil)
+          }
+        }
+        _ -> Error(Nil)
+      }
+    }
+    Error(_) -> Error(Nil)
   }
+}
 
-  case argus.verify(db_password, password) {
-    Ok(True) -> 1
-    Ok(False) -> -1
-    Error(_) -> -1
-  }
+pub type LoginWithUserInfo {
+  LoginWithUserInfo(admin: Result(Bool, Nil))
 }
 
 pub fn extract_register(req: Request, db: pog.Connection) -> Response {
@@ -45,8 +75,6 @@ pub fn handle_register(item: login_json.LoginItem, db: pog.Connection) -> Int {
   let username = item.username
 
   let salt = argus.gen_salt()
-  wisp.log_alert(password)
-  wisp.log_alert(username)
   let assert Ok(hashes) =
     argus.hasher()
     |> argus.algorithm(argus.Argon2id)

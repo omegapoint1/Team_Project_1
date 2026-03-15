@@ -1,7 +1,8 @@
 import './App.css';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, NavLink} from 'react-router-dom';
-import LoginPage from './pages/LoginPage'; 
-import PlannerPage from './pages/PlannerPage';  
+import LoginPage from './pages/LoginPage';
+import PlannerPage from './pages/PlannerPage';
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
@@ -20,8 +21,23 @@ import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
 
 function App() {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(null);
   const isPlanner = user?.role === 'planner';
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const handleUserLogin = () => {
+      const updatedUser = localStorage.getItem('user');
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+    };
+
+    window.addEventListener('userLogin', handleUserLogin);
+    return () => window.removeEventListener('userLogin', handleUserLogin);
+  }, []);
   
   return (
   <BrowserRouter>
@@ -58,7 +74,7 @@ function App() {
         <Route path="report" element={<FormPage />} />
         <Route path="/terms" element={<Terms />} />
         
-        <Route path="/dashboard" element={ isPlanner ? <Dashboard /> : <Navigate to="/UserDashboard" replace />}>
+        <Route path="/dashboard" element={ isPlanner ? <Dashboard /> : <Navigate to="/user-dashboard" replace />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
           <Route path="reportProcessing" element={<Incidents />} />

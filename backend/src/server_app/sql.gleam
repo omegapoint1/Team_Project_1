@@ -257,6 +257,48 @@ WHERE
   |> pog.execute(db)
 }
 
+/// A row you get from running the `login_with_user` query
+/// defined in `./src/server_app/sql/login_with_user.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type LoginWithUserRow {
+  LoginWithUserRow(password: String, admin: Option(Bool))
+}
+
+/// Runs the `login_with_user` query
+/// defined in `./src/server_app/sql/login_with_user.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn login_with_user(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(LoginWithUserRow), pog.QueryError) {
+  let decoder = {
+    use password <- decode.field(0, decode.string)
+    use admin <- decode.field(1, decode.optional(decode.bool))
+    decode.success(LoginWithUserRow(password:, admin:))
+  }
+
+  "SELECT
+  l.Password,
+  u.Admin
+FROM
+  LOGIN l
+LEFT JOIN
+  USERS u ON l.UserId = u.UserId
+WHERE
+  l.Username = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `map_data_get` query
 /// defined in `./src/server_app/sql/map_data_get.sql`.
 ///
