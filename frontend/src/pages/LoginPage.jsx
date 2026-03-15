@@ -24,15 +24,16 @@ function LoginPage() {
         })
       });
 
-      const data = await response.json();
-
       if (response.ok) {
+        const data = await response.json();
         localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (data.user.role === 'planner') {
-          navigate('/Dashboard_Overview');
+        window.dispatchEvent(new Event('userLogin'));
+
+        if (data.user.role === 'planner') {
+          navigate('/dashboard/overview');
         } else {
-          navigate('/UserDashboard');
+          navigate('/user-dashboard');
         }
       } else {
         const errorData = await response.json();
