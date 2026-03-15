@@ -17,6 +17,8 @@ import MitigationTab from './components/planner/MitigationTab';
 import Incidents from './components/planner/Incidents';
 import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
+import Terms from './pages/TermsPage';
+
 function App() {
   return (
 <BrowserRouter>
@@ -60,7 +62,10 @@ function App() {
           <Route path="tracker" element={<IncidentManagement />} />
           <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
+
         </Route>
+
+        <Route path="/terms" element={<Terms />} />
 
 
         {/*<Route path="*" element={<NotFoundPage />} />*/}
