@@ -10,6 +10,8 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [matchError, setMatchError] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState('');
 
   const validatePassword = (password) => {
     const errors = [];
@@ -34,17 +36,24 @@ function LoginPage() {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMatchError('');
+  e.preventDefault();
+  setMatchError('');
+  setTermsError('');
 
-    if (password !== confirmPassword) {
-      setMatchError('Passwords do not match');
-      return;
-    }
+  if (!acceptedTerms) {
+    setTermsError('You must accept the Terms and Conditions');
+    return;
+  }
 
-    if (passwordErrors.length > 0) {
-      return;
-    }
+  if (password !== confirmPassword) {
+    setMatchError('Passwords do not match');
+    return;
+  }
+
+  if (passwordErrors.length > 0) {
+    return;
+  }
+
     try {
       const response = await fetch ('/api/register', {
         method: 'POST',
@@ -131,6 +140,25 @@ function LoginPage() {
           </div>
         )}
 
+        <div className="form-group terms">
+          <div className="terms-row">
+            <input
+              type="checkbox"
+              id="terms-checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+            />
+            <label htmlFor="terms-checkbox" className="terms-label">
+              I agree to the <Link to="/terms">Terms and Conditions</Link>
+            </label>
+          </div>
+        </div>
+
+        {termsError && (
+          <div className="password-errors">
+            {termsError}
+          </div>
+        )}
 
         <button type="submit">Sign up</button>
       </form>
@@ -139,8 +167,8 @@ function LoginPage() {
         <p> Already have an account? </p>
 
         <Link to="/login">
-          <button type="button" className="signup-button">
-            Log in
+          <button type="submit" disabled={!acceptedTerms}>
+            Login
           </button>
         </Link>
       </div>

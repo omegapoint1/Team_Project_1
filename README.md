@@ -75,3 +75,6 @@ gleam test
 | Database   | PostgreSQL                  |
 | Mapping    | Leaflet.js                  |
 | Deployment | Docker                      |
+
+## T&Cs
+Reference for terms and conditions: https://help.nextdoor.com/s/article/Member-Agreement-UK-2024?language=en_GB
