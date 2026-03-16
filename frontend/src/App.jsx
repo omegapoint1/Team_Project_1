@@ -19,6 +19,7 @@ import Incidents from './components/planner/Incidents';
 import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
+import HelpPage from './pages/HelpPage.jsx';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -57,6 +58,7 @@ function App() {
           )}
           <Link to="/game" className="nav-link">Quests</Link>
           <Link to="/report" className="nav-link">Report incident</Link>
+          <Link to="/help" className="nav-link">Help</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
@@ -73,6 +75,7 @@ function App() {
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="report" element={<FormPage />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/help" element={<HelpPage />} />
         
         <Route path="/dashboard" element={ isPlanner ? <Dashboard /> : <Navigate to="/user-dashboard" replace />}>
           <Route index element={<Overview />} />
