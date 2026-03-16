@@ -1,87 +1,86 @@
 import { useState } from 'react';
 import './LoginPage.css';
 import './SignUpPage.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-function LoginPage() {
+function SignUpPage() {
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
-  const [confirmPassword, setconfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [password, setPassword] = useState('');
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [matchError, setMatchError] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState('');
+  const [error, setError] = useState('');
 
   const validatePassword = (password) => {
     const errors = [];
 
-    if (password.length < 8)
-      errors.push('at least 8 characters');
-
-    if (!/[a-z]/.test(password))
-      errors.push('one lowercase letter');
-
-    if (!/[A-Z]/.test(password))
-      errors.push('one uppercase letter');
-
-    if (!/[0-9]/.test(password))
-      errors.push('one number');
-
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
-      errors.push('one special character');
+    if (password.length < 8) errors.push('at least 8 characters');
+    if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
+    if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
+    if (!/[0-9]/.test(password)) errors.push('one number');
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push('one special character');
 
     return errors;
   };
 
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMatchError('');
-  setTermsError('');
+    e.preventDefault();
+    setMatchError('');
+    setTermsError('');
+    setError('');
 
-  if (!acceptedTerms) {
-    setTermsError('You must accept the Terms and Conditions');
-    return;
-  }
+    if (!acceptedTerms) {
+      setTermsError('You must accept the Terms and Conditions');
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    setMatchError('Passwords do not match');
-    return;
-  }
+    if (password !== confirmPassword) {
+      setMatchError('Passwords do not match');
+      return;
+    }
 
-  if (passwordErrors.length > 0) {
-    return;
-  }
+    const validationErrors = validatePassword(password);
+    setPasswordErrors(validationErrors);
+
+    if (validationErrors.length > 0) {
+      return;
+    }
 
     try {
-      const response = await fetch ('/api/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: email,
-          password: password
-        })
+          password,
+        }),
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (response.ok) {
-        const data = await response.json();
         console.log('Registration successful:', data);
+        navigate('/login', { replace: true });
+      } else {
+        setError(data.message || 'Registration failed');
       }
-    } catch (error){
-      console.error('Error:', error)
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Error. Please try again.');
     }
   };
 
   return (
-
     <div className="page">
       <h1>Sign up to Neighborhood Noise</h1>
+
       <form onSubmit={handleSubmit}>
-
-
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
@@ -117,7 +116,7 @@ function LoginPage() {
             id="confirm-password"
             value={confirmPassword}
             onChange={(e) => {
-              setconfirmPassword(e.target.value);
+              setConfirmPassword(e.target.value);
               setMatchError('');
             }}
             placeholder="Confirm your password"
@@ -134,11 +133,9 @@ function LoginPage() {
           </ul>
         )}
 
-        {matchError && (
-          <div className="password-errors">
-            {matchError}
-          </div>
-        )}
+        {matchError && <div className="password-errors">{matchError}</div>}
+        {termsError && <div className="password-errors">{termsError}</div>}
+        {error && <div className="password-errors">{error}</div>}
 
         <div className="form-group terms">
           <div className="terms-row">
@@ -154,20 +151,13 @@ function LoginPage() {
           </div>
         </div>
 
-        {termsError && (
-          <div className="password-errors">
-            {termsError}
-          </div>
-        )}
-
         <button type="submit">Sign up</button>
       </form>
 
       <div className="signup-section">
-        <p> Already have an account? </p>
-
+        <p>Already have an account?</p>
         <Link to="/login">
-          <button type="submit" disabled={!acceptedTerms}>
+          <button type="button" className="login-button">
             Login
           </button>
         </Link>
@@ -176,4 +166,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignUpPage;
