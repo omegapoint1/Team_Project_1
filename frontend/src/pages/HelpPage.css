@@ -1,0 +1,161 @@
+.helpPage {
+  width: 100%;
+  max-width: 1845px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: rgb(230, 230, 230);
+  min-height: 100vh;
+}
+
+.helpTitle {
+  font-weight: 900;
+  font-size: 34px;
+  margin: 0 0 8px 0;
+}
+
+.helpSubtitle {
+  margin: 0 0 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.helpSectionCard {
+  background: rgb(244, 244, 244);
+  border: 2px solid rgb(122, 122, 122);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.helpSectionTitle {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.helpSectionDesc {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+
+
+.helpFaqList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.helpFaqItem {
+  border: 2px solid rgb(122, 122, 122);
+  border-radius: 12px;
+  background: rgb(244, 244, 244);
+  overflow: hidden;
+}
+
+.helpFaqSummary {
+  list-style: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 14px;
+
+  background: rgb(222, 222, 222);
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, filter 160ms ease;
+}
+
+
+.helpFaqSummary::-webkit-details-marker {
+  display: none;
+}
+
+
+.helpFaqSummary::marker {
+  content: "";
+}
+
+.helpFaqChevron {
+  font-size: 12px;
+  opacity: 0.85;
+  transition: transform 120ms ease;
+}
+
+.helpFaqSummary:hover {
+  filter: brightness(0.98);
+}
+
+.helpFaqSummary:focus {
+  outline: 2px solid rgb(60, 60, 60);
+  outline-offset: 2px;
+}
+
+.helpFaqItem[open] .helpFaqSummary {
+  background: rgb(125, 223, 125);
+  border-bottom: 2px solid rgb(60, 60, 60);
+  color: #000;
+}
+
+.helpFaqItem[open] .helpFaqChevron {
+  border-color: rgb(60, 60, 60);
+  transform: rotate(180deg);
+}
+
+.helpFaqAnswer {
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.35;
+  background: rgb(244, 244, 244);
+}
+
+
+.helpStillStuck {
+  margin-top: 14px;
+}
+
+.helpStillStuckTitle {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.helpStillStuckText {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.helpFaqSummary:hover {
+  background: rgb(125, 223, 125);      
+  border-color: rgb(60, 60, 60);
+  filter: none;                         
+}
+
+.helpFaqSummary:hover,
+.helpFaqSummary:hover .helpFaqChevron {
+  color: #000;
+  opacity: 1;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .helpTitle {
+    font-size: 28px;
+  }
+
+  .helpFaqSummary {
+    font-size: 13px;
+  }
+}

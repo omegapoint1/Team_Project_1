@@ -1,188 +1,148 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import "./HelpPage.css";
 
-//basic static FAQ page right now, not too sure what other kind of features could be added but right now, its two sections, a users sections first and then the planners
-//
-
-function FaqItem({ q, children, defaultOpen = false}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className = "helpFaqItem">
-      <button 
-        type="button" 
-        className = "helpFaqItem" 
-        onClick = {() => setOpen((v) => !v )}
-        aria-expanded = {open}>
-
-          <span>{q}</span>
-          <span className = "helpFaqChevron">{open ? "▾" : "▸"}</span>
-
-      </button>
-
-      {open && <div className="helpFaqAnswer">{children}</div>}
-    </div>
-  );
-}
-
 export default function HelpPage() {
-  const userFaqs = useMemo(
-    () => [
-      {
-        q: "How do I submit a noise report?",
-        a: (
-          <ol className="helpList">
-            <li>Go to <b>Report incident</b> in the navbar.</li>
-            <li>Pick a <b>Noise Type</b> and set a <b>Date & Time</b>.</li>
-            <li>Choose a <b>Severity</b> (1–10) and add a short <b>Description</b>.</li>
-            <li>Add <b>Tags</b> (optional) and confirm the <b>Location</b>.</li>
-            <li>Press <b>Send Report</b>.</li>
-          </ol>
-        ),
-      },
-      {
-        q: "What should I put in ‘Severity’?",
-        a: (
-          <div className="helpText">
-            Use <b>1–3</b> for mild annoyance, <b>4–6</b> for disruptive, and <b>7–10</b> for
-            very loud / sustained / sleep-disrupting noise.
-          </div>
-        ),
-      },
-      {
-        q: "Do I need to add tags?",
-        a: (
-          <div className="helpText">
-            Tags are optional, but they help the system group similar reports (e.g. <i>Traffic</i>,
-            <i>Music</i>, <i>Crowd</i>, <i>Construction</i>).
-          </div>
-        ),
-      },
-      {
-        q: "Where can I see my reports and quick stats?",
-        a: (
-          <div className="helpText">
-            Use <b>My Dashboard</b>. It shows recent reports (and quick stats) for users.
-          </div>
-        ),
-      },
-      {
-        q: "What is a hotspot?",
-        a: (
-          <div className="helpText">
-            A hotspot is an area where multiple noise reports cluster. It helps identify “busy”
-            zones/areas that may need mitigation.
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
-
-  //just kind of placeholder stuff for right now in this section, at the time of writing this i am unable to compile the docker image
-  //so can't go through the steps for each FAQ, so for now, just general stuff. 
-  //
-  //Did the best i could with the deadline and whatnot, 
-  const plannerFaqs = useMemo(
-    () => [
-      {
-        q: "What extra features do planners get?",
-        a: (
-          <div className="helpText">
-            Planners have access to the <b>Dashboard+</b> area (overview + moderation/workflow) and
-            can create mitigation plans and compare scenarios.
-          </div>
-        ),
-      },
-      {
-        q: "How do I review and process reports?",
-        a: (
-          <ol className="helpList">
-            <li>Open <b>Dashboard+</b> → <b>Overview</b> / <b>Report Processing</b> (depending on your tabs).</li>
-            <li>Use filters (time range / status) to narrow down reports.</li>
-            <li>Open a report to view details, then <b>accept</b> or <b>reject</b> if required.</li>
-          </ol>
-        ),
-      },
-      {
-        q: "How do mitigation plans work?",
-        a: (
-          <div className="helpText">
-            Mitigation plans are proposed interventions for a zone/hotspot (e.g. barriers,
-            traffic calming, enforcement, time restrictions). Plans can be compared in scenarios.
-          </div>
-        ),
-      },
-      {
-        q: "How do I compare scenarios?",
-        a: (
-          <div className="helpText">
-            Use <b>Scenario Comparison</b> to compare multiple plans/scenarios side-by-side and pick
-            the best option for impact vs cost/feasibility.
-          </div>
-        ),
-      },
-      {
-        q: "How do I export a report / summary?",
-        a: (
-          <div className="helpText">
-            Use <b>Generate Report</b> (or your exporting tab) to export the current view or a
-            selected hotspot summary. If export isn’t wired yet, it will show a placeholder action.
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
   return (
     <div className="helpPage">
-      <div className="helpHeaderCard">
-        <h1 className="helpTitle">Help & FAQ</h1>
-        <p className="helpSubtitle">
-          Quick guidance for users and planners. Pick a section below.
+      <h1 className="helpTitle">Help &amp; FAQ</h1>
+      <p className="helpSubtitle">
+        Quick guidance for users and planners. Pick a section below.
+      </p>
+
+      <section className="helpSectionCard">
+        <h2 className="helpSectionTitle">For Users</h2>
+        <p className="helpSectionDesc">
+          Submitting reports, understanding hotspots, and navigating your dashboard.
         </p>
-      </div>
 
-      <div className="helpTwoCol">
-        <div className="helpSection">
-          <div className="helpSectionTitle">For Users</div>
-          <p className="helpSectionIntro">
-            Submitting reports, understanding hotspots, and navigating your dashboard.
-          </p>
+        <div className="helpFaqList">
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              How do I submit a noise report?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Use <b>Report incident</b> in the navigation bar. Fill in noise type, date/time, severity,
+              add a short description, then choose the location and submit.
+            </div>
+          </details>
 
-          <div className="helpFaqList">
-            {userFaqs.map((f, idx) => (
-              <FaqItem key={idx} q={f.q} defaultOpen={idx === 0}>
-                {f.a}
-              </FaqItem>
-            ))}
-          </div>
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              What should I put in “Severity”?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Use a simple 1–10 scale: <b>1</b> = barely noticeable, <b>10</b> = extremely disruptive.
+              Try to be consistent with similar situations.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              Do I need to add tags?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Tags are optional, but helpful. Add a couple like <b>Traffic</b>, <b>Music</b>, <b>Crowd</b>,
+              or anything that makes searching and grouping easier.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              Where can I see my reports and quick stats?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Go to <b>My Dashboard</b>. You’ll see recent/filtered reports on the right and quick
+              stats (24h/7d, common tags, busiest areas) in the bottom cards.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              What is a hotspot?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              A hotspot is an area with a higher concentration of noise reports or high noise levels.
+              Hotspots help highlight where mitigation may be needed most.
+            </div>
+          </details>
         </div>
+      </section>
 
-        <div className="helpSection">
-          <div className="helpSectionTitle">For Planners</div>
-          <p className="helpSectionIntro">
-            Reviewing reports, building mitigation plans, comparing scenarios, and exporting.
-          </p>
+      <section className="helpSectionCard">
+        <h2 className="helpSectionTitle">For Planners</h2>
+        <p className="helpSectionDesc">
+          Reviewing reports, building mitigation plans, comparing scenarios, and exporting.
+        </p>
 
-          <div className="helpFaqList">
-            {plannerFaqs.map((f, idx) => (
-              <FaqItem key={idx} q={f.q}>
-                {f.a}
-              </FaqItem>
-            ))}
-          </div>
+        <div className="helpFaqList">
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              What extra features do planners get?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Planners can access the full <b>Dashboard</b> tabs for reviewing reports, creating
+              mitigation plans, comparing scenarios, tracking implementations, and exports.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              How do I review and process reports?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Open <b>Dashboard</b> and use the reports/processing area to accept or reject incoming
+              reports. This keeps the dataset clean and improves hotspot accuracy.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              How do mitigation plans work?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              A mitigation plan is a set of actions for a zone (e.g. signage, barriers, routing changes).
+              Plans should target the biggest sources shown by reports/tags and hotspots.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              How do I compare scenarios?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Use the <b>Scenario Comparison</b> tab to compare different plan options and see which
+              is likely to reduce noise the most for the affected areas.
+            </div>
+          </details>
+
+          <details className="helpFaqItem">
+            <summary className="helpFaqSummary">
+              How do I export a report / summary?
+              <span className="helpFaqChevron">▼</span>
+            </summary>
+            <div className="helpFaqAnswer">
+              Use the export controls in the dashboard (where available). If export is not wired yet,
+              note the page + what you clicked and tell the team.
+            </div>
+          </details>
         </div>
-      </div>
+      </section>
 
-      <div className="helpFooterCard">
-        <div className="helpFooterTitle">Still stuck?</div>
-        <p className="helpText">
-          If something looks wrong (missing data, buttons not working, etc.), it may be because the
-          backend endpoints aren’t wired for that feature yet. Drop a message in your team chat with
-          the page name + what you clicked.
+      <div className="helpStillStuck">
+        <h3 className="helpStillStuckTitle">Still stuck?</h3>
+        <p className="helpStillStuckText">
+          If something looks wrong (missing data, buttons not working, etc.), it may be because the backend
+          endpoints aren’t wired for that feature yet. Drop a message in your team chat with the page name
+          and what you clicked.
         </p>
       </div>
     </div>
