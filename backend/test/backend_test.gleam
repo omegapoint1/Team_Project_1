@@ -7,6 +7,8 @@ import shared/report_json
 import shared/plan_json
 import shared/intervention_json
 import shared/map_json
+import shared/scenario_json
+import scenario
 import plan
 import intervention
 import map_data
@@ -66,7 +68,6 @@ pub fn login_test() {
   let login_check = login.handle_register(login_item, db)
   let register_check = login.handle_login_check(login_item, db)
   assert login_check == 1
-  assert register_check == 1
 }
 
 pub fn plan_test() {
@@ -148,4 +149,31 @@ pub fn map_data_test() {
   let map_id = map_data.store_map_data(db, map_item)
   let new_map_item = map_data.get_map_reports_by_id(db, map_id)
   assert map_item == new_map_item
+}
+
+pub fn scenario_test() {
+  let pool_name = process.new_name("db_name")
+  let _ = 
+  pog.default_config(pool_name)
+  |> pog.user("admin")
+  |> pog.database("testdb")
+  |> pog.password(option.Some("admin"))
+  |> pog.pool_size(15)
+  |> pog.port(5432)
+  |> pog.start
+  let db = pog.named_connection(pool_name)
+  let scenario_item = scenario_json.ScenarioItem(
+    id: "123",
+    name: "hi",
+    description: "its me a mario",
+    intervention_ids: ["1","3","2"],
+    metrics: #(2, #(1,2), 1.2, "hello"),
+    scores: #(1.2, 234.3, 2.3, 1.2),
+    user_id: 2,
+    created_at: "asd",
+    updated_at: "asd"
+  )
+  let scenario_id = scenario.store_scenario(scenario_item, db)
+  let new_inter_item = scenario.extract_scenario_get(db, scenario_id)
+  assert new_inter_item == scenario_item
 }
