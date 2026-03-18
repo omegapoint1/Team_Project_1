@@ -1,4 +1,3 @@
-import React from 'react';
 import './ComparisonTable.css';
 
 const ComparisonTable = ({ scenarios, weights }) => {
@@ -25,12 +24,10 @@ const ComparisonTable = ({ scenarios, weights }) => {
 
   // Helper function to get timeline display
   const getTimeline = (scenario) => {
-    // If timeline exists in metrics, use it
     if (scenario.metrics?.timeline) {
       return scenario.metrics.timeline;
     }
     
-    // Otherwise calculate based on feasibility
     const avgFeasibility = scenario.metrics?.feasibility || 0;
     if (avgFeasibility > 7) return '2-3 weeks';
     if (avgFeasibility > 4) return '3-6 months';
@@ -61,7 +58,7 @@ const ComparisonTable = ({ scenarios, weights }) => {
             </tr>
           </thead>
           <tbody>
-            {/* Cost Row */}
+            {/* Cost row */}
             <tr>
               <td className="metric-label">
                 <strong>Cost</strong>
@@ -100,7 +97,6 @@ const ComparisonTable = ({ scenarios, weights }) => {
               ))}
             </tr>
 
-            {/* Timeline Row */}
             <tr>
               <td className="metric-label">
                 <strong>Timeline</strong>
@@ -112,7 +108,6 @@ const ComparisonTable = ({ scenarios, weights }) => {
               ))}
             </tr>
 
-            {/* Intervention Count Row (Optional) */}
             <tr className="info-row">
               <td className="metric-label">
                 <strong>Interventions</strong>
