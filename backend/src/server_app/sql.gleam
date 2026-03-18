@@ -205,7 +205,16 @@ pub fn intervention_insert(
   tags,
   created_at
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (InterventionId) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Category = EXCLUDED.Category,
+  Description = EXCLUDED.Description,
+  cost = EXCLUDED.cost,
+  impact = EXCLUDED.impact,
+  feasibility = EXCLUDED.feasibility,
+  tags = EXCLUDED.tags;"
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
   |> pog.parameter(pog.text(arg_2))
@@ -677,6 +686,17 @@ pub fn plan_insert(
   evidence
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11, $12)
+ON CONFLICT (InterventionPlanId) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Status = EXCLUDED.Status,
+  Zone = EXCLUDED.Zone,
+  Budget = EXCLUDED.Budget,
+  TotalCost = EXCLUDED.TotalCost,
+  Timeline = EXCLUDED.Timeline,
+  Impact = EXCLUDED.Impact,
+  interventions = EXCLUDED.interventions,
+  notes = EXCLUDED.notes,
+  evidence = EXCLUDED.evidence
 RETURNING InterventionPlanId;"
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
@@ -1140,6 +1160,13 @@ pub fn scenario_insert(
   updated_at
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (Id) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Description = EXCLUDED.Description,
+  InterventionIds = EXCLUDED.InterventionIds,
+  metrics = EXCLUDED.metrics,
+  scores = EXCLUDED.scores,
+  updated_at = EXCLUDED.updated_at
 RETURNING Id;
 
 
