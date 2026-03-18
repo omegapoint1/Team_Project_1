@@ -69,27 +69,54 @@ const convertIncidentToAPI = (data) => ({
 export const incidentServerService = {
     // get all incidents
 getAll: async (filters = {}) => {
-        try {
-            const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
-            const response = await fetchAPI(url);
-            // undefined or null
-            if (!response) {
-                console.log('No response received from server');
-                return [];
-            }
-                return response.map(convertIncidentFromAPI);
-        } catch (error) {
-            console.log('Error from getAll incidents call :', error.message || error);
-            //Return empty array on error
+    try {
+        const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
+        const response = await fetchAPI(url);
+        if (!response) {
+            console.log('No response received from server');
             return [];
         }
-    },
+        
+        // Deduplicate by Id
+        const converted = response.map(convertIncidentFromAPI);
+        const uniqueIncidents = [];
+        const ids = new Set();
+        
+        converted.forEach(incident => {
+            if (!ids.has(incident.id)) {
+                ids.add(incident.id);
+                uniqueIncidents.push(incident);
+            }
+        });
+        
+        if (uniqueIncidents.length !== converted.length) {
+            console.log(`Removed ${converted.length - uniqueIncidents.length} duplicates from server response`);
+        }
+        
+        return uniqueIncidents;
+    } catch (error) {
+        console.log('Error from getAll incidents call :', error.message || error);
+        return [];
+    }
+},
 
 
 // update incident
-update: async (updatedIncident) => {
-    try {
-        const originalId = updatedIncident.id;
+update: async (id, updates) => {
+    try {  // <-- Add missing try
+        const existingIncidents = await incidentServerService.getAll();
+        const existingIncident = existingIncidents.find(inc => inc.id === id);
+        
+        if (!existingIncident) {
+            console.error(`Incident with id ${id} not found`);
+            return null;
+        }
+        
+        const updatedIncident = {
+            ...existingIncident,
+            ...updates,
+            id: id 
+        };
         
         const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
             method: 'POST',
@@ -103,9 +130,9 @@ update: async (updatedIncident) => {
 
         const converted = convertIncidentFromAPI(response);
         
-        if (converted.id !== originalId) {
-            console.log(`Server changed ID from ${originalId} to ${converted.id}, preserving original`);
-            converted.id = originalId;
+        if (converted.id !== id) {
+            console.log(`Server changed ID from ${id} to ${converted.id}, preserving original`);
+            converted.id = id;
         }
         
         return converted;
@@ -131,11 +158,12 @@ delete: async (incidentId) => {
             console.error('Error in delete incident:', error.message || error);
 
         }
-    },
+    }
 
 
 
 };
+
 export const incidentLocalService = {
     getAll: () => {
         try {

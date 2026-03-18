@@ -12,7 +12,6 @@ const IncidentList = () => {
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
   
-  // Zone list matching the zones from IncidentFilters
   const zones = [
     { id: 1, name: "North-West" },
     { id: 2, name: "North-Central-West" },
@@ -41,8 +40,9 @@ const IncidentList = () => {
 
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  const loadIncidents = async (showRefreshingState = false) => {
+const loadIncidents = async (showRefreshingState = false) => {
   try {
     if (showRefreshingState) {
       setIsRefreshing(true);
@@ -50,29 +50,48 @@ const IncidentList = () => {
       setLoading(true);
     }
 
-    let freshData;
+    const localData = incidentLocalService.getAll();
+    let serverData = [];
+    
     try {
-      freshData = await incidentServerService.getAll();
+      serverData = await incidentServerService.getAll();
     } catch (serverError) {
       console.log('Failed to load incidents from server:', serverError);
-      freshData = incidentLocalService.getAll();
     }
 
-    if (freshData && freshData.length > 0) {
+    if (serverData && serverData.length > 0) {
+      const localMap = new Map();
+      localData.forEach(inc => localMap.set(inc.id, inc));
+      
+      const mergedIncidents = serverData.map(serverInc => {
+        const localInc = localMap.get(serverInc.id);
+        if (localInc) {
+          console.log(`Preserving local status for incident ${serverInc.id}: ${localInc.status}`);
+          return localInc;
+        }
+        return serverInc;
+      });
+      
+      serverData.forEach(serverInc => localMap.delete(serverInc.id));
+      const remainingLocalIncidents = Array.from(localMap.values());
+      
+      const finalIncidents = [...mergedIncidents, ...remainingLocalIncidents];
+      
+      // Deduplicate by ID 
       const uniqueIncidents = [];
       const ids = new Set();
-      
-      freshData.forEach(incident => {
+      finalIncidents.forEach(incident => {
         if (!ids.has(incident.id)) {
           ids.add(incident.id);
           uniqueIncidents.push(incident);
         }
       });
       
-      console.log(`Loaded ${uniqueIncidents.length} unique incidents`);
       
       incidentLocalService.saveAll(uniqueIncidents);
       setIncidents(uniqueIncidents);
+    } else if (localData.length > 0) {
+      setIncidents(localData);
     }
   } catch (error) {
     console.error('Error loading incidents:', error);
@@ -83,37 +102,50 @@ const IncidentList = () => {
     setIsRefreshing(false);
   }
 };
-
-useEffect(() => {
-  loadIncidents();
-}, []); 
+  useEffect(() => {
+    loadIncidents();
+  }, []); 
   
-
-
-
   const handleRefresh = async () => {
     await loadIncidents(true);
   };
 
-  const handleIncidentUpdate = async (updatedIncident) => {
+ const handleIncidentUpdate = async (updatedIncident) => {
+  try {
+    const { id, ...updates } = updatedIncident;
+    
+    let serverSuccess = false;
     try {
-      try {
-        await incidentServerService.update(updatedIncident);
-      } catch (error) {
-        console.log('Server update failed:', error);
+      const serverResult = await incidentServerService.update(id, updates);
+      if (serverResult) {
+        serverSuccess = true;
+        console.log('Server update successful');
       }
-      
-      incidentLocalService.update(updatedIncident);
-      
-      setIncidents(prev => 
-        prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc)
-      );
-      
     } catch (error) {
-      console.log('Error updating incident:', error);
-      throw error;
+      console.log('Server update failed:', error);
     }
-  };
+    
+    const incidentWithSyncStatus = {
+      ...updatedIncident,
+      _synced: serverSuccess ? true : false,
+      _lastUpdated: new Date().toISOString()
+    };
+    
+    incidentLocalService.update(incidentWithSyncStatus);
+    
+    setIncidents(prev => 
+      prev.map(inc => inc.id === id ? incidentWithSyncStatus : inc)
+    );
+    
+    if (!serverSuccess) {
+      console.warn('Incident updated locally but failed to sync with server');
+    }
+  } catch (error) {
+    console.log('Error updating incident:', error);
+    throw error;
+  }
+};
+
 
   const handleStatusUpdate = async (incidentId, newStatus, notes = '') => {
     const currentIncident = incidents.find(inc => inc.id === incidentId);
@@ -122,7 +154,7 @@ useEffect(() => {
     const updatedIncident = {
       ...currentIncident,
       status: newStatus,
-      ...(notes && { moderation_notes: notes }),
+      ...(notes && { processingNotes: notes }),
       updated_at: new Date().toISOString()
     };
 
@@ -136,46 +168,8 @@ useEffect(() => {
 
   useEffect(() => {
     let filtered = [...incidents];
-
-    /*if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter(incident => 
-        filters.status.includes(incident.status)
-      );
-    }*/
-
-    /*Zone filter 
-    if (filters.zone !== 'all') {
-      const selectedZone = zones.find(z => z.id.toString() === filters.zone.toString());
-      if (selectedZone) {
-        filtered = filtered.filter(incident => incident.zone === selectedZone.name);
-      }
-    }
-    */
-
-    /*sevrity filter
-    if (filters.severity !== 'all') {
-      const severityNum = parseInt(filters.severity);
-      filtered = filtered.filter(incident => 
-        parseInt(incident.severity) === severityNum
-      );
-    }
-    */
-
-    /* time range filter 
-    if (filters.timeRange !== 'all') {
-      const days = parseInt(filters.timeRange);
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      
-      filtered = filtered.filter(incident => {
-        const incidentDate = new Date(incident.timestamp || incident.datetime);
-        return incidentDate >= cutoff;
-      });
-    }
-    */
-
     setFilteredIncidents(filtered);
-  }, [filters, incidents]); // Removed zones from dependencies
+  }, [filters, incidents, updateTrigger]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -308,7 +302,7 @@ useEffect(() => {
       >
         {filteredIncidents.map(incident => (
           <IncidentCard
-            key={`${incident.id}-${incident.status}`}
+            key={`${incident.id}-${incident.status}-${updateTrigger}`}
             incident={incident}
             onViewMore={handleViewMore}
           />
