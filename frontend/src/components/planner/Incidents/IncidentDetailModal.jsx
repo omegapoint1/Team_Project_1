@@ -1,5 +1,5 @@
 import ReactModal from 'react-modal';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';

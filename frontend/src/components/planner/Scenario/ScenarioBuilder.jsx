@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ScenarioBuilder.css';
-import { interventionServerService, interventionLocalService } from '../services/interventionService';
+import { interventionServerService, interventionLocalService } from '../../services/interventionService';
 
 const ScenarioBuilder = ({ onSave, onClose }) => {
   const [name, setName] = useState('');

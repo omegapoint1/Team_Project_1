@@ -6,7 +6,7 @@ import ComparisonTable from './Scenario/ComparisonTable';
 import RecommendationCard from './Scenario/RecommendationCard';
 import WeightControls from './Scenario/WeightControls';
 import ScenarioBuilder from './Scenario/ScenarioBuilder';
-import { scenarioServerService, scenarioLocalService } from './services/scenarioService';
+import { scenarioServerService, scenarioLocalService } from '../services/scenarioService';
 
 const ScenarioTab = () => {
   // States
