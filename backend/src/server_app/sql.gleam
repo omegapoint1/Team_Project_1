@@ -273,7 +273,7 @@ WHERE
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type LoginWithUserRow {
-  LoginWithUserRow(password: String, admin: Option(Bool))
+  LoginWithUserRow(password: String, user_id: Int, admin: Option(Bool))
 }
 
 /// Runs the `login_with_user` query
@@ -288,12 +288,14 @@ pub fn login_with_user(
 ) -> Result(pog.Returned(LoginWithUserRow), pog.QueryError) {
   let decoder = {
     use password <- decode.field(0, decode.string)
-    use admin <- decode.field(1, decode.optional(decode.bool))
-    decode.success(LoginWithUserRow(password:, admin:))
+    use user_id <- decode.field(1, decode.int)
+    use admin <- decode.field(2, decode.optional(decode.bool))
+    decode.success(LoginWithUserRow(password:, user_id:, admin:))
   }
 
   "SELECT
   l.Password,
+  l.UserId,
   u.Admin
 FROM
   LOGIN l
@@ -1010,6 +1012,182 @@ RETURNING Tagid;"
   |> pog.execute(db)
 }
 
+/// A row you get from running the `quest_insert` query
+/// defined in `./src/server_app/sql/quest_insert.sql`.
+///
+/// > 🐿️ This type definition was generated manually.
+///
+pub type QuestInsertRow {
+  QuestInsertRow(questid: Int)
+}
+
+/// Runs the `quest_insert` query
+/// defined in `./src/server_app/sql/quest_insert.sql`.
+///
+pub fn quest_insert(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: String,
+  arg_3: String,
+  arg_4: Int,
+  arg_5: String,
+  arg_6: option.Option(String),
+  arg_7: option.Option(Int),
+) -> Result(pog.Returned(QuestInsertRow), pog.QueryError) {
+  let decoder = {
+    use questid <- decode.field(0, decode.int)
+    decode.success(QuestInsertRow(questid:))
+  }
+
+  "INSERT INTO QUESTS (
+  Title,
+  Description,
+  Difficulty,
+  XPReward,
+  QuestType,
+  TargetValue,
+  CreatedBy
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING QuestId;"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.int(arg_4))
+  |> pog.parameter(pog.text(arg_5))
+  |> pog.parameter(pog.nullable(pog.text, arg_6))
+  |> pog.parameter(pog.nullable(pog.int, arg_7))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `quest_get` query
+/// defined in `./src/server_app/sql/quest_get.sql`.
+///
+pub type QuestGetRow {
+  QuestGetRow(
+    questid: Int,
+    title: String,
+    description: String,
+    difficulty: String,
+    xpreward: Int,
+    questtype: String,
+    targetvalue: Option(String),
+    isactive: Bool,
+  )
+}
+
+/// Runs the `quest_get` query
+/// defined in `./src/server_app/sql/quest_get.sql`.
+///
+pub fn quest_get(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(QuestGetRow), pog.QueryError) {
+  let decoder = {
+    use questid <- decode.field(0, decode.int)
+    use title <- decode.field(1, decode.string)
+    use description <- decode.field(2, decode.string)
+    use difficulty <- decode.field(3, decode.string)
+    use xpreward <- decode.field(4, decode.int)
+    use questtype <- decode.field(5, decode.string)
+    use targetvalue <- decode.field(6, decode.optional(decode.string))
+    use isactive <- decode.field(7, decode.bool)
+    decode.success(QuestGetRow(
+      questid:,
+      title:,
+      description:,
+      difficulty:,
+      xpreward:,
+      questtype:,
+      targetvalue:,
+      isactive:,
+    ))
+  }
+
+  "SELECT
+  QuestId,
+  Title,
+  Description,
+  Difficulty,
+  XPReward,
+  QuestType,
+  TargetValue,
+  IsActive
+FROM QUESTS
+WHERE QuestId = $1;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `quest_get_ids` query
+/// defined in `./src/server_app/sql/quest_get_ids.sql`.
+///
+pub type QuestGetIdsRow {
+  QuestGetIdsRow(questid: Int)
+}
+
+/// Runs the `quest_get_ids` query
+/// defined in `./src/server_app/sql/quest_get_ids.sql`.
+///
+pub fn quest_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(QuestGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use questid <- decode.field(0, decode.int)
+    decode.success(QuestGetIdsRow(questid:))
+  }
+
+  "SELECT QuestId FROM QUESTS WHERE IsActive = TRUE ORDER BY Difficulty, XPReward;"
+  |> pog.query
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `quest_get_by_difficulty` query
+/// defined in `./src/server_app/sql/quest_get_by_difficulty.sql`.
+///
+pub type QuestGetByDifficultyRow {
+  QuestGetByDifficultyRow(
+    questid: Int,
+    title: String,
+    description: String,
+    difficulty: String,
+    xpreward: Int,
+    questtype: String,
+    targetvalue: Option(String),
+    isactive: Bool,
+  )
+}
+
+/// Runs the `quest_get_by_difficulty` query
+/// defined in `./src/server_app/sql/quest_get_by_difficulty.sql`.
+///
+pub fn quest_get_by_difficulty(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(QuestGetByDifficultyRow), pog.QueryError) {
+  let decoder = {
+    use questid <- decode.field(0, decode.int)
+    use title <- decode.field(1, decode.string)
+    use description <- decode.field(2, decode.string)
+    use difficulty <- decode.field(3, decode.string)
+    use xpreward <- decode.field(4, decode.int)
+    use questtype <- decode.field(5, decode.string)
+    use targetvalue <- decode.field(6, decode.optional(decode.string))
+    use isactive <- decode.field(7, decode.bool)
+    decode.success(QuestGetByDifficultyRow(
+      questid:,
+      title:,
+      description:,
+      difficulty:,
+      xpreward:,
+      questtype:,
+      targetvalue:,
+      isactive:,
 /// A row you get from running the `scenario_get` query
 /// defined in `./src/server_app/sql/scenario_get.sql`.
 ///
@@ -1064,6 +1242,57 @@ pub fn scenario_get(
   }
 
   "SELECT
+  QuestId,
+  Title,
+  Description,
+  Difficulty,
+  XPReward,
+  QuestType,
+  TargetValue,
+  IsActive
+FROM QUESTS
+WHERE Difficulty = $1 AND IsActive = TRUE
+ORDER BY XPReward;"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `user_quest_insert` query
+/// defined in `./src/server_app/sql/user_quest_insert.sql`.
+///
+pub type UserQuestInsertRow {
+  UserQuestInsertRow(userquestid: Int)
+}
+
+/// Runs the `user_quest_insert` query
+/// defined in `./src/server_app/sql/user_quest_insert.sql`.
+///
+pub fn user_quest_insert(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: Int,
+) -> Result(pog.Returned(UserQuestInsertRow), pog.QueryError) {
+  let decoder = {
+    use userquestid <- decode.field(0, decode.int)
+    decode.success(UserQuestInsertRow(userquestid:))
+  }
+
+  "INSERT INTO USER_QUESTS (
+  UserId,
+  QuestId,
+  Status,
+  Progress,
+  MaxProgress,
+  StartedAt
+)
+VALUES ($1, $2, 'in_progress', 0, 1, NOW())
+ON CONFLICT (UserId, QuestId) DO UPDATE SET Status = 'in_progress', StartedAt = NOW()
+RETURNING UserQuestId;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(arg_2))
   Id,
   Name,
   Description,
@@ -1085,6 +1314,163 @@ WHERE Id = $1;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `user_quest_get_by_user` query
+/// defined in `./src/server_app/sql/user_quest_get_by_user.sql`.
+///
+pub type UserQuestGetByUserRow {
+  UserQuestGetByUserRow(
+    userquestid: Int,
+    userid: Int,
+    questid: Int,
+    title: String,
+    description: String,
+    difficulty: String,
+    xpreward: Int,
+    questtype: String,
+    targetvalue: Option(String),
+    status: String,
+    progress: Int,
+    maxprogress: Int,
+    startedat: Option(String),
+    completedat: Option(String),
+  )
+}
+
+/// Runs the `user_quest_get_by_user` query
+/// defined in `./src/server_app/sql/user_quest_get_by_user.sql`.
+///
+pub fn user_quest_get_by_user(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(UserQuestGetByUserRow), pog.QueryError) {
+  let decoder = {
+    use userquestid <- decode.field(0, decode.int)
+    use userid <- decode.field(1, decode.int)
+    use questid <- decode.field(2, decode.int)
+    use title <- decode.field(3, decode.string)
+    use description <- decode.field(4, decode.string)
+    use difficulty <- decode.field(5, decode.string)
+    use xpreward <- decode.field(6, decode.int)
+    use questtype <- decode.field(7, decode.string)
+    use targetvalue <- decode.field(8, decode.optional(decode.string))
+    use status <- decode.field(9, decode.string)
+    use progress <- decode.field(10, decode.int)
+    use maxprogress <- decode.field(11, decode.int)
+    use startedat <- decode.field(12, decode.optional(decode.string))
+    use completedat <- decode.field(13, decode.optional(decode.string))
+    decode.success(UserQuestGetByUserRow(
+      userquestid:,
+      userid:,
+      questid:,
+      title:,
+      description:,
+      difficulty:,
+      xpreward:,
+      questtype:,
+      targetvalue:,
+      status:,
+      progress:,
+      maxprogress:,
+      startedat:,
+      completedat:,
+    ))
+  }
+
+  "SELECT
+  uq.UserQuestId,
+  uq.UserId,
+  uq.QuestId,
+  q.Title,
+  q.Description,
+  q.Difficulty,
+  q.XPReward,
+  q.QuestType,
+  q.TargetValue,
+  uq.Status,
+  uq.Progress,
+  uq.MaxProgress,
+  uq.StartedAt::text,
+  uq.CompletedAt::text
+FROM USER_QUESTS uq
+JOIN QUESTS q ON uq.QuestId = q.QuestId
+WHERE uq.UserId = $1
+ORDER BY uq.Status, q.Difficulty;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `user_quest_complete` query
+/// defined in `./src/server_app/sql/user_quest_complete.sql`.
+///
+pub fn user_quest_complete(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: Int,
+  arg_3: Int,
+) -> Result(pog.Returned(UserQuestInsertRow), pog.QueryError) {
+  let decoder = {
+    use userquestid <- decode.field(0, decode.int)
+    decode.success(UserQuestInsertRow(userquestid:))
+  }
+
+  "UPDATE USER_QUESTS
+SET
+  Status = 'completed',
+  Progress = MaxProgress,
+  CompletedAt = NOW()
+WHERE UserQuestId = $1 AND UserId = $2 AND QuestId = $3
+RETURNING UserQuestId;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `user_progression_get` query
+/// defined in `./src/server_app/sql/user_progression_get.sql`.
+///
+pub type UserProgressionGetRow {
+  UserProgressionGetRow(
+    userid: Int,
+    totalxp: Int,
+    level: Int,
+    completedquests: Int,
+  )
+}
+
+/// Runs the `user_progression_get` query
+/// defined in `./src/server_app/sql/user_progression_get.sql`.
+///
+pub fn user_progression_get(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(UserProgressionGetRow), pog.QueryError) {
+  let decoder = {
+    use userid <- decode.field(0, decode.int)
+    use totalxp <- decode.field(1, decode.int)
+    use level <- decode.field(2, decode.int)
+    use completedquests <- decode.field(3, decode.int)
+    decode.success(UserProgressionGetRow(
+      userid:,
+      totalxp:,
+      level:,
+      completedquests:,
+    ))
+  }
+
+  "SELECT
+  UserId,
+  TotalXP,
+  Level,
+  CompletedQuests
+FROM USER_PROGRESSION
+WHERE UserId = $1;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
 /// A row you get from running the `scenario_get_ids` query
 /// defined in `./src/server_app/sql/scenario_get_ids.sql`.
 ///
@@ -1115,6 +1501,191 @@ pub fn scenario_get_ids(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `user_progression_upsert` query
+/// defined in `./src/server_app/sql/user_progression_upsert.sql`.
+///
+pub type UserProgressionUpsertRow {
+  UserProgressionUpsertRow(
+    userid: Int,
+    totalxp: Int,
+    level: Int,
+    completedquests: Int,
+  )
+}
+
+/// Runs the `user_progression_upsert` query
+/// defined in `./src/server_app/sql/user_progression_upsert.sql`.
+///
+pub fn user_progression_upsert(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: Int,
+  arg_3: Int,
+  arg_4: Int,
+) -> Result(pog.Returned(UserProgressionUpsertRow), pog.QueryError) {
+  let decoder = {
+    use userid <- decode.field(0, decode.int)
+    use totalxp <- decode.field(1, decode.int)
+    use level <- decode.field(2, decode.int)
+    use completedquests <- decode.field(3, decode.int)
+    decode.success(UserProgressionUpsertRow(
+      userid:,
+      totalxp:,
+      level:,
+      completedquests:,
+    ))
+  }
+
+  "INSERT INTO USER_PROGRESSION (
+  UserId,
+  TotalXP,
+  Level,
+  CompletedQuests
+)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (UserId) DO UPDATE SET
+  TotalXP = EXCLUDED.TotalXP,
+  Level = EXCLUDED.Level,
+  CompletedQuests = EXCLUDED.CompletedQuests,
+  LastUpdated = NOW()
+RETURNING UserId, TotalXP, Level, CompletedQuests;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.int(arg_4))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `quest_leaderboard_get` query
+/// defined in `./src/server_app/sql/quest_leaderboard_get.sql`.
+///
+pub type QuestLeaderboardGetRow {
+  QuestLeaderboardGetRow(
+    username: String,
+    quest_title: String,
+    completiontime: Int,
+    completedat: String,
+  )
+}
+
+/// Runs the `quest_leaderboard_get` query
+/// defined in `./src/server_app/sql/quest_leaderboard_get.sql`.
+///
+pub fn quest_leaderboard_get(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(QuestLeaderboardGetRow), pog.QueryError) {
+  let decoder = {
+    use username <- decode.field(0, decode.string)
+    use quest_title <- decode.field(1, decode.string)
+    use completiontime <- decode.field(2, decode.int)
+    use completedat <- decode.field(3, decode.string)
+    decode.success(QuestLeaderboardGetRow(
+      username:,
+      quest_title:,
+      completiontime:,
+      completedat:,
+    ))
+  }
+
+  "SELECT
+  l.Username,
+  q.Title AS quest_title,
+  ql.CompletionTime,
+  ql.CompletedAt::text
+FROM QUEST_LEADERBOARD ql
+JOIN QUESTS q ON ql.QuestId = q.QuestId
+JOIN LOGIN l ON ql.UserId = l.UserId
+WHERE ql.QuestId = $1
+ORDER BY ql.CompletionTime ASC
+LIMIT 10;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `quest_leaderboard_insert` query
+/// defined in `./src/server_app/sql/quest_leaderboard_insert.sql`.
+///
+pub fn quest_leaderboard_insert(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: Int,
+  arg_3: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "INSERT INTO QUEST_LEADERBOARD (
+  UserId,
+  QuestId,
+  CompletionTime,
+  CompletedAt
+)
+VALUES ($1, $2, $3, NOW())
+ON CONFLICT (UserId, QuestId) DO UPDATE SET
+  CompletionTime = EXCLUDED.CompletionTime,
+  CompletedAt = EXCLUDED.CompletedAt;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `get_completed_quests_count` query
+/// defined in `./src/server_app/sql/get_completed_quests_count.sql`.
+///
+pub type GetCompletedQuestsCountRow {
+  GetCompletedQuestsCountRow(quest_count: Int)
+}
+
+/// Runs the `get_completed_quests_count` query
+/// defined in `./src/server_app/sql/get_completed_quests_count.sql`.
+///
+pub fn get_completed_quests_count(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(GetCompletedQuestsCountRow), pog.QueryError) {
+  let decoder = {
+    use quest_count <- decode.field(0, decode.int)
+    decode.success(GetCompletedQuestsCountRow(quest_count:))
+  }
+
+  "SELECT COUNT(*) as quest_count
+FROM USER_QUESTS
+WHERE UserId = $1 AND Status = 'completed';"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `quest_get_xp` query
+/// defined in `./src/server_app/sql/quest_get_xp.sql`.
+///
+pub type QuestGetXpRow {
+  QuestGetXpRow(xpreward: Int)
+}
+
+/// Runs the `quest_get_xp` query
+/// defined in `./src/server_app/sql/quest_get_xp.sql`.
+///
+pub fn quest_get_xp(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(QuestGetXpRow), pog.QueryError) {
+  let decoder = {
+    use xpreward <- decode.field(0, decode.int)
+    decode.success(QuestGetXpRow(xpreward:))
+  }
+
+  "SELECT XPReward FROM QUESTS WHERE QuestId = $1;"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
 /// A row you get from running the `scenario_insert` query
 /// defined in `./src/server_app/sql/scenario_insert.sql`.
 ///

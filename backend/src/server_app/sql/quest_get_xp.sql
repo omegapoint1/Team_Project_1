@@ -1,0 +1,1 @@
+SELECT XPReward FROM QUESTS WHERE QuestId = $1;

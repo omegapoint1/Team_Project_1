@@ -1,5 +1,6 @@
 SELECT
   l.Password,
+  l.UserId,
   u.Admin
 FROM
   LOGIN l
