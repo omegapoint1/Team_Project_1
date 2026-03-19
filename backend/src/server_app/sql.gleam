@@ -273,7 +273,7 @@ WHERE
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type LoginWithUserRow {
-  LoginWithUserRow(password: String, admin: Option(Bool))
+  LoginWithUserRow(password: String, user_id: Int, admin: Option(Bool))
 }
 
 /// Runs the `login_with_user` query
@@ -288,12 +288,14 @@ pub fn login_with_user(
 ) -> Result(pog.Returned(LoginWithUserRow), pog.QueryError) {
   let decoder = {
     use password <- decode.field(0, decode.string)
-    use admin <- decode.field(1, decode.optional(decode.bool))
-    decode.success(LoginWithUserRow(password:, admin:))
+    use user_id <- decode.field(1, decode.int)
+    use admin <- decode.field(2, decode.optional(decode.bool))
+    decode.success(LoginWithUserRow(password:, user_id:, admin:))
   }
 
   "SELECT
   l.Password,
+  l.UserId,
   u.Admin
 FROM
   LOGIN l
