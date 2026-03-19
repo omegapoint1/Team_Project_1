@@ -1,7 +1,8 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, Link, NavLink} from 'react-router-dom';
-import LoginPage from './pages/LoginPage'; 
-import PlannerPage from './pages/PlannerPage';  
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate, NavLink} from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import PlannerPage from './pages/PlannerPage';
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
@@ -20,8 +21,26 @@ import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const isPlanner = user?.role === 'planner';
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const handleUserLogin = () => {
+      const updatedUser = localStorage.getItem('user');
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+    };
+
+    window.addEventListener('userLogin', handleUserLogin);
+    return () => window.removeEventListener('userLogin', handleUserLogin);
+  }, []);
+  
   return (
-<BrowserRouter>
+  <BrowserRouter>
       <nav className="navbar">
         
         <div className="navbar-left">
@@ -33,9 +52,11 @@ function App() {
       
         <div className = "navbar-right">
           <Link to="/user-dashboard" className="nav-link">My Dashboard</Link>
-          <Link to="/dashboard" className="nav-link">Dashboard+</Link>
+          {isPlanner && (
+            <Link to="/dashboard" className="nav-link">Dashboard+</Link>
+          )}
           <Link to="/game" className="nav-link">Quests</Link>
-          <Link to="/dashboard/report" className="nav-link">Report incident</Link>
+          <Link to="/report" className="nav-link">Report incident</Link>
 
           <Link to="/"        className = "nav-link-icon">
             <span className="nav-user-icon">👤</span>
@@ -50,9 +71,10 @@ function App() {
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
-
+        <Route path="report" element={<FormPage />} />
+        <Route path="/terms" element={<Terms />} />
         
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route path="/dashboard" element={ isPlanner ? <Dashboard /> : <Navigate to="/user-dashboard" replace />}>
           <Route index element={<Overview />} />
           <Route path="overview" element={<Overview />} />
           <Route path="reportProcessing" element={<Incidents />} />
@@ -60,13 +82,9 @@ function App() {
           <Route path="comparison" element={<ScenarioTab />} />
           <Route path="ExportingReport" element={<Reports />} />
           <Route path="tracker" element={<IncidentManagement />} />
-          <Route path="report" element={<FormPage />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
 
         </Route>
-
-        <Route path="/terms" element={<Terms />} />
-
 
         {/*<Route path="*" element={<NotFoundPage />} />*/}
       </Routes>
