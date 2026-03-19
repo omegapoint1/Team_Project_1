@@ -977,7 +977,6 @@ pub fn quest_insert(
   arg_4: Int,
   arg_5: String,
   arg_6: String,
-  arg_7: Int,
 ) -> Result(pog.Returned(QuestInsertRow), pog.QueryError) {
   let decoder = {
     use questid <- decode.field(0, decode.int)
@@ -990,10 +989,9 @@ pub fn quest_insert(
   Difficulty,
   XPReward,
   QuestType,
-  TargetValue,
-  CreatedBy
+  TargetValue
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING QuestId;
 "
   |> pog.query
@@ -1003,7 +1001,6 @@ RETURNING QuestId;
   |> pog.parameter(pog.int(arg_4))
   |> pog.parameter(pog.text(arg_5))
   |> pog.parameter(pog.text(arg_6))
-  |> pog.parameter(pog.int(arg_7))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
