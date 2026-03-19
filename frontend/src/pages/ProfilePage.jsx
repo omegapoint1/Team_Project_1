@@ -1,19 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './ProfilePage.css';
 
 const rankImages = {
-  Bronze: '/bronze.png',
-  Silver: '/silver.png',
-  Gold: '/Gold.webp',
-  Platinum: '/Platinum.webp',
-  Diamond: '/Diamond.png',
-  Champion: '/Champion.png',
-  Master: '/Master.webp',
-  Grandmaster: '/GM.png',
+  Bronze: '/static/bronze.png',
+  Silver: '/static/silver.png',
+  Gold: '/static/Gold.webp',
+  Platinum: '/static/Platinum.webp',
+  Diamond: '/static/Diamond.png',
+  Champion: '/static/Champion.png',
+  Master: '/static/Master.webp',
+  Grandmaster: '/static/GM.png',
 };
 
 function ProfilePage() {
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+  const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+  const userId = storedUser.id ?? storedUser.user_id ?? null;
+
+  const [user, setUser] = useState(storedUser);
+  const [progression, setProgression] = useState({
+    total_xp: storedUser.total_xp ?? 0,
+    level: storedUser.level ?? 1,
+    completed_quests: storedUser.completed_quests ?? 0,
+  });
+  const [loadingProgression, setLoadingProgression] = useState(true);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteError, setDeleteError] = useState('');
@@ -29,24 +38,68 @@ function ProfilePage() {
     return 'Bronze';
   };
 
-  const getProgressPercent = (progressValue) => {
-    if (typeof progressValue === 'number') {
-      return Math.max(0, Math.min(100, progressValue));
+  const fetchProgression = async (showLoader = false) => {
+  if (!userId) {
+    setLoadingProgression(false);
+    return;
+  }
+
+  if (showLoader) {
+    setLoadingProgression(true);
+  }
+
+  try {
+    const response = await fetch(`/api/user/progression/${userId}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to load progression');
     }
 
-    if (typeof progressValue === 'string') {
-      const parsed = parseInt(progressValue.replace('%', '').trim(), 10);
-      if (!Number.isNaN(parsed)) {
-        return Math.max(0, Math.min(100, parsed));
-      }
+    const nextProgression = {
+      total_xp: data.total_xp ?? 0,
+      level: data.level ?? 1,
+      completed_quests: data.completed_quests ?? 0,
+    };
+
+    setProgression(nextProgression);
+
+    const updatedUser = {
+      ...user,
+      ...nextProgression,
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  } catch (error) {
+    console.error('Error loading progression:', error);
+  } finally {
+    if (showLoader) {
+      setLoadingProgression(false);
     }
+  }
+};
 
-    return 0;
-  };
+  useEffect(() => {
+    fetchProgression(true);
 
-  const rank = user.rank || getRankFromXP(user.xp || 0);
-  const progressPercent = getProgressPercent(user.progress);
-  const xp = user.xp ?? 0;
+    const intervalId = setInterval(() => {
+      fetchProgression(false);
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [userId]);
+
+  const totalXp = progression.total_xp ?? 0;
+  const level = progression.level ?? 1;
+  const completedQuests = progression.completed_quests ?? 0;
+
+  const progressPercent = useMemo(() => {
+    const xpIntoCurrentLevel = totalXp % 1000;
+    return Math.floor((xpIntoCurrentLevel / 1000) * 100);
+  }, [totalXp]);
+
+  const rank = getRankFromXP(totalXp);
   const displayName = user.username || user.email || 'User';
   const displayRole = user.role === 'planner' ? 'Planner' : 'User';
 
@@ -127,9 +180,12 @@ function ProfilePage() {
           <div className="profile-main-info">
             <div className="profile-heading">
               <h1 className="profile-username">{displayName}</h1>
+
               <div className="profile-badges">
                 <span className="role-badge">{displayRole}</span>
-                <span className="xp-badge">{xp} XP</span>
+                <span className="level-badge">
+                  {loadingProgression ? 'Loading...' : `Level ${level}`}
+                </span>
               </div>
             </div>
 
@@ -150,16 +206,20 @@ function ProfilePage() {
               </div>
 
               <div className="info-box">
-                <span className="info-label">Progress</span>
-                <span className="info-value">{progressPercent}%</span>
+                <span className="info-label">Completed Quests</span>
+                <span className="info-value">{completedQuests}</span>
               </div>
             </div>
 
             <div className="xp-highlight-card">
               <div className="xp-highlight-label">Experience Points</div>
-              <div className="xp-highlight-value">{xp}</div>
+              <div className="xp-highlight-value">
+                {loadingProgression ? '...' : totalXp}
+              </div>
               <div className="xp-highlight-subtext">
-                Keep contributing to level up your rank.
+                {loadingProgression
+                  ? 'Loading your progression...'
+                  : `You are currently level ${level}. Keep contributing to level up your rank.`}
               </div>
             </div>
           </div>
@@ -178,10 +238,7 @@ function ProfilePage() {
 
       {showDeleteModal && (
         <div className="modal-overlay" onClick={closeDeleteModal}>
-          <div
-            className="delete-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
             <h2>Delete Account?</h2>
             <p>
               Are you sure you want to delete your account? This action cannot

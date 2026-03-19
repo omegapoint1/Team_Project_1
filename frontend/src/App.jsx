@@ -46,7 +46,7 @@ function App() {
         
         <div className="navbar-left">
           <Link to="/dashboard">
-            <img src="/logo.png" alt="Website Logo" className="websiteLogo" />
+            <img src="/static/logo.png" alt="Website Logo" className="websiteLogo" />
           </Link>
           <span className="nav-title">Neighborhood Noise</span>
         </div>
