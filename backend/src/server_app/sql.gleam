@@ -205,7 +205,16 @@ pub fn intervention_insert(
   tags,
   created_at
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (InterventionId) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Category = EXCLUDED.Category,
+  Description = EXCLUDED.Description,
+  cost = EXCLUDED.cost,
+  impact = EXCLUDED.impact,
+  feasibility = EXCLUDED.feasibility,
+  tags = EXCLUDED.tags;"
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
   |> pog.parameter(pog.text(arg_2))
@@ -264,7 +273,7 @@ WHERE
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type LoginWithUserRow {
-  LoginWithUserRow(password: String, admin: Option(Bool))
+  LoginWithUserRow(password: String, user_id: Int, admin: Option(Bool))
 }
 
 /// Runs the `login_with_user` query
@@ -279,12 +288,14 @@ pub fn login_with_user(
 ) -> Result(pog.Returned(LoginWithUserRow), pog.QueryError) {
   let decoder = {
     use password <- decode.field(0, decode.string)
-    use admin <- decode.field(1, decode.optional(decode.bool))
-    decode.success(LoginWithUserRow(password:, admin:))
+    use user_id <- decode.field(1, decode.int)
+    use admin <- decode.field(2, decode.optional(decode.bool))
+    decode.success(LoginWithUserRow(password:, user_id:, admin:))
   }
 
   "SELECT
   l.Password,
+  l.UserId,
   u.Admin
 FROM
   LOGIN l
@@ -677,6 +688,17 @@ pub fn plan_insert(
   evidence
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11, $12)
+ON CONFLICT (InterventionPlanId) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Status = EXCLUDED.Status,
+  Zone = EXCLUDED.Zone,
+  Budget = EXCLUDED.Budget,
+  TotalCost = EXCLUDED.TotalCost,
+  Timeline = EXCLUDED.Timeline,
+  Impact = EXCLUDED.Impact,
+  interventions = EXCLUDED.interventions,
+  notes = EXCLUDED.notes,
+  evidence = EXCLUDED.evidence
 RETURNING InterventionPlanId;"
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
@@ -1166,6 +1188,56 @@ pub fn quest_get_by_difficulty(
       questtype:,
       targetvalue:,
       isactive:,
+/// A row you get from running the `scenario_get` query
+/// defined in `./src/server_app/sql/scenario_get.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type ScenarioGetRow {
+  ScenarioGetRow(
+    id: String,
+    name: String,
+    description: Option(String),
+    interventionids: Option(String),
+    metrics: Option(String),
+    scores: Option(String),
+    user_id: Option(Int),
+    created_at: Option(String),
+    updated_at: Option(String),
+  )
+}
+
+/// Runs the `scenario_get` query
+/// defined in `./src/server_app/sql/scenario_get.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn scenario_get(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(ScenarioGetRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.string)
+    use name <- decode.field(1, decode.string)
+    use description <- decode.field(2, decode.optional(decode.string))
+    use interventionids <- decode.field(3, decode.optional(decode.string))
+    use metrics <- decode.field(4, decode.optional(decode.string))
+    use scores <- decode.field(5, decode.optional(decode.string))
+    use user_id <- decode.field(6, decode.optional(decode.int))
+    use created_at <- decode.field(7, decode.optional(decode.string))
+    use updated_at <- decode.field(8, decode.optional(decode.string))
+    decode.success(ScenarioGetRow(
+      id:,
+      name:,
+      description:,
+      interventionids:,
+      metrics:,
+      scores:,
+      user_id:,
+      created_at:,
+      updated_at:,
     ))
   }
 
@@ -1221,6 +1293,23 @@ RETURNING UserQuestId;"
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
   |> pog.parameter(pog.int(arg_2))
+  Id,
+  Name,
+  Description,
+  InterventionIds,
+  metrics,
+  scores,
+  user_id,
+  created_at,
+  updated_at
+FROM scenario
+WHERE Id = $1;
+
+
+
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
@@ -1382,6 +1471,32 @@ FROM USER_PROGRESSION
 WHERE UserId = $1;"
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+/// A row you get from running the `scenario_get_ids` query
+/// defined in `./src/server_app/sql/scenario_get_ids.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type ScenarioGetIdsRow {
+  ScenarioGetIdsRow(id: String)
+}
+
+/// Runs the `scenario_get_ids` query
+/// defined in `./src/server_app/sql/scenario_get_ids.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn scenario_get_ids(
+  db: pog.Connection,
+) -> Result(pog.Returned(ScenarioGetIdsRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.string)
+    decode.success(ScenarioGetIdsRow(id:))
+  }
+
+  "SELECT Id FROM scenario;"
+  |> pog.query
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
@@ -1571,6 +1686,72 @@ pub fn quest_get_xp(
   "SELECT XPReward FROM QUESTS WHERE QuestId = $1;"
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+/// A row you get from running the `scenario_insert` query
+/// defined in `./src/server_app/sql/scenario_insert.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type ScenarioInsertRow {
+  ScenarioInsertRow(id: String)
+}
+
+/// Runs the `scenario_insert` query
+/// defined in `./src/server_app/sql/scenario_insert.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn scenario_insert(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: String,
+  arg_3: String,
+  arg_4: Json,
+  arg_5: Json,
+  arg_6: Json,
+  arg_7: Int,
+  arg_8: String,
+  arg_9: String,
+) -> Result(pog.Returned(ScenarioInsertRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.string)
+    decode.success(ScenarioInsertRow(id:))
+  }
+
+  "INSERT INTO scenario(
+  Id,
+  Name,
+  Description,
+  InterventionIds,
+  metrics,
+  scores,
+  user_id,
+  created_at,
+  updated_at
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (Id) DO UPDATE SET
+  Name = EXCLUDED.Name,
+  Description = EXCLUDED.Description,
+  InterventionIds = EXCLUDED.InterventionIds,
+  metrics = EXCLUDED.metrics,
+  scores = EXCLUDED.scores,
+  updated_at = EXCLUDED.updated_at
+RETURNING Id;
+
+
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.text(json.to_string(arg_4)))
+  |> pog.parameter(pog.text(json.to_string(arg_5)))
+  |> pog.parameter(pog.text(json.to_string(arg_6)))
+  |> pog.parameter(pog.int(arg_7))
+  |> pog.parameter(pog.text(arg_8))
+  |> pog.parameter(pog.text(arg_9))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

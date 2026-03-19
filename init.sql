@@ -69,6 +69,18 @@ CREATE TABLE intervention (
   created_at varchar(255)
   );
 
+CREATE TABLE scenario (
+  Id varchar(255) PRIMARY KEY,
+  Name varchar(255) NOT NULL,
+  Description varchar(255),
+  InterventionIds JSONB,
+  metrics JSONB,
+  scores JSONB,
+  user_id int,
+  created_at varchar(255),
+  updated_at varchar(255)
+  );
+
 CREATE TABLE NOISE_DATA (
   NoiseDataId   SERIAL PRIMARY KEY,
   Source        VARCHAR(50)  NOT NULL
