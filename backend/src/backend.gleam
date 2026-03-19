@@ -1,5 +1,6 @@
 import gleam/erlang/process
 import gleam/http.{Get, Options, Post}
+import gleam/int
 import gleam/io
 import gleam/option
 import hotspot
@@ -13,6 +14,7 @@ import mist
 import noise
 import plan
 import pog
+import quest
 import report
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
@@ -38,6 +40,7 @@ pub fn main() {
   let db = pog.named_connection(pool_name)
   map_data.generate_map_data(db)
   report.generate_reports(db)
+  quest.generate_initial_quests(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)
@@ -96,6 +99,37 @@ fn handle_request(
     Get, ["api", "intervention", "get"] ->
       intervention.get_all_interventions(db)
     Get, ["api", "map-data", "get"] -> map_data.get_all_map_reports(db)
+    // Quest endpoints
+    Get, ["api", "quests"] -> quest.get_all_quests(db)
+    Get, ["api", "quests", "difficulty", difficulty] ->
+      quest.get_quests_by_difficulty(db, difficulty)
+    Get, ["api", "quests", quest_id_str] -> {
+      case int.parse(quest_id_str) {
+        Ok(quest_id) -> quest.get_quest(db, quest_id)
+        Error(_) -> wisp.bad_request("Invalid quest ID")
+      }
+    }
+    Post, ["api", "quests", "create"] -> quest.extract_create_quest(req, db)
+    Get, ["api", "user", "quests", user_id_str] -> {
+      case int.parse(user_id_str) {
+        Ok(user_id) -> quest.get_user_quests(db, user_id)
+        Error(_) -> wisp.bad_request("Invalid user ID")
+      }
+    }
+    Post, ["api", "quests", "start"] -> quest.extract_start_quest(req, db)
+    Post, ["api", "quests", "complete"] -> quest.extract_complete_quest(req, db)
+    Get, ["api", "user", "progression", user_id_str] -> {
+      case int.parse(user_id_str) {
+        Ok(user_id) -> quest.get_user_progression_endpoint(db, user_id)
+        Error(_) -> wisp.bad_request("Invalid user ID")
+      }
+    }
+    Get, ["api", "quests", "leaderboard", quest_id_str] -> {
+      case int.parse(quest_id_str) {
+        Ok(quest_id) -> quest.get_quest_leaderboard(db, quest_id)
+        Error(_) -> wisp.bad_request("Invalid quest ID")
+      }
+    }
     Get, _ -> serve_index()
     _, _ -> wisp.not_found()
   }
