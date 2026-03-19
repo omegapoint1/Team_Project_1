@@ -183,9 +183,6 @@ const loadIncidents = async (showRefreshingState = false) => {
     return incidents.filter(inc => inc.status === status).length;
   };
 
-  const handleExport = () => {
-    alert(`Exporting ${filteredIncidents.length} incidents as CSV`);
-  };
 
   const handleReport = () => {
     alert('Generating incident report');
@@ -241,20 +238,7 @@ const loadIncidents = async (showRefreshingState = false) => {
             >
               {isRefreshing ? '⏳' : '🔄'}
             </button>
-            <button 
-              onClick={handleExport}
-              className="icon-button"
-              title="Export as CSV"
-            >
-              📥
-            </button>
-            <button 
-              onClick={handleReport}
-              className="icon-button"
-              title="Generate Report"
-            >
-              📊
-            </button>
+            
           </div>
         }
         footer={
