@@ -37,9 +37,14 @@ function parseBackendDate(dt) {
 
 function normalizeReport(r) {
 
+    console.log("normalizeReport raw:", r); // DEBUG
     const zone = r.zone ?? r.locationofnoise ?? r.location_of_noise ?? "";
     const location = r.location_of_noise ?? r.locationofnoise ?? "";
-    const tags = Array.isArray(r.tags) ? r.tags : [];
+    const tags =
+        Array.isArray(r.tags) ? r.tags
+        : Array.isArray(r.tag_list) ? r.tag_list
+        : Array.isArray(r.tagList) ? r.tagList
+        : [];
     const noisetype = r.noisetype ?? r.noiseType ?? "";
     const severity = Number(r.severity ?? 0);
 
@@ -131,6 +136,11 @@ useEffect(() => {
 
         const raw = await res.json(); // ONLY ONCE
         let list = Array.isArray(raw) ? raw.map(normalizeReport) : [];
+
+        // DEBUG
+        console.log("reports count:", list.length);
+        console.log("first report normalized:", list[0]);
+        console.log("tags sample (first 10):", list.slice(0, 10).map(r => r.tags));
 
         // fallback if backend returns [] for now
         if (list.length === 0) list = TEST_REPORTS.map(normalizeReport);
@@ -311,29 +321,70 @@ useEffect(() => {
 
             <div className="userDashboardRightPanel">
             <div className="userDashboardRightPanelInner">
-                <div className="userDashboardPanelTitle">Reports (filtered)</div>
+                {/* Reports panel */}
+                <div className="userDashboardPanelSection">
+                    <div className="userDashboardPanelTitle">Reports (filtered)</div>
 
-                {renderReportsState("No reports available yet.")}
+                    {renderReportsState("No reports available yet.")}
 
-                {!reportsLoading && !reportsError && (
-                filteredForPanel.length === 0 ? (
-                    <p className="userDashboardEmptyText">No reports match your filters.</p>
-                ) : (
-                    <ul className="userDashboardUpdates">
-                    {filteredForPanel.slice(0, 8).map((r, idx) => (
-                        <li key={r.id ?? idx} className="userDashboardUpdateItem">
-                        <b>{r.zone || r.location_of_noise || "Unknown"}</b>
-                        {" • "}
-                        {r.noisetype || "Noise"}
-                        {" • "}
-                        sev {r.severity || "-"}
-                        {r.datetime ? ` • ${r.datetime}` : ""}
-                        </li>
-                    ))}
-                    </ul>
-                )
-                )}
-            </div>
+                    {!reportsLoading && !reportsError && (
+                    filteredForPanel.length === 0 ? (
+                        <p className="userDashboardEmptyText">No reports match your filters.</p>
+                    ) : (
+                        <div className="userDashboardReportList">
+                        {filteredForPanel.map((r, idx) => (
+                            <div key={r.id ?? idx} className="userDashboardReportRow">
+                            <div className="userDashboardReportMain">
+                                <div className="userDashboardReportTitle">
+                                {r.zone || r.location_of_noise || "Unknown"}
+                                </div>
+
+                                <div className="userDashboardReportMeta">
+                                <span className="userDashboardPill userDashboardPillType">
+                                    {r.noisetype || "Noise"}
+                                </span>
+                                <span className="userDashboardPill userDashboardPillSeverity">
+                                    Sev {Number.isFinite(r.severity) ? r.severity : "-"}
+                                </span>
+                                <span className="userDashboardPill">
+                                    {r.status || "Accepted"}
+                                </span>
+                                </div>
+                            </div>
+
+                            <div className="userDashboardReportRight">
+                                <div className="userDashboardReportDate">
+                                {r.datetime || "-"}
+                                </div>
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+                    )
+                    )}
+                </div>
+
+                {/* Updates panel (moved here) */}
+                <div className="userDashboardPanelSection userDashboardUpdatesPanel">
+                    <div className="userDashboardCardTitle">Updates</div>
+
+                    {renderReportsState("Nothing to show yet.")}
+
+                    {!reportsLoading && !reportsError && (
+                    summary.updates.length === 0 ? (
+                        <p className="userDashboardEmptyText">Nothing to show yet.</p>
+                    ) : (
+                        <ul className="userDashboardUpdates">
+                        {summary.updates.map((u, idx) => (
+                            <li key={u.id ?? idx} className="userDashboardUpdateItem">
+                            {u.message}
+                            </li>
+                        ))}
+                        </ul>
+                    )
+                    )}
+                </div>
+                </div>
             </div>
         </div>
 
@@ -401,24 +452,8 @@ useEffect(() => {
             )}
             </div>
 
-            <div className="userDashboardInfoCard">
-            <div className="userDashboardCardTitle">Updates</div>
-            {renderReportsState("Nothing to show yet.")}
-            {!reportsLoading && !reportsError && (
-                summary.updates.length === 0 ? (
-                <p className="userDashboardEmptyText">Nothing to show yet.</p>
-                ) : (
-                <ul className="userDashboardUpdates">
-                    {summary.updates.map((u, idx) => (
-                    <li key={u.id ?? idx} className="userDashboardUpdateItem">
-                        {u.message}
-                    </li>
-                    ))}
-                </ul>
-                )
-            )}
+
             </div>
-        </div>
         </div>
     );
 }

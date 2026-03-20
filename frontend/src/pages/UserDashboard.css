@@ -100,7 +100,6 @@
     height: 520px;
 }
 
-/* Helps Leaflet fill the card if MapBackground uses Leaflet */
 .userDashboardMapCard .leaflet-container {
     width: 100% !important;
     height: 100% !important;
@@ -135,14 +134,7 @@
     opacity: 0.85;
 }
 
-/* BOTTOM CARDS */
-.userDashboardCardsRow {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 14px;
-    padding: 10px 12px 14px;
-}
+
 
 .userDashboardInfoCard {
     background: rgb(244, 244, 244);
@@ -303,6 +295,114 @@
 }
 
 
+.userDashboardReportList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+
+.userDashboardReportList::-webkit-scrollbar {
+    width: 8px;
+}
+.userDashboardReportList::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+}
+.userDashboardReportList::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.06);
+    border-radius: 10px;
+}
+
+.userDashboardReportRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(0,0,0,0.18);
+    border-radius: 12px;
+    padding: 10px 12px;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.userDashboardReportRow:hover {
+    transform: translateY(-1px);
+    border-color: rgba(70, 160, 90, 0.55);
+    background: rgba(120, 210, 140, 0.18);
+}
+
+.userDashboardReportMain {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.userDashboardReportTitle {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.userDashboardReportMeta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.userDashboardPill {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(255,255,255,0.65);
+}
+
+.userDashboardPillType {
+    font-weight: 600;
+}
+
+.userDashboardPillSeverity {
+    font-weight: 700;
+    background: rgba(120, 210, 140, 0.25);
+    border-color: rgba(70, 160, 90, 0.55);
+}
+
+.userDashboardReportRight {
+    display: flex;
+    align-items: flex-start;
+}
+
+.userDashboardReportDate {
+    font-size: 12px;
+    color: rgba(0,0,0,0.65);
+    text-align: right;
+    max-width: 220px;
+    word-break: break-word;
+}
+
+.userDashboardCardsRow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 14px;
+    padding: 10px 12px 14px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+
 /* MOBILE */
 @media (max-width: 900px) {
 .userDashboardFilterBar {
@@ -325,11 +425,52 @@
 }
 
 .userDashboardCardsRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 14px;
+    padding: 10px 12px 14px;
+    max-width: 1200px;   /* tweak this number if you want */
+    margin-left: auto;
+    margin-right: auto;
     }
 }
 
-@media (max-width: 520px) {
+.userDashboardRightPanelInner {
+    height: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    overflow: hidden;
+}
+
+.userDashboardPanelSection {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(0,0,0,0.18);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.userDashboardPanelSection:first-child {
+    flex: 1;
+    overflow: hidden;
+}
+
+.userDashboardReportList {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.userDashboardUpdatesPanel {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+@media (max-width: 900px) {
     .userDashboardCardsRow {
         grid-template-columns: 1fr;
     }
