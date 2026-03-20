@@ -1,5 +1,3 @@
-/* UserDashboard.css */
-
 .userDashboardPage {
     width: 100%;
     max-width: 1845px;
@@ -10,7 +8,7 @@
     min-height: 100vh;
 }
 
-/* FILTER BAR */
+
 .userDashboardFilterBar {
     display: flex;
     align-items: center;
@@ -400,6 +398,110 @@
     margin-right: auto;
 }
 
+
+.userDashboardZoneStatsRow {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 0 12px 18px;
+}
+
+.userDashboardZoneStatsCard {
+    width: min(920px, 100%);
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.userDashboardZoneStatsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.userDashboardZoneStatsSub {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.userDashboardZoneSelectWrap {
+    min-width: 220px;
+}
+
+.userDashboardZoneStatsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: start;
+}
+
+.userDashboardZoneStat {
+    background: rgb(222, 222, 222);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.userDashboardZoneTypes {
+    grid-column: 1 / -1;
+    background: rgb(222, 222, 222);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.userDashboardZoneTypesTitle {
+    font-weight: 900;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.userDashboardZoneTypesList {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.userDashboardZoneTypesItem {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .userDashboardZoneStatsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .userDashboardZoneStatsHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .userDashboardZoneSelectWrap {
+        min-width: 100%;
+    }
+
+    .userDashboardZoneStatsGrid {
+        grid-template-columns: 1fr;
+    }
+}
 
 
 
