@@ -1804,8 +1804,8 @@ pub fn user_quest_get_by_user(
   uq.Status,
   uq.Progress,
   uq.MaxProgress,
-  uq.StartedAt::text,
-  uq.CompletedAt::text
+  COALESCE(uq.StartedAt::text, '') AS StartedAt,
+  COALESCE(uq.CompletedAt::text, '') AS CompletedAt
 FROM USER_QUESTS uq
 JOIN QUESTS q ON uq.QuestId = q.QuestId
 WHERE uq.UserId = $1
