@@ -17,6 +17,7 @@ import pog
 import quest
 import report
 import scenario
+import delete_account
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 import map_data
@@ -95,7 +96,8 @@ fn handle_request(
     Post, ["api", "scenario", "store"] -> scenario.extract_scenario_store(req, db)
     Get, ["api", "scenario", "get"] -> scenario.get_all_scenarios(db)
     Post, ["api", "report", "accept"] -> report.extract_approve_report(req, db)
-    Post, ["api", "intervention-plan", "store"] ->
+    Post, ["api", "delete-account"] -> delete_account.delete_account(req, db)
+    Post, ["api", "intervention-plan", "store"] -> 
       plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)
     Post, ["api", "intervention", "store"] ->

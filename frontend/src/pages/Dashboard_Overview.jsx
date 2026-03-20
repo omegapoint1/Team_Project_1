@@ -91,7 +91,7 @@ function OverviewPage() {
             long: feature.geometry.coordinates[0],
             decibels: feature.properties.decibels,
             time: feature.properties.time,
-            category: feature.properties.category
+            category: feature.properties.category,
           }));
         } else {
           // assume its in the right format
@@ -151,6 +151,7 @@ useEffect(() => {
             description: report.description || "No description provided.",
             noisetype: report.noisetype || report.noiseType || "Unknown",
             createdAt: report.datetime ? new Date(report.datetime).getTime() : Date.now(),
+            zone: report.zone
           };
         });  
         console.log(reports)
@@ -485,6 +486,7 @@ useEffect(() => {
               <div><strong>Noise Type:</strong> {selectedReport.noisetype}</div>
               <div><strong>Severity:</strong> {selectedReport.severity}/10</div>
               <div><strong>Status:</strong> {selectedReport.status}</div>
+              <div><strong>Status:</strong> {selectedReport.zone}</div>
               <div><strong>Time:</strong> {new Date(selectedReport.time).toLocaleString()}</div>
               <div><strong>Tags:</strong> {selectedReport.tags.length > 0 ? selectedReport.tags.join(', ') : 'None'}</div>
               <div><strong>Description:</strong></div>

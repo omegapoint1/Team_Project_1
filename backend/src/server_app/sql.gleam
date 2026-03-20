@@ -39,6 +39,27 @@ INTO
   |> pog.execute(db)
 }
 
+/// Runs the `delete_user` query
+/// defined in `./src/server_app/sql/delete_user.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_user(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "DELETE FROM
+  USERS
+WHERE Email = $1;"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `get_completed_quests_count` query
 /// defined in `./src/server_app/sql/get_completed_quests_count.sql`.
 ///
