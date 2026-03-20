@@ -85,7 +85,7 @@
 
 /*section title*/
 .game-title {
-    margin: 20px auto ;
+    margin: 0;
     padding: 12px 24px;
     width: fit-content;
     background: #e5e5e5;
@@ -119,7 +119,7 @@
 
 .game-meta {
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.8;
     font-weight: 600;
     padding-left: 0;
 }
@@ -173,3 +173,185 @@
     transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
 }
 
+/* User Progress Section */
+.user-progress {
+    background: #f3f3f3;
+    border: 2px solid rgb(119,119,119);
+    border-radius: 12px;
+    margin: 16px 16px 8px 16px;
+    padding: 16px 20px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.level-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.level-badge {
+    background: rgb(62, 122, 62);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.xp-text {
+    font-weight: 600;
+    color: #333;
+}
+
+.xp-bar-container {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    border: 2px solid rgb(119,119,119);
+    overflow: hidden;
+    position: relative;
+}
+
+.xp-bar-fill {
+    height:100%;
+    background: linear-gradient(90deg,#4caf50, #8bc34a);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255, 0.3);
+}
+
+/* section header */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 16px;
+}
+
+.badge-toggle-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 2px solid rgb(119,119,119);
+    background: #e5e5e5;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: all 120ms ease;
+}
+
+.badge-toggle-btn:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+
+}
+
+.badge-toggle-btn:active{
+    background: rgb(62,122,62);
+    color: white;
+    border-color: rgb(42,82,42);
+}
+
+.badges-section {
+    background: #f3f3f3;
+    border: 2px solid rgb(119,119,119);
+    border-radius: 12px;
+    margin: 0 16px 20px 16px;
+    padding: 20px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.badges-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #333;
+}
+
+.badges-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.badge-card{
+    background: white;
+    border: 2px solid rgb(119,119,119);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    position: relative;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    cursor: help;
+
+}
+
+.badge-card.earned {
+    background: linear-gradient (145deg, #fff, #f0f7f0);
+    border-color: rgb( 62,122,62);
+}
+
+.badge-card.locked {
+    opactiy: 0.6;
+    filter: grayscale(0.5);
+}
+
+.badge-card:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.badge-icon{
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.badge-name{
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+}
+
+.badge-lock{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+}
+
+.status-badge {
+    background: #e0e0e0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgb(119,119,119);
+    display: inline-block;
+}
+
+.difficulty-badge{
+    background:#ffd700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgb(119,119,119);
+    display: inline-block;
+    color: #333;
+}
+
+.xp-badge{
+    background: #4caf50;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgb(62,122,62);
+    display: inline-block;
+    color: white;
+}
+
+@media (max-width: 768px){
+    .badges-grid{
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    .game-card{
+        grid-template-columns: 120px 1fr 120px;
+    }
+}

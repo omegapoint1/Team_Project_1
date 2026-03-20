@@ -19,6 +19,7 @@ import Incidents from './components/planner/Incidents';
 import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
+import ProfilePage from './pages/ProfilePage';
 import HelpPage from './pages/HelpPage.jsx';
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
         
         <div className="navbar-left">
           <Link to="/dashboard">
-            <img src="/logo.png" alt="Website Logo" className="websiteLogo" />
+            <img src="/static/logo.png" alt="Website Logo" className="websiteLogo" />
           </Link>
           <span className="nav-title">Neighborhood Noise</span>
         </div>
@@ -60,7 +61,10 @@ function App() {
           <Link to="/report" className="nav-link">Report incident</Link>
           <Link to="/help" className="nav-link">Help</Link>
 
-          <Link to="/"        className = "nav-link-icon">
+          <Link
+            to={user ? "/profile" : "/login"}
+            className="nav-link-icon"
+          >
             <span className="nav-user-icon">👤</span>
           </Link>
         </div>
@@ -73,9 +77,11 @@ function App() {
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
-        <Route path="report" element={<FormPage />} />
+        <Route path="/report" element={<FormPage />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/help" element={<HelpPage />} />
+
         
         <Route path="/dashboard" element={ isPlanner ? <Dashboard /> : <Navigate to="/user-dashboard" replace />}>
           <Route index element={<Overview />} />

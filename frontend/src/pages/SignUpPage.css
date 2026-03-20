@@ -1,3 +1,21 @@
+.login-button {
+  background: rgb(126,224,129);
+  color: rgb(17,24,39);
+
+  border: none;
+  border-radius: 6px;
+
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: rgb(106,212,111);
+}
+
 .password-errors {
     margin-top: 8px;
     color: #d32f2f;

@@ -145,6 +145,16 @@ export default function HelpPage() {
           and what you clicked.
         </p>
       </div>
-    </div>
+    
+
+      <div className="helpStillStuck">
+        <h3 className="helpStillStuckTitle">Contact Us</h3>
+        <p className="helpStillStuckText">
+            If you still require help, contact us at <strong>garbagecollectorsexeter@gmail.com</strong>  
+        </p>
+      </div>
+
+
+      </div>
   );
 }

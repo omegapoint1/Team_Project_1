@@ -19,7 +19,13 @@ pub fn extract_login_check(req: Request, db: pog.Connection) -> Response {
       }
       let response_json =
         json.object([
-          #("user", json.object([#("role", json.string(role))])),
+          #(
+            "user",
+            json.object([
+              #("role", json.string(role)),
+              #("id", json.int(user_info.user_id)),
+            ]),
+          ),
         ])
       wisp.json_response(json.to_string(response_json), 200)
     }
@@ -44,7 +50,7 @@ pub fn handle_login_check(
                 Some(value) -> Ok(value)
                 None -> Error(Nil)
               }
-              Ok(LoginWithUserInfo(admin:))
+              Ok(LoginWithUserInfo(user_id: row.userid, admin:))
             }
             Ok(False) -> Error(Nil)
             Error(_) -> Error(Nil)
@@ -58,7 +64,7 @@ pub fn handle_login_check(
 }
 
 pub type LoginWithUserInfo {
-  LoginWithUserInfo(admin: Result(Bool, Nil))
+  LoginWithUserInfo(user_id: Int, admin: Result(Bool, Nil))
 }
 
 pub fn extract_register(req: Request, db: pog.Connection) -> Response {
