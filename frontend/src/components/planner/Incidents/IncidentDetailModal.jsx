@@ -291,17 +291,6 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="notes-section">
-            <h4>Add Processing Notes (Optional)</h4>
-            <textarea
-              value={processingNotes}
-              onChange={(e) => setProcessingNotes(e.target.value)}
-              placeholder="Add any notes about why you're changing the status, additional context, or follow-up actions needed..."
-              className="notes-textarea"
-              rows={4}
-              disabled={isUpdating}
-            />
-          </div>
 
           <div className="action-buttons">
             <button

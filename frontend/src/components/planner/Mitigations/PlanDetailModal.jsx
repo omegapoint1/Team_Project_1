@@ -1,25 +1,44 @@
 import ReactModal from 'react-modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './PlanDetailModal.css';
-import EvidenceUploader from '../../common/EvidenceUploader.jsx'; // New component for evidence uploads
-//import { plan_statuses } from '../PlannerData/interventionPlans.jsx';
+import EvidenceUploader from '../../common/EvidenceUploader.jsx';
 import EvidenceDisplay from '../../common/DisplayEvidence.jsx';
 import PlanExportButtons from '../../common/PlanExportButtons.jsx';
+
 ReactModal.setAppElement('#root');
 
-/*Modal which shows plan details in a modal window with 3 tabbed sections
- */
-
-const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
-
-
+const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(plan?.name || '');
-    const [attachedEvidence, setAttachedEvidence] = useState([]); 
-    const [selectedNewStatus, setSelectedNewStatus] = useState('');
+    const [attachedEvidence, setAttachedEvidence] = useState([]);
+    const [planNotes, setPlanNotes] = useState('');
+
+    useEffect(() => {
+        if (plan) {
+            setEditedName(plan.name || '');
+            setAttachedEvidence(plan.evidence || []);
+            setPlanNotes(plan.notes || '');
+        }
+    }, [plan]);
 
     if (!plan) return null;
+
+    const formatImpact = (impact) => {
+        if (impact === undefined || impact === null) return '0 dB';
+        if (typeof impact === 'number') return `${impact} dB`;
+        if (Array.isArray(impact)) return `${impact[0] || 0}-${impact[1] || 0} dB`;
+        if (impact.min !== undefined) return `${impact.min}-${impact.max} dB`;
+        return '0 dB';
+    };
+
+    const formatCost = (cost) => {
+        if (cost === undefined || cost === null) return '£0';
+        if (typeof cost === 'number') return `£${cost}`;
+        if (Array.isArray(cost)) return `£${cost[0] || 0}-£${cost[1] || 0}`;
+        if (cost.min !== undefined) return `£${cost.min}-£${cost.max}`;
+        return '£0';
+    };
 
     const modalStyles = {
         content: {
@@ -35,12 +54,12 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
             borderRadius: '16px',
             padding: '0',
             border: 'none',
-            boxShadow: '0 25px 50px -12px black', 
+            boxShadow: '0 25px 50px -12px black',
             overflow: 'hidden',
             zIndex: 1001
         },
         overlay: {
-            backgroundColor: 'white', 
+            backgroundColor: 'rgba(0,0,0,0.5)',
             zIndex: 1000,
             position: 'fixed',
             top: 0,
@@ -48,59 +67,78 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
             right: 0,
             bottom: 0
         }
-    }
+    };
 
-     const getNextStatusOptions = () => {
+    const getNextStatusOptions = () => {
         switch(plan.status) {
-        case 'Planned': return [{ value: 'In Progress', label: 'Mark as Processed', color: 'blue', description: 'Action is currently in process for this plan' }];
-        case 'In Progress': return [
-            { value: 'Done', label: 'Mark as Completed', color: 'purple', description: 'Plan has been executed to completion' },
-            { value: 'Rejected/Cancelled', label: 'Rejected as Invalid', color: 'red', description: 'Rejected report - duplicate or invalid for other reason' }
-        ];
-        case 'Done': return [{ value: 'In Progress', label: 'Re-open Implementation', color: 'blue', description: 'Re-open for additional work' }];
-        case 'Rejected/Cancelled': return [{ value: 'Planned', label: 'Validate Incident', color: 'green', description: 'Accepted as genuine' }];
-        default: return [];
-    }
-};
+            case 'Planned': 
+                return [{ value: 'In Progress', label: 'Mark as Processed', color: '#2196f3', description: 'Action is currently in process for this plan' }];
+            case 'In Progress': 
+                return [
+                    { value: 'Done', label: 'Mark as Completed', color: '#9c27b0', description: 'Plan has been executed to completion' },
+                    { value: 'Rejected/Cancelled', label: 'Rejected as Invalid', color: '#f44336', description: 'Rejected report - duplicate or invalid for other reason' }
+                ];
+            case 'Done': 
+                return [{ value: 'In Progress', label: 'Re-open Implementation', color: '#2196f3', description: 'Re-open for additional work' }];
+            case 'Rejected/Cancelled': 
+                return [{ value: 'Planned', label: 'Validate Incident', color: '#4caf50', description: 'Accepted as genuine' }];
+            default: 
+                return [];
+        }
+    };
 
     const handleStatusUpdate = (newStatus) => {
-        
         const updatedPlan = {
             ...plan,
             status: newStatus,
         };
-        
         onUpdate(updatedPlan);
-            
-        
+    };
+
+    const handleNameUpdate = () => {
+        if (editedName !== plan.name) {
+            const updatedPlan = {
+                ...plan,
+                name: editedName,
+            };
+            onUpdate(updatedPlan);
+        }
+        setIsEditingName(false);
+    };
+
+    const handleNotesUpdate = () => {
+        const updatedPlan = {
+            ...plan,
+            notes: planNotes,
+        };
+        onUpdate(updatedPlan);
     };
 
     const calculateBudgetUtilization = () => {
-        return Math.min(Math.round((plan.totalCost / plan.budget) * 100), 100);
+        const totalCost = plan.totalCost || 0;
+        const budget = plan.budget || 1;
+        return Math.min(Math.round((totalCost / budget) * 100), 100);
     };
 
     const getBudgetStatus = () => {
         const utilization = calculateBudgetUtilization();
-        if (utilization > 100) return { color: 'red', label: 'Over Budget' };
-        if (utilization > 90) return { color: 'orange', label: 'Near Limit' };
-        return { color: 'green', label: 'Within Budget' };
+        if (utilization > 100) return { color: '#f44336', label: 'Over Budget' };
+        if (utilization > 90) return { color: '#ff9800', label: 'Near Limit' };
+        return { color: '#4caf50', label: 'Within Budget' };
     };
 
     const handleEvidenceUploaded = (evidenceItems) => {
         const newEvidence = [...attachedEvidence, ...evidenceItems];
         setAttachedEvidence(newEvidence);
 
-
         const updatedPlan = {
             ...plan,
             evidence: newEvidence,
         };
-        
         onUpdate(updatedPlan);
     };
 
     const handleEvidenceRemoval = (evidenceId) => {
-        //setAttachedEvidence(prev => prev.filter(item => item.id !== evidenceId));
         const filteredEvidence = attachedEvidence.filter(item => item.id !== evidenceId);
         setAttachedEvidence(filteredEvidence);
 
@@ -108,7 +146,6 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
             ...plan,
             evidence: filteredEvidence,
         };
-        
         onUpdate(updatedPlan);
     };
 
@@ -120,16 +157,16 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                     <div className="budget-summary">
                         <div className="budget-item">
                             <span>Total Budget</span>
-                            <span>£{plan.budget}</span>
+                            <span>£{plan.budget || 0}</span>
                         </div>
                         <div className="budget-item">
                             <span>Plan Cost</span>
-                            <span>£{plan.totalCost}</span>
+                            <span>£{plan.totalCost || 0}</span>
                         </div>
                         <div className="budget-item">
                             <span>Remaining</span>
-                            <span style={{ color: plan.budget - plan.totalCost >= 0 ? 'green' : 'red' }}>
-                                £{(plan.budget - plan.totalCost)}
+                            <span style={{ color: (plan.budget || 0) - (plan.totalCost || 0) >= 0 ? '#4caf50' : '#f44336' }}>
+                                £{((plan.budget || 0) - (plan.totalCost || 0))}
                             </span>
                         </div>
                     </div>
@@ -159,16 +196,16 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         <div className="timeline-info">
                             <div>Implementation Timeline</div>
                             <div>
-                                <span>{plan.timeline} weeks</span>
+                                <span>{plan.timeline || 0} weeks</span>
                                 <span>
-                                    {plan.timeline <= 4 ? 'Fast' : plan.timeline <= 8 ? 'Medium' : 'Long'}
+                                    {(plan.timeline || 0) <= 4 ? 'Fast' : (plan.timeline || 0) <= 8 ? 'Medium' : 'Long'}
                                 </span>
                             </div>
                         </div>
                         <div className="impact-info">
                             <div>Estimated Noise Reduction</div>
                             <div>
-                                {plan.impact[0] || 0}-{plan.impact[1]|| 0} dB
+                                {formatImpact(plan.impact)}
                             </div>
                             <div>
                                 Expected reduction in noise levels after implementation
@@ -187,19 +224,25 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         <div className="zone-info">
                             <span>Plan Created</span>
                             <span>
-                                {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit'
-                                })}
+                                }) : 'N/A'}
                             </span>
                         </div>
                         <div className="zone-info">
                             <span>Last Updated</span>
                             <span>
-                                {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                {plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('en-GB', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) : new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
@@ -215,17 +258,17 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
     );
 
     const renderInterventions = () => (
-        <div >
-            <div >
+        <div className="interventions-section">
+            <div className="interventions-header">
                 <h4>Comprised Interventions</h4>
                 <div className="interventions-info">
-                    <span>Total Cost: £{plan.totalCost}</span>
-                    <span>Total Impact: {plan.impact[0] || 0}-{plan.impact[1] || 0} dB</span>
+                    <span>Total Cost: £{plan.totalCost || 0}</span>
+                    <span>Total Impact: {formatImpact(plan.impact)}</span>
                 </div>
             </div>
             
             <div className="interventions-list">
-                {plan.interventions.map((intervention, index) => (
+                {plan.interventions && plan.interventions.map((intervention, index) => (
                     <div key={index} className="intervention-detail">
                         <div className="intervention-header-detail">
                             <h5>{intervention.name}</h5>
@@ -238,24 +281,24 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                             <div className="stat-box">
                                 <span>Cost Range</span>
                                 <span>
-                                    £{intervention.cost[0]} - £{intervention.cost[1]}
+                                    {formatCost(intervention.cost)}
                                 </span>
                             </div>
                             <div className="stat-box">
                                 <span>Impact Range</span>
                                 <span>
-                                    {intervention.impact[0]}-{intervention.impact[1]} dB
+                                    {formatImpact(intervention.impact)}
                                 </span>
                             </div>
                             <div className="stat-box">
                                 <span>Feasibility</span>
                                 <span>
-                                    {Math.round(intervention.feasibility * 100)}%
+                                    {Math.round((intervention.feasibility || 0) * 100)}%
                                 </span>
                             </div>
                             <div className="stat-box">
                                 <span>Time Required</span>
-                                <span>{intervention.implementationTime}</span>
+                                <span>{intervention.implementationTime || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -270,17 +313,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                 <h4>Update Plan Status</h4>
                 <p>
                     Current Status: 
-                    <span 
-                        className="status-badge-modal"
-
-                    >
+                    <span className="status-badge-modal">
                         {plan.status}
                     </span>
                 </p>
-                    <div className="export-actions">
-      <h4>Export Plan</h4>
-      <PlanExportButtons plan={plan} />
-    </div>
+                <div className="export-actions">
+                    <h4>Export Plan</h4>
+                    <PlanExportButtons plan={plan} />
+                </div>
                 
                 <div className="action-buttons">
                     {getNextStatusOptions().map(option => (
@@ -288,24 +328,20 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                             key={option.value}
                             onClick={() => handleStatusUpdate(option.value)}
                             style={{ backgroundColor: option.color }}
-                            title={option.description} 
+                            title={option.description}
                         >
                             {option.label}
                         </button>
                     ))}
                 </div>
             </div>
-            
-
-            
 
             <div className="evidence-actions">
                 <h4>Attach Evidence & Documentation</h4>
-
-                    <EvidenceDisplay 
+                <EvidenceDisplay 
                     evidence={attachedEvidence}
                     onRemoveEvidence={handleEvidenceRemoval}
-                    />
+                />
                 <EvidenceUploader 
                     onEvidenceUploaded={handleEvidenceUploaded}
                     attachedEvidence={attachedEvidence}
@@ -319,17 +355,10 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                 <textarea
                     placeholder="Add notes or comments about this plan..."
                     rows={4}
-                    defaultValue={plan.notes || ''}
+                    value={planNotes}
+                    onChange={(e) => setPlanNotes(e.target.value)}
                 />
-                <button>Save Notes</button>
-            </div>
-            <div >
-                <h4>Additional Actions</h4>
-                <div className="action-buttons-grid">
-                    <button >📄 Generate Report</button>
-                    <button >🔄 Duplicate Plan</button>
-                    <button >🗑️ Delete Plan</button>
-                </div>
+                <button onClick={handleNotesUpdate}>Save Notes</button>
             </div>
         </div>
     );
@@ -349,11 +378,11 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                                 type="text"
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
-                                autoFocus
-                                onBlur={() => setIsEditingName(false)}
+                                onBlur={handleNameUpdate}
                                 onKeyPress={(e) => {
-                                    if (e.key === 'Enter') setIsEditingName(false);
+                                    if (e.key === 'Enter') handleNameUpdate();
                                 }}
+                                autoFocus
                             />
                         ) : (
                             <h2 
@@ -366,17 +395,17 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         <div className="modal-subtitle">
                             <span>ID: {plan.id}</span>
                             <span>
-                                Created: {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                Created: {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit'
-                                })}
+                                }) : 'N/A'}
                             </span>
                         </div>
                     </div>
-                    <button onClick={onClose}>×</button>
+                    <button onClick={onClose} className="close-modal-btn">×</button>
                 </div>
 
                 <div className="modal-tabs">
@@ -390,7 +419,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         className={activeTab === 'interventions' ? 'active' : ''}
                         onClick={() => setActiveTab('interventions')}
                     >
-                        🛠️ Interventions ({plan.interventions.length})
+                        🛠️ Interventions ({plan.interventions?.length || 0})
                     </button>
                     <button 
                         className={activeTab === 'actions' ? 'active' : ''}
@@ -409,7 +438,13 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                 <div className="modal-footer">
                     <div>
                         <span>
-                            Last updated: {new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                            Last updated: {plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('en-GB', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
@@ -419,8 +454,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate}) => {
                         </span>
                     </div>
                     <div>
-                        <button onClick={onClose}>Close</button>
-                        <button>Save Changes</button>
+                        <button onClick={onClose} className="close-footer-btn">Close</button>
                     </div>
                 </div>
             </div>
