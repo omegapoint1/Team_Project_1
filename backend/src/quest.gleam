@@ -40,7 +40,10 @@ pub fn get_quests_by_difficulty(
         xp_reward: row.xpreward,
         quest_type: row.questtype,
         target_value: row.targetvalue,
-        is_active: row.isactive,
+        is_active: case row.isactive {
+          option.Some(is_active) -> is_active
+          option.None -> True
+        },
       )
     })
 
@@ -64,7 +67,10 @@ pub fn get_quest_by_id(db: pog.Connection, quest_id: Int) -> quest_json.QuestIte
     xp_reward: quest_data.xpreward,
     quest_type: quest_data.questtype,
     target_value: quest_data.targetvalue,
-    is_active: quest_data.isactive,
+    is_active: case quest_data.isactive {
+      option.Some(is_active) -> is_active
+      option.None -> True
+    },
   )
 }
 
@@ -109,8 +115,10 @@ pub fn create_quest(
       item.difficulty,
       item.xp_reward,
       item.quest_type,
-      item.target_value,
-      option.None, // CreatedBy - set to None for now, can be updated with auth
+      case item.target_value {
+        option.Some(value) -> value
+        option.None -> ""
+      },
     )
 
   case quest_id_result {
@@ -132,19 +140,34 @@ pub fn get_user_quests(db: pog.Connection, user_id: Int) -> Response {
     list.map(user_quests_data.rows, fn(row) {
       quest_json.UserQuestItem(
         user_quest_id: row.userquestid,
-        user_id: row.userid,
-        quest_id: row.questid,
+        user_id: case row.userid {
+          option.Some(id) -> id
+          option.None -> -1
+        },
+        quest_id: case row.questid {
+          option.Some(id) -> id
+          option.None -> -1
+        },
         title: row.title,
         description: row.description,
         difficulty: row.difficulty,
         xp_reward: row.xpreward,
         quest_type: row.questtype,
         target_value: row.targetvalue,
-        status: row.status,
-        progress: row.progress,
-        max_progress: row.maxprogress,
-        started_at: row.startedat,
-        completed_at: row.completedat,
+        status: case row.status {
+          option.Some(s) -> s
+          option.None -> "not_started"
+        },
+        progress: case row.progress {
+          option.Some(p) -> p
+          option.None -> 0
+        },
+        max_progress: case row.maxprogress {
+          option.Some(m) -> m
+          option.None -> 1
+        },
+        started_at: option.Some(row.startedat),
+        completed_at: option.Some(row.completedat),
       )
     })
 
@@ -213,7 +236,12 @@ pub fn complete_quest(
     Ok(user_quests_data) -> {
       let user_quest_opt =
         list.find(user_quests_data.rows, fn(row) {
-          row.questid == quest_id && row.status != "completed"
+          case row.questid, row.status {
+            option.Some(qid), option.Some(status) -> {
+              qid == quest_id && status != "completed"
+            }
+            _, _ -> False
+          }
         })
 
       case user_quest_opt {
@@ -274,9 +302,18 @@ pub fn get_user_progression(
         Ok(row) ->
           quest_json.UserProgression(
             user_id: row.userid,
-            total_xp: row.totalxp,
-            level: row.level,
-            completed_quests: row.completedquests,
+            total_xp: case row.totalxp {
+              option.Some(xp) -> xp
+              option.None -> 0
+            },
+            level: case row.level {
+              option.Some(l) -> l
+              option.None -> 1
+            },
+            completed_quests: case row.completedquests {
+              option.Some(c) -> c
+              option.None -> 0
+            },
           )
         Error(_) -> default_progression
       }
@@ -340,7 +377,10 @@ pub fn get_quest_leaderboard(db: pog.Connection, quest_id: Int) -> Response {
       quest_json.LeaderboardEntry(
         username: row.username,
         quest_title: row.quest_title,
-        completion_time_seconds: row.completiontime,
+        completion_time_seconds: case row.completiontime {
+          option.Some(t) -> t
+          option.None -> 0
+        },
         completed_at: row.completedat,
       )
     })

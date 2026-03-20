@@ -32,7 +32,7 @@ const IncidentList = () => {
   ];
 
   const [filters, setFilters] = useState({
-    status: ['pending'], 
+    status: ['Pending'], 
     zone: 'all',
     severity: 'all',
     timeRange: '7d'
@@ -42,66 +42,65 @@ const IncidentList = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
-const loadIncidents = async (showRefreshingState = false) => {
-  try {
-    if (showRefreshingState) {
-      setIsRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-
-    const localData = incidentLocalService.getAll();
-    let serverData = [];
-    
+  const loadIncidents = async (showRefreshingState = false) => {
     try {
-      serverData = await incidentServerService.getAll();
-    } catch (serverError) {
-      console.log('Failed to load incidents from server:', serverError);
-    }
+      if (showRefreshingState) {
+        setIsRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
-    if (serverData && serverData.length > 0) {
-      const localMap = new Map();
-      localData.forEach(inc => localMap.set(inc.id, inc));
+      const localData = incidentLocalService.getAll();
+      let serverData = [];
       
-      const mergedIncidents = serverData.map(serverInc => {
-        const localInc = localMap.get(serverInc.id);
-        if (localInc) {
-          console.log(`Preserving local status for incident ${serverInc.id}: ${localInc.status}`);
-          return localInc;
-        }
-        return serverInc;
-      });
-      
-      serverData.forEach(serverInc => localMap.delete(serverInc.id));
-      const remainingLocalIncidents = Array.from(localMap.values());
-      
-      const finalIncidents = [...mergedIncidents, ...remainingLocalIncidents];
-      
-      // Deduplicate by ID 
-      const uniqueIncidents = [];
-      const ids = new Set();
-      finalIncidents.forEach(incident => {
-        if (!ids.has(incident.id)) {
-          ids.add(incident.id);
-          uniqueIncidents.push(incident);
-        }
-      });
-      
-      
-      incidentLocalService.saveAll(uniqueIncidents);
-      setIncidents(uniqueIncidents);
-    } else if (localData.length > 0) {
-      setIncidents(localData);
+      try {
+        serverData = await incidentServerService.getAll();
+      } catch (serverError) {
+        console.log('Failed to load incidents from server:', serverError);
+      }
+
+      if (serverData && serverData.length > 0) {
+        const localMap = new Map();
+        localData.forEach(inc => localMap.set(inc.id, inc));
+        
+        const mergedIncidents = serverData.map(serverInc => {
+          const localInc = localMap.get(serverInc.id);
+          if (localInc) {
+            console.log(`Preserving local status for incident ${serverInc.id}: ${localInc.status}`);
+            return localInc;
+          }
+          return serverInc;
+        });
+        
+        serverData.forEach(serverInc => localMap.delete(serverInc.id));
+        const remainingLocalIncidents = Array.from(localMap.values());
+        
+        const finalIncidents = [...mergedIncidents, ...remainingLocalIncidents];
+        
+        const uniqueIncidents = [];
+        const ids = new Set();
+        finalIncidents.forEach(incident => {
+          if (!ids.has(incident.id)) {
+            ids.add(incident.id);
+            uniqueIncidents.push(incident);
+          }
+        });
+        
+        incidentLocalService.saveAll(uniqueIncidents);
+        setIncidents(uniqueIncidents);
+      } else if (localData.length > 0) {
+        setIncidents(localData);
+      }
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      const localData = incidentLocalService.getAll();
+      setIncidents(localData || []);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-  } catch (error) {
-    console.error('Error loading incidents:', error);
-    const localData = incidentLocalService.getAll();
-    setIncidents(localData || []);
-  } finally {
-    setLoading(false);
-    setIsRefreshing(false);
-  }
-};
+  };
+  
   useEffect(() => {
     loadIncidents();
   }, []); 
@@ -110,65 +109,121 @@ const loadIncidents = async (showRefreshingState = false) => {
     await loadIncidents(true);
   };
 
- const handleIncidentUpdate = async (updatedIncident) => {
-  try {
-    const { id, ...updates } = updatedIncident;
-    
-    let serverSuccess = false;
+  const handleIncidentUpdate = async (updatedIncident) => {
     try {
-      const serverResult = await incidentServerService.update(id, updates);
-      if (serverResult) {
-        serverSuccess = true;
-        console.log('Server update successful');
+      const { id, ...updates } = updatedIncident;
+      
+      let serverSuccess = false;
+      try {
+        const serverResult = await incidentServerService.update(id, updates);
+        if (serverResult) {
+          serverSuccess = true;
+          console.log('Server update successful');
+        }
+      } catch (error) {
+        console.log('Server update failed:', error);
+      }
+      
+      const incidentWithSyncStatus = {
+        ...updatedIncident,
+        _synced: serverSuccess ? true : false,
+        _lastUpdated: new Date().toISOString()
+      };
+      
+      incidentLocalService.update(incidentWithSyncStatus);
+      
+      setIncidents(prev => 
+        prev.map(inc => inc.id === id ? incidentWithSyncStatus : inc)
+      );
+      
+      if (!serverSuccess) {
+        console.warn('Incident updated locally but failed to sync with server');
       }
     } catch (error) {
-      console.log('Server update failed:', error);
+      console.log('Error updating incident:', error);
+      throw error;
     }
-    
-    const incidentWithSyncStatus = {
-      ...updatedIncident,
-      _synced: serverSuccess ? true : false,
-      _lastUpdated: new Date().toISOString()
-    };
-    
-    incidentLocalService.update(incidentWithSyncStatus);
-    
-    setIncidents(prev => 
-      prev.map(inc => inc.id === id ? incidentWithSyncStatus : inc)
-    );
-    
-    if (!serverSuccess) {
-      console.warn('Incident updated locally but failed to sync with server');
-    }
-  } catch (error) {
-    console.log('Error updating incident:', error);
-    throw error;
-  }
-};
-
+  };
 
   const handleStatusUpdate = async (incidentId, newStatus, notes = '') => {
     const currentIncident = incidents.find(inc => inc.id === incidentId);
     if (!currentIncident) return;
 
+    const capitalizedStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+    
     const updatedIncident = {
       ...currentIncident,
-      status: newStatus,
+      status: capitalizedStatus, 
       ...(notes && { processingNotes: notes }),
       updated_at: new Date().toISOString()
     };
 
     try {
       await handleIncidentUpdate(updatedIncident);
-      alert(`Incident ${incidentId} marked as ${newStatus}`);
+      alert(`Incident ${incidentId} marked as ${capitalizedStatus}`);
     } catch (error) {
       alert('Failed to update incident status');
     }
   };
 
   useEffect(() => {
+    console.log('Applying filters:', filters);
+    console.log('Total incidents:', incidents.length);
+    
     let filtered = [...incidents];
+    
+    // Filter by status (with case-insensitive matching)
+    if (filters.status && filters.status.length > 0) {
+      filtered = filtered.filter(incident => {
+        // Convert both to lowercase for comparison
+        const incidentStatus = (incident.status || '').toLowerCase();
+        return filters.status.some(status => 
+          status.toLowerCase() === incidentStatus
+        );
+      });
+    }
+    
+    // Filter by zone
+    if (filters.zone && filters.zone !== 'all') {
+      filtered = filtered.filter(incident => 
+        incident.zone === filters.zone
+      );
+    }
+    
+    // Filter by severity
+    if (filters.severity && filters.severity !== 'all') {
+      const severityNum = parseInt(filters.severity);
+      filtered = filtered.filter(incident => {
+        const incidentSeverity = parseInt(incident.severity);
+        return incidentSeverity === severityNum;
+      });
+    }
+    
+    // Filter by time range
+    if (filters.timeRange && filters.timeRange !== 'all') {
+      const now = new Date();
+      const cutoff = new Date();
+      
+      const timeRanges = {
+        '1d': 1,
+        '7d': 7,
+        '30d': 30,
+        '90d': 90
+      };
+      
+      const days = timeRanges[filters.timeRange];
+      if (days) {
+        cutoff.setDate(now.getDate() - days);
+        filtered = filtered.filter(incident => {
+          const incidentDate = new Date(incident.datetime || incident.created_at || incident.createdAt);
+          return incidentDate >= cutoff;
+        });
+      }
+    }
+    
+    console.log('Filtered incidents:', filtered.length);
     setFilteredIncidents(filtered);
+    
   }, [filters, incidents, updateTrigger]);
 
   const handleFilterChange = (newFilters) => {
@@ -180,9 +235,16 @@ const loadIncidents = async (showRefreshingState = false) => {
   };
 
   const getStatusCount = (status) => {
-    return incidents.filter(inc => inc.status === status).length;
+    // Case-insensitive counting
+    return incidents.filter(inc => 
+      (inc.status || '').toLowerCase() === status.toLowerCase()
+    ).length;
   };
 
+  const handleExport = () => {
+    // TODO: Implement CSV export
+    alert('Exporting incidents as CSV...');
+  };
 
   const handleReport = () => {
     alert('Generating incident report');
@@ -205,15 +267,15 @@ const loadIncidents = async (showRefreshingState = false) => {
           <div className="stat-label">Total Incidents</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number pending">{getStatusCount('pending')}</div>
+          <div className="stat-number pending">{getStatusCount('Pending')}</div>
           <div className="stat-label">Pending</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number accepted">{getStatusCount('accepted')}</div>
+          <div className="stat-number accepted">{getStatusCount('Accepted')}</div>
           <div className="stat-label">Accepted</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number rejected">{getStatusCount('rejected')}</div>
+          <div className="stat-number rejected">{getStatusCount('Rejected')}</div>
           <div className="stat-label">Rejected</div>
         </div>
       </div>
@@ -238,7 +300,6 @@ const loadIncidents = async (showRefreshingState = false) => {
             >
               {isRefreshing ? '⏳' : '🔄'}
             </button>
-            
           </div>
         }
         footer={

@@ -4,8 +4,7 @@ INSERT INTO QUESTS (
   Difficulty,
   XPReward,
   QuestType,
-  TargetValue,
-  CreatedBy
+  TargetValue
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING QuestId;
