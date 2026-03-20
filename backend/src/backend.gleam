@@ -42,6 +42,7 @@ pub fn main() {
   map_data.generate_map_data(db)
   report.generate_reports(db)
   quest.generate_initial_quests(db)
+  intervention.add_reports(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)
