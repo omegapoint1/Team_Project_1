@@ -11,26 +11,8 @@ const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
+  const [syncStatus, setSyncStatus] = useState('synced');
   
-  const zones = [
-    { id: 1, name: "North-West" },
-    { id: 2, name: "North-Central-West" },
-    { id: 3, name: "North-Central-East" },
-    { id: 4, name: "North-East" },
-    { id: 5, name: "Central-North-West" },
-    { id: 6, name: "Central-North-Central-West" },
-    { id: 7, name: "Central-North-Central-East" },
-    { id: 8, name: "Central-North-East" },
-    { id: 9, name: "Central-South-West" },
-    { id: 10, name: "Central-South-Central-West" },
-    { id: 11, name: "Central-South-Central-East" },
-    { id: 12, name: "Central-South-East" },
-    { id: 13, name: "South-West" },
-    { id: 14, name: "South-Central-West" },
-    { id: 15, name: "South-Central-East" },
-    { id: 16, name: "South-East" },
-  ];
-
   const [filters, setFilters] = useState({
     status: ['Pending'], 
     zone: 'all',
@@ -40,7 +22,6 @@ const IncidentList = () => {
 
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   const loadIncidents = async (showRefreshingState = false) => {
     try {
@@ -49,52 +30,32 @@ const IncidentList = () => {
       } else {
         setLoading(true);
       }
-
-      const localData = incidentLocalService.getAll();
-      let serverData = [];
+      setSyncStatus('syncing');
       
+      let serverData = [];
       try {
         serverData = await incidentServerService.getAll();
+        console.log('Server data loaded:', serverData.length);
       } catch (serverError) {
         console.log('Failed to load incidents from server:', serverError);
+        setSyncStatus('offline');
       }
-
-      if (serverData && serverData.length > 0) {
-        const localMap = new Map();
-        localData.forEach(inc => localMap.set(inc.id, inc));
-        
-        const mergedIncidents = serverData.map(serverInc => {
-          const localInc = localMap.get(serverInc.id);
-          if (localInc) {
-            console.log(`Preserving local status for incident ${serverInc.id}: ${localInc.status}`);
-            return localInc;
-          }
-          return serverInc;
-        });
-        
-        serverData.forEach(serverInc => localMap.delete(serverInc.id));
-        const remainingLocalIncidents = Array.from(localMap.values());
-        
-        const finalIncidents = [...mergedIncidents, ...remainingLocalIncidents];
-        
-        const uniqueIncidents = [];
-        const ids = new Set();
-        finalIncidents.forEach(incident => {
-          if (!ids.has(incident.id)) {
-            ids.add(incident.id);
-            uniqueIncidents.push(incident);
-          }
-        });
-        
-        incidentLocalService.saveAll(uniqueIncidents);
-        setIncidents(uniqueIncidents);
-      } else if (localData.length > 0) {
+      
+      if (serverData.length > 0) {
+        incidentLocalService.saveAll(serverData);
+        setIncidents(serverData);
+        setSyncStatus('synced');
+      } else {
+        const localData = incidentLocalService.getAll();
         setIncidents(localData);
+        setSyncStatus('local-only');
       }
+      
     } catch (error) {
       console.error('Error loading incidents:', error);
       const localData = incidentLocalService.getAll();
-      setIncidents(localData || []);
+      setIncidents(localData);
+      setSyncStatus('error');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -103,7 +64,7 @@ const IncidentList = () => {
   
   useEffect(() => {
     loadIncidents();
-  }, []); 
+  }, []);
   
   const handleRefresh = async () => {
     await loadIncidents(true);
@@ -111,11 +72,13 @@ const IncidentList = () => {
 
   const handleIncidentUpdate = async (updatedIncident) => {
     try {
-      const { id, ...updates } = updatedIncident;
+      const stringId = String(updatedIncident.id);
       
       let serverSuccess = false;
+      let serverResult = null;
+      
       try {
-        const serverResult = await incidentServerService.update(id, updates);
+        serverResult = await incidentServerService.update(stringId, updatedIncident);
         if (serverResult) {
           serverSuccess = true;
           console.log('Server update successful');
@@ -124,21 +87,34 @@ const IncidentList = () => {
         console.log('Server update failed:', error);
       }
       
-      const incidentWithSyncStatus = {
-        ...updatedIncident,
-        _synced: serverSuccess ? true : false,
-        _lastUpdated: new Date().toISOString()
-      };
-      
-      incidentLocalService.update(incidentWithSyncStatus);
-      
-      setIncidents(prev => 
-        prev.map(inc => inc.id === id ? incidentWithSyncStatus : inc)
-      );
-      
-      if (!serverSuccess) {
-        console.warn('Incident updated locally but failed to sync with server');
+      if (serverSuccess && serverResult) {
+        setIncidents(prev => {
+          const updated = prev.map(inc =>
+            String(inc.id) === stringId ? serverResult : inc
+          );
+          incidentLocalService.saveAll(updated);
+          return updated;
+        });
+      } else {
+        const incidentWithSyncStatus = {
+          ...updatedIncident,
+          _synced: false,
+          _lastUpdated: new Date().toISOString(),
+          id: stringId
+        };
+        
+        setIncidents(prev => {
+          const updated = prev.map(inc =>
+            String(inc.id) === stringId ? incidentWithSyncStatus : inc
+          );
+          incidentLocalService.saveAll(updated);
+          return updated;
+        });
+
+        setSyncStatus('unsynced');
+        alert('Changes saved locally. Will sync when connection restored.');
       }
+      
     } catch (error) {
       console.log('Error updating incident:', error);
       throw error;
@@ -146,14 +122,23 @@ const IncidentList = () => {
   };
 
   const handleStatusUpdate = async (incidentId, newStatus, notes = '') => {
-    const currentIncident = incidents.find(inc => inc.id === incidentId);
-    if (!currentIncident) return;
+    const currentIncident = incidents.find(inc => String(inc.id) === String(incidentId));
+    if (!currentIncident) {
+      console.error('Incident not found:', incidentId);
+      return;
+    }
+
+    if (!newStatus || typeof newStatus !== 'string') {
+      console.error('Invalid status provided:', newStatus);
+      alert('Invalid status value');
+      return;
+    }
 
     const capitalizedStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
     
     const updatedIncident = {
       ...currentIncident,
-      status: capitalizedStatus, 
+      status: capitalizedStatus,
       ...(notes && { processingNotes: notes }),
       updated_at: new Date().toISOString()
     };
@@ -162,20 +147,16 @@ const IncidentList = () => {
       await handleIncidentUpdate(updatedIncident);
       alert(`Incident ${incidentId} marked as ${capitalizedStatus}`);
     } catch (error) {
+      console.error('Failed to update incident status:', error);
       alert('Failed to update incident status');
     }
   };
-
+  // Filter incidents
   useEffect(() => {
-    console.log('Applying filters:', filters);
-    console.log('Total incidents:', incidents.length);
-    
     let filtered = [...incidents];
     
-    // Filter by status (with case-insensitive matching)
     if (filters.status && filters.status.length > 0) {
       filtered = filtered.filter(incident => {
-        // Convert both to lowercase for comparison
         const incidentStatus = (incident.status || '').toLowerCase();
         return filters.status.some(status => 
           status.toLowerCase() === incidentStatus
@@ -183,14 +164,12 @@ const IncidentList = () => {
       });
     }
     
-    // Filter by zone
     if (filters.zone && filters.zone !== 'all') {
       filtered = filtered.filter(incident => 
         incident.zone === filters.zone
       );
     }
     
-    // Filter by severity
     if (filters.severity && filters.severity !== 'all') {
       const severityNum = parseInt(filters.severity);
       filtered = filtered.filter(incident => {
@@ -199,7 +178,6 @@ const IncidentList = () => {
       });
     }
     
-    // Filter by time range
     if (filters.timeRange && filters.timeRange !== 'all') {
       const now = new Date();
       const cutoff = new Date();
@@ -221,10 +199,9 @@ const IncidentList = () => {
       }
     }
     
-    console.log('Filtered incidents:', filtered.length);
     setFilteredIncidents(filtered);
     
-  }, [filters, incidents, updateTrigger]);
+  }, [filters, incidents]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -234,20 +211,34 @@ const IncidentList = () => {
     setSelectedIncident(incident);
   };
 
-  const getStatusCount = (status) => {
-    // Case-insensitive counting
-    return incidents.filter(inc => 
+
+  const getStatusCount = (status, source = incidents) => {
+    if (!status) return 0;
+    return source.filter(inc =>
       (inc.status || '').toLowerCase() === status.toLowerCase()
     ).length;
   };
 
-  const handleExport = () => {
-    // TODO: Implement CSV export
-    alert('Exporting incidents as CSV...');
+  const getSyncStatusIcon = () => {
+    switch(syncStatus) {
+      case 'synced': return '✅';
+      case 'syncing': return '🔄';
+      case 'unsynced': return '⚠️';
+      case 'offline': return '📡';
+      case 'local-only': return '💾';
+      default: return '❓';
+    }
   };
 
-  const handleReport = () => {
-    alert('Generating incident report');
+  const getSyncStatusText = () => {
+    switch(syncStatus) {
+      case 'synced': return 'Synced with server';
+      case 'syncing': return 'Syncing...';
+      case 'unsynced': return 'Unsynced changes';
+      case 'offline': return 'Offline mode';
+      case 'local-only': return 'Local only';
+      default: return 'Unknown';
+    }
   };
 
   if (loading) {
@@ -258,6 +249,10 @@ const IncidentList = () => {
     <div className="incident-list-container">
       <div className="incident-header">
         <h1>Incident Management</h1>
+        <div className="sync-status">
+          <span className="sync-icon">{getSyncStatusIcon()}</span>
+          <span className="sync-text">{getSyncStatusText()}</span>
+        </div>
         <p>Review and process noise incident reports</p>
       </div>
 
@@ -306,6 +301,9 @@ const IncidentList = () => {
           <div className="scrollable-footer">
             <div>
               {isRefreshing && <span className="refreshing-text"> (Refreshing...)</span>}
+              {syncStatus === 'unsynced' && (
+                <span className="unsynced-warning"> ⚠️ Some changes not synced</span>
+              )}
             </div>
             <div className="footer-actions">
               <button 
@@ -314,18 +312,6 @@ const IncidentList = () => {
                 disabled={isRefreshing}
               >
                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
-              </button>
-              <button 
-                onClick={handleExport}
-                className="text-button"
-              >
-                Export as CSV
-              </button>
-              <button 
-                onClick={handleReport}
-                className="text-button"
-              >
-                Generate Report
               </button>
             </div>
           </div>
@@ -347,7 +333,7 @@ const IncidentList = () => {
       >
         {filteredIncidents.map(incident => (
           <IncidentCard
-            key={`${incident.id}-${incident.status}-${updateTrigger}`}
+            key={incident.id}
             incident={incident}
             onViewMore={handleViewMore}
           />

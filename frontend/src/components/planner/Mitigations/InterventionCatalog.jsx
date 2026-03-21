@@ -13,13 +13,11 @@ const InterventionCatalog = ({
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedCost, setSelectedCost] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    // FIXED: Use a different name for local state
     const [localInterventions, setLocalInterventions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedIntervention, setSelectedIntervention] = useState(null);
 
-    // Use either propInterventions or localInterventions based on what's passed
     const interventions = propInterventions || localInterventions;
 
     const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
@@ -263,12 +261,6 @@ const InterventionCatalog = ({
                                 onClick={() => handleEditClick(intervention)}>
                                 Edit
                             </button>*/}
-                            <button 
-                                className="add-to-plan-button"
-                                onClick={() => onAddToPlan && onAddToPlan(intervention)}
-                            >
-                                Add to Plan
-                            </button>
                         </div>
                     </div>
                 ))}

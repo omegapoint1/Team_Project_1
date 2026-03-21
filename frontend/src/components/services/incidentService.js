@@ -1,11 +1,8 @@
-
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const INCIDENTS_ENDPOINT = '/report';
-const STORAGE_KEY = 'report';
+const STORAGE_KEY = 'reports';
 
-// Helpers
 const fetchAPI = async (url, options = {}) => {
-    
     try {
         const response = await fetch(url, {
             ...options,
@@ -25,7 +22,7 @@ const fetchAPI = async (url, options = {}) => {
         }
 
         if (response.status === 204) return null;
-                const contentType = response.headers.get('content-type');
+        const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             return await response.json();
         } else {
@@ -33,32 +30,49 @@ const fetchAPI = async (url, options = {}) => {
             return { success: true, message: text, id: Date.now().toString() };
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Fetch error:', error);
+        throw error;
     }
 };
 
-// 
-const convertIncidentFromAPI = (data) => ({
-    id: data.id,
-    noisetype: data.noisetype,          
-    datetime: data.datetime,              
-    severity: data.severity,
-    description: data.description,
-    location_of_noise: data.location_of_noise, 
-    zone: data.zone,
-    tags: data.tags || [],
-    lat: data.lat,                      
-    long: data.long,                       
-    status: data.approved || 'pending'
-});
+const normalizeStatus = (status) => {
+    if (!status) return 'Pending';
+    const validStatuses = ['Pending', 'Accepted', 'Rejected'];
+    if (validStatuses.includes(status)) return status;
+    
+    const lower = status.toLowerCase();
+    if (lower === 'pending') return 'Pending';
+    if (lower === 'accepted' || lower === 'approved') return 'Accepted';
+    if (lower === 'rejected') return 'Rejected';
+    return 'Pending';
+};
 
-const convertIncidentToAPI = (data) => ({
-    id:data.id,
+const convertIncidentFromAPI = (data) => ({
+    id: String(data.id),
     noisetype: data.noisetype,
     datetime: data.datetime,
     severity: data.severity,
     description: data.description,
     location_of_noise: data.location_of_noise,
+    location: data.location_of_noise,
+    zone: data.zone,
+    tags: data.tags || [],
+    lat: data.lat,
+    long: data.long,
+    status: normalizeStatus(data.approved || data.status || 'Pending'),
+    approved: data.approved,
+    createdAt: data.datetime ? new Date(data.datetime).getTime() : Date.now(),
+    updated_at: data.updated_at || data.datetime,
+    _synced: true 
+});
+
+const convertIncidentToAPI = (data) => ({
+    id: String(data.id),
+    noisetype: data.noisetype,
+    datetime: data.datetime,
+    severity: data.severity,
+    description: data.description,
+    location_of_noise: data.location_of_noise || data.location,
     zone: data.zone,
     tags: data.tags,
     lat: data.lat,
@@ -67,104 +81,93 @@ const convertIncidentToAPI = (data) => ({
 });
 
 export const incidentServerService = {
-    // get all incidents
-getAll: async (filters = {}) => {
-    try {
-        const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
-        const response = await fetchAPI(url);
-        if (!response) {
-            console.log('No response received from server');
+    getAll: async () => {
+        try {
+            const url = `${API_URL}${INCIDENTS_ENDPOINT}/get`;
+            const response = await fetchAPI(url);
+            if (!response) return [];
+            
+            const incidentsArray = Array.isArray(response) ? response : (response.data ? response.data : []);
+            return incidentsArray.map(convertIncidentFromAPI);
+        } catch (error) {
+            console.error('Error fetching incidents:', error);
             return [];
         }
-        
-        // Deduplicate by Id
-        const converted = response.map(convertIncidentFromAPI);
-        const uniqueIncidents = [];
-        const ids = new Set();
-        
-        converted.forEach(incident => {
-            if (!ids.has(incident.id)) {
-                ids.add(incident.id);
-                uniqueIncidents.push(incident);
-            }
-        });
-        
-        if (uniqueIncidents.length !== converted.length) {
-            console.log(`Removed ${converted.length - uniqueIncidents.length} duplicates from server response`);
-        }
-        
-        return uniqueIncidents;
-    } catch (error) {
-        console.log('Error from getAll incidents call :', error.message || error);
-        return [];
-    }
-},
+    },
 
+    update: async (id, updates) => {
+        try {
+            const existingIncidents = incidentLocalService.getAll();
+            const existingIncident = existingIncidents.find(inc => String(inc.id) === String(id));
+            
+            if (!existingIncident) return null;
+            
+            const updatedIncident = {
+                ...existingIncident,
+                ...updates,
+                id: String(id),
+                updated_at: new Date().toISOString()
+            };
+            
+            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertIncidentToAPI(updatedIncident))
+            });
 
-// update incident
-update: async (id, updates) => {
-    try {  // <-- Add missing try
-        const existingIncidents = await incidentServerService.getAll();
-        const existingIncident = existingIncidents.find(inc => inc.id === id);
-        
-        if (!existingIncident) {
-            console.error(`Incident with id ${id} not found`);
+            if (!response) return updatedIncident;
+
+          
+            return convertIncidentFromAPI({
+                ...response,
+                id: String(id)
+            });
+        } catch (error) {
+            console.error('Error updating incident:', error);
             return null;
         }
-        
-        const updatedIncident = {
-            ...existingIncident,
-            ...updates,
-            id: id 
-        };
-        
-        const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
-            method: 'POST',
-            body: JSON.stringify(convertIncidentToAPI(updatedIncident))
-        });
+    },
 
-        if (!response) {
-            console.log('No response from server');
-            return updatedIncident; 
-        }
-
-        const converted = convertIncidentFromAPI(response);
-        
-        if (converted.id !== id) {
-            console.log(`Server changed ID from ${id} to ${converted.id}, preserving original`);
-            converted.id = id;
-        }
-        
-        return converted;
-    } catch (error) {
-        console.log('Error in update incident:', error);
-        return updatedIncident; 
-    }
-},
-
-
-
-
-    // delete incident
-delete: async (incidentId) => {
+    delete: async (incidentId) => {
         try {
-            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/delete`, {
+            return await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/delete`, {
                 method: 'POST',
                 body: JSON.stringify({ id: incidentId })
             });
-
-            return response
         } catch (error) {
-            console.error('Error in delete incident:', error.message || error);
-
+            console.error('Error deleting incident:', error);
+            throw error;
+        }
+    },
+    
+    create: async (incidentData) => {
+        try {
+            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+                method: 'POST',
+                body: JSON.stringify(convertIncidentToAPI(incidentData))
+            });
+            return response ? convertIncidentFromAPI(response) : null;
+        } catch (error) {
+            console.error('Error creating incident:', error);
+            return null;
         }
     }
-
-
-
 };
 
 export const incidentLocalService = {
+    syncWithServer: async () => {
+        try {
+            const serverData = await incidentServerService.getAll();
+            if (serverData) {
+                incidentLocalService.saveAll(serverData);
+                return serverData;
+            }
+            return incidentLocalService.getAll();
+        } catch (error) {
+            console.error('Error syncing:', error);
+            return incidentLocalService.getAll();
+        }
+    },
+
     getAll: () => {
         try {
             const data = localStorage.getItem(STORAGE_KEY);
@@ -177,30 +180,48 @@ export const incidentLocalService = {
 
     saveAll: (incidents) => {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(incidents));
+            const uniqueMap = new Map();
+            incidents.forEach(inc => {
+                const idKey = String(inc.id);
+                // FIX: last-write-wins — always overwrite so the most recent
+                // version of an incident is what gets persisted, never a stale one
+                uniqueMap.set(idKey, {
+                    ...inc,
+                    id: idKey,
+                    _synced: !!inc._synced
+                });
+            });
+            const unique = Array.from(uniqueMap.values());
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
             return true;
         } catch (error) {
-            console.error('Error saving incidents:', error);
             return false;
         }
     },
 
-
+    add: (incident) => {
+        const incidents = incidentLocalService.getAll();
+        const id = String(incident.id || `temp_${Date.now()}`);
+        
+        const newIncident = {
+            ...incident,
+            id,
+            _synced: false
+        };
+        
+        incidents.push(newIncident);
+        return incidentLocalService.saveAll(incidents);
+    },
 
     update: (updatedIncident) => {
         const incidents = incidentLocalService.getAll();
-        const index = incidents.findIndex(i => i.id === updatedIncident.id);
-        if (index === -1) return null;
+        const idToFind = String(updatedIncident.id);
+        const index = incidents.findIndex(i => String(i.id) === idToFind);
         
-        incidents[index] = updatedIncident;
-        incidentLocalService.saveAll(incidents);
-        return updatedIncident;
-    },
-
-    delete: (id) => {
-        const incidents = incidentLocalService.getAll();
-        const filtered = incidents.filter(i => i.id !== id);
-        incidentLocalService.saveAll(filtered);
-        return true;
+        if (index !== -1) {
+            incidents[index] = { ...updatedIncident, id: idToFind };
+            return incidentLocalService.saveAll(incidents);
+        }
+        return false;
     }
 };

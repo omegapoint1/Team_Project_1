@@ -6,6 +6,7 @@ import ComparisonTable from './Scenario/ComparisonTable';
 import RecommendationCard from './Scenario/RecommendationCard';
 import WeightControls from './Scenario/WeightControls';
 import ScenarioBuilder from './Scenario/ScenarioBuilder';
+import ScenarioPdfExport from './Scenario/ScenarioPdfExport';
 import { scenarioServerService, scenarioLocalService } from '../services/scenarioService';
 
 const ScenarioTab = () => {
@@ -33,15 +34,10 @@ const ScenarioTab = () => {
         loadedScenarios = scenarioLocalService.getAll();
       }
       
-      // If still empty, create some default scenarios for demo
-      if (loadedScenarios.length === 0) {
-        loadedScenarios = createDefaultScenarios();
-      }
-      
-      setScenarios(loadedScenarios);
+      setScenarios(loadedScenarios || []);
       
       // Auto-select first 2 scenarios if available
-      if (loadedScenarios.length >= 2) {
+      if (loadedScenarios && loadedScenarios.length >= 2) {
         setSelectedIds([loadedScenarios[0].id, loadedScenarios[1].id]);
       }
       
@@ -51,63 +47,14 @@ const ScenarioTab = () => {
       setError('Failed to load scenarios');
       // Fallback to local
       const localScenarios = scenarioLocalService.getAll();
-      if (localScenarios.length > 0) {
+      if (localScenarios && localScenarios.length > 0) {
         setScenarios(localScenarios);
       } else {
-        setScenarios(createDefaultScenarios());
+        setScenarios([]);
       }
     } finally {
       setLoading(false);
     }
-  };
-
-  // Create default scenarios for demo if none exist
-  const createDefaultScenarios = () => {
-    const defaults = [
-      {
-        id: 'scenario-1',
-        name: 'Quick Wins',
-        description: 'Low-cost, high-feasibility interventions for immediate impact',
-        interventionIds: [2, 4, 10, 13],
-        metrics: {
-          totalCost: 16500,
-          impact: { min: 12, max: 22 },
-          feasibility: 8.5,
-          timeline: '2-3 weeks'
-        },
-        scores: { cost: 8.5, impact: 7.2, feasibility: 8.5, total: 8.0 }
-      },
-      {
-        id: 'scenario-2',
-        name: 'Balanced Approach',
-        description: 'Mix of cost-effective and high-impact interventions',
-        interventionIds: [1, 2, 6, 7, 11],
-        metrics: {
-          totalCost: 165000,
-          impact: { min: 25, max: 43 },
-          feasibility: 6.2,
-          timeline: '3-6 months'
-        },
-        scores: { cost: 5.5, impact: 8.8, feasibility: 6.2, total: 7.0 }
-      },
-      {
-        id: 'scenario-3',
-        name: 'Maximum Impact',
-        description: 'Highest potential noise reduction regardless of cost',
-        interventionIds: [1, 3, 5, 9, 14, 15],
-        metrics: {
-          totalCost: 480000,
-          impact: { min: 43, max: 67 },
-          feasibility: 4.5,
-          timeline: '12-18 months'
-        },
-        scores: { cost: 2.5, impact: 9.5, feasibility: 4.5, total: 5.8 }
-      }
-    ];
-    
-    // Save defaults to local storage
-    scenarioLocalService.saveAll(defaults);
-    return defaults;
   };
 
   const handleScenarioSelect = (id) => {
@@ -126,7 +73,6 @@ const ScenarioTab = () => {
       // Update local state
       setScenarios(prevScenarios => [...prevScenarios, savedScenario]);
       
-      // Auto-select the new scenario if less than 3 selected
       if (selectedIds.length < 3) {
         setSelectedIds([...selectedIds, savedScenario.id]);
       }
@@ -165,6 +111,15 @@ const ScenarioTab = () => {
     setWeights(newWeights);
   };
 
+  const handleExportComplete = (success) => {
+    if (success) {
+      console.log('PDF exported successfully');
+    } else {
+      console.error('PDF export failed');
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
   const selectedScenarios = scenarios.filter(s => selectedIds.includes(s.id));
 
   if (loading) {
@@ -179,8 +134,19 @@ const ScenarioTab = () => {
     <div className="scenario-tab">
       {/* Header */}
       <div className="tab-header">
-        <h1>Scenario Comparison</h1>
-        <p>Compare intervention strategies side by side</p>
+        <div className="header-left">
+          <h1>Scenario Comparison</h1>
+          <p>Compare intervention strategies side by side</p>
+        </div>
+        <div className="header-right">
+          {selectedScenarios.length > 0 && (
+            <ScenarioPdfExport
+              scenarios={selectedScenarios}
+              weights={weights}
+              onExportComplete={handleExportComplete}
+            />
+          )}
+        </div>
         {error && <div className="error-banner">{error} - Using local data</div>}
       </div>
 

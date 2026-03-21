@@ -1,5 +1,5 @@
 import ReactModal from 'react-modal';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import StatusBadge from '../../common/StatusBadge';
 import SeverityBadge from '../../common/SeverityBadge';
 import Tag from '../../common/Tag';
@@ -7,15 +7,16 @@ import './IncidentDetailModal.css';
 import { incidentServerService } from '../../services/incidentService'; 
 
 const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
-const [selectedStatus, setSelectedStatus] = useState('pending');
- const [processingNotes, setProcessingNotes] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('pending');
+  const [processingNotes, setProcessingNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
-useEffect(() => {
-  if (incident?.status) {
-    setSelectedStatus(incident.status);
-  }
-}, [incident]); 
+  useEffect(() => {
+    if (incident?.status) {
+      setSelectedStatus(incident.status);
+    }
+  }, [incident]); 
+
   const modalStyles = {
     content: {
       top: '50%',
@@ -43,17 +44,27 @@ useEffect(() => {
   const handleStatusUpdate = async () => {
     if (!incident) return;
     
+    if (!selectedStatus) {
+      alert('Please select a status');
+      return;
+    }
+    
     setIsUpdating(true);
     
     try {
-      const statusToUpdate = selectedStatus.toLowerCase();
+      const statusMap = {
+        'pending': 'Pending',
+        'accepted': 'Accepted',
+        'rejected': 'Rejected'
+      };
       
-      const updatedIncident = await incidentServerService.update(incident.id, {
-        status: statusToUpdate,
-        processingNotes: processingNotes 
-      });
+      const formattedStatus = statusMap[selectedStatus.toLowerCase()] || 'Pending';
       
-      onUpdateStatus(incident.id, statusToUpdate, processingNotes, updatedIncident);
+  
+      if (onUpdateStatus) {
+        onUpdateStatus(incident.id, formattedStatus, processingNotes);
+      }
+      
       onClose();
     } catch (error) {
       console.error('Error occurred. Failed to update incident:', error);
@@ -101,9 +112,9 @@ useEffect(() => {
   };
 
   const statusOptions = [
-    { value: 'pending', label: 'Mark as Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
-    { value: 'accepted', label: 'Accepted Incident', icon: '✓', color: 'green', description: 'Accept as genuine' },
-    { value: 'rejected', label: 'Reject as Invalid', icon: '✗', color: 'red', description: 'False or inaccurate report' }
+    { value: 'pending', label: 'Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
+    { value: 'accepted', label: 'Accepted', icon: '✓', color: 'green', description: 'Accept as genuine' },
+    { value: 'rejected', label: 'Rejected', icon: '✗', color: 'red', description: 'False or inaccurate report' }
   ];
 
   if (!incident) return null;
@@ -115,13 +126,6 @@ useEffect(() => {
       case 'zone_c': return 'zone-green';
       default: return 'zone-purple';
     }
-  };
-
-  const getCurrentStatusStyle = (optionValue) => {
-    if (incident.status === optionValue) {
-      return { backgroundColor: '#e5e7eb', border: '2px solid #9ca3af' };
-    }
-    return {};
   };
 
   return (
@@ -191,9 +195,9 @@ useEffect(() => {
                   <span className="incident-id">ID: {incident.id}</span>
                 </div>
                 <div className="status-description">
-                  {incident.status === 'pending' && 'Awaiting review'}
-                  {incident.status === 'accepted' && 'Verified and accepted'}
-                  {incident.status === 'rejected' && 'Rejected as invalid'}
+                  {incident.status === 'Pending' && 'Awaiting review'}
+                  {incident.status === 'Accepted' && 'Verified and accepted'}
+                  {incident.status === 'Rejected' && 'Rejected as invalid'}
                 </div>
               </div>
             </div>
@@ -228,7 +232,7 @@ useEffect(() => {
             <div className="info-section">
               <h3>Category</h3>
               <div className="category-card">
-                <Tag label={incident.category}  />
+                <Tag label={incident.category} />
                 <div className="category-description">
                 </div>
               </div>
@@ -261,36 +265,35 @@ useEffect(() => {
             <h4>Update Status</h4>
             <div className="status-options">
               {statusOptions.map(option => (
-              <button
-                key={option.value}
-                onClick={() => setSelectedStatus(option.value)}
-                className={`status-option-btn ${selectedStatus === option.value ? 'selected' : ''}`}
-                style={{
-                  backgroundColor: selectedStatus === option.value ? `${option.color}30` : '#f9fafb',
-                  border: selectedStatus === option.value ? `2px solid ${option.color === 'yellow' ? '#eab308' : option.color === 'green' ? '#22c55e' : '#ef4444'}` : '1px solid #e5e7eb',
-                  transform: selectedStatus === option.value ? 'scale(1.02)' : 'scale(1)',
-                  boxShadow: selectedStatus === option.value ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
-                }}
-                disabled={isUpdating}
-              >            
-                <div className="status-icon" style={{
-                  backgroundColor: selectedStatus === option.value ? 'white' : 'transparent',
-                              borderRadius: '50%',
-                  width: '32px',
-                              height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                            }}>{option.icon}</div>
-                <div className="status-label" style={{
-                  fontWeight: selectedStatus === option.value ? '600' : '400'
-                }}>{option.label}</div>
-                <div className="status-desc">{option.description}</div>
-              </button>
-            ))}
+                <button
+                  key={option.value}
+                  onClick={() => setSelectedStatus(option.value)}
+                  className={`status-option-btn ${selectedStatus === option.value ? 'selected' : ''}`}
+                  style={{
+                    backgroundColor: selectedStatus === option.value ? `${option.color === 'yellow' ? '#fef3c7' : option.color === 'green' ? '#d1fae5' : '#fee2e2'}` : '#f9fafb',
+                    border: selectedStatus === option.value ? `2px solid ${option.color === 'yellow' ? '#eab308' : option.color === 'green' ? '#22c55e' : '#ef4444'}` : '1px solid #e5e7eb',
+                    transform: selectedStatus === option.value ? 'scale(1.02)' : 'scale(1)',
+                    boxShadow: selectedStatus === option.value ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
+                  }}
+                  disabled={isUpdating}
+                >            
+                  <div className="status-icon" style={{
+                    backgroundColor: selectedStatus === option.value ? 'white' : 'transparent',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>{option.icon}</div>
+                  <div className="status-label" style={{
+                    fontWeight: selectedStatus === option.value ? '600' : '400'
+                  }}>{option.label}</div>
+                  <div className="status-desc">{option.description}</div>
+                </button>
+              ))}
             </div>
           </div>
-
 
           <div className="action-buttons">
             <button

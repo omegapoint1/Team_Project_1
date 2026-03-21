@@ -44,16 +44,10 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
         }, 1000);
     };
 
-    const handleRemove = (evidenceId) => {
-        if (onRemoveEvidence) {
-            onRemoveEvidence(evidenceId);
-        }
-    };
-
     const formatFileType = (type) => {
-        if (type.includes('pdf')) return 'PDF';
-        if (type.includes('image')) return 'Image';
-        if (type.includes('word') || type.includes('document')) return 'Document';
+        if (type?.includes('pdf')) return 'PDF';
+        if (type?.includes('image')) return 'Image';
+        if (type?.includes('word') || type?.includes('document')) return 'Document';
         return 'File';
     };
 
@@ -69,7 +63,7 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
                         style={{ display: 'none' }}
                     />
                     <label htmlFor="evidence-file-input" className="file-select-label">
-                        {selectedFile ? selectedFile.name : 'Choose File'}
+                        {selectedFile ? selectedFile.name : '📎 Choose File'}
                     </label>
                     
                     <input
@@ -85,7 +79,7 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
                         disabled={!selectedFile || !fileDescription.trim() || isUploading}
                         className="upload-button"
                     >
-                        {isUploading ? 'Uploading...' : 'Attach'}
+                        {isUploading ? '⏳ Uploading...' : '📤 Attach'}
                     </button>
                 </div>
                 
@@ -96,7 +90,7 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
 
             {attachedEvidence && attachedEvidence.length > 0 && (
                 <div className="evidence-list-section">
-                    <h5>Attached Evidence ({attachedEvidence.length})</h5>
+                    <h5>📋 Attached Evidence ({attachedEvidence.length})</h5>
                     <div className="evidence-items">
                         {attachedEvidence.map((evidence) => (
                             <div key={evidence.id} className="evidence-item">
@@ -113,16 +107,16 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
                                         <span>{evidence.size}</span>
                                         <span> • </span>
                                         <span>
-                                            {new Date(evidence.uploadedAt).toLocaleDateString('en-GB', {
+                                            {evidence.uploadedAt ? new Date(evidence.uploadedAt).toLocaleDateString('en-GB', {
                                                 day: 'numeric',
                                                 month: 'short',
                                                 year: 'numeric'
-                                            })}
+                                            }) : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleRemove(evidence.id)}
+                                    onClick={() => onRemoveEvidence && onRemoveEvidence(evidence.id)}
                                     title="Remove evidence"
                                     className="remove-evidence-btn"
                                 >

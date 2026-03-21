@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './WeightControls.css';
 
 const WeightControls = ({ weights, onChange }) => {
   const [localWeights, setLocalWeights] = useState(weights);

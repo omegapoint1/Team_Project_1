@@ -13,12 +13,14 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
     const [editedName, setEditedName] = useState(plan?.name || '');
     const [attachedEvidence, setAttachedEvidence] = useState([]);
     const [planNotes, setPlanNotes] = useState('');
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     useEffect(() => {
         if (plan) {
             setEditedName(plan.name || '');
             setAttachedEvidence(plan.evidence || []);
             setPlanNotes(plan.notes || '');
+            setHasUnsavedChanges(false);
         }
     }, [plan]);
 
@@ -93,6 +95,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
             status: newStatus,
         };
         onUpdate(updatedPlan);
+        setHasUnsavedChanges(true);
     };
 
     const handleNameUpdate = () => {
@@ -102,6 +105,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                 name: editedName,
             };
             onUpdate(updatedPlan);
+            setHasUnsavedChanges(true);
         }
         setIsEditingName(false);
     };
@@ -112,6 +116,20 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
             notes: planNotes,
         };
         onUpdate(updatedPlan);
+        setHasUnsavedChanges(true);
+        alert('Notes saved successfully!');
+    };
+
+    const handleSaveAllChanges = () => {
+        const updatedPlan = {
+            ...plan,
+            name: editedName,
+            notes: planNotes,
+            evidence: attachedEvidence,
+        };
+        onUpdate(updatedPlan);
+        setHasUnsavedChanges(false);
+        alert('All changes saved successfully!');
     };
 
     const calculateBudgetUtilization = () => {
@@ -130,23 +148,13 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
     const handleEvidenceUploaded = (evidenceItems) => {
         const newEvidence = [...attachedEvidence, ...evidenceItems];
         setAttachedEvidence(newEvidence);
-
-        const updatedPlan = {
-            ...plan,
-            evidence: newEvidence,
-        };
-        onUpdate(updatedPlan);
+        setHasUnsavedChanges(true);
     };
 
     const handleEvidenceRemoval = (evidenceId) => {
         const filteredEvidence = attachedEvidence.filter(item => item.id !== evidenceId);
         setAttachedEvidence(filteredEvidence);
-
-        const updatedPlan = {
-            ...plan,
-            evidence: filteredEvidence,
-        };
-        onUpdate(updatedPlan);
+        setHasUnsavedChanges(true);
     };
 
     const renderOverview = () => (
@@ -242,13 +250,13 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit'
-                                }) : new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                                }) : plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit'
-                                })}
+                                }) : 'N/A'}
                             </span>
                         </div>
                     </div>
@@ -317,10 +325,6 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                         {plan.status}
                     </span>
                 </p>
-                <div className="export-actions">
-                    <h4>Export Plan</h4>
-                    <PlanExportButtons plan={plan} />
-                </div>
                 
                 <div className="action-buttons">
                     {getNextStatusOptions().map(option => (
@@ -334,14 +338,21 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                         </button>
                     ))}
                 </div>
+
+                <div className="export-actions">
+                    <h4>Export Plan</h4>
+                    <PlanExportButtons plan={plan} />
+                </div>
             </div>
 
             <div className="evidence-actions">
                 <h4>Attach Evidence & Documentation</h4>
-                <EvidenceDisplay 
-                    evidence={attachedEvidence}
-                    onRemoveEvidence={handleEvidenceRemoval}
-                />
+                {attachedEvidence && attachedEvidence.length > 0 && (
+                    <EvidenceDisplay 
+                        evidence={attachedEvidence}
+                        onRemoveEvidence={handleEvidenceRemoval}
+                    />
+                )}
                 <EvidenceUploader 
                     onEvidenceUploaded={handleEvidenceUploaded}
                     attachedEvidence={attachedEvidence}
@@ -358,7 +369,7 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                     value={planNotes}
                     onChange={(e) => setPlanNotes(e.target.value)}
                 />
-                <button onClick={handleNotesUpdate}>Save Notes</button>
+                <button onClick={handleNotesUpdate} className="save-notes-btn">Save Notes</button>
             </div>
         </div>
     );
@@ -437,6 +448,9 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
 
                 <div className="modal-footer">
                     <div>
+                        {hasUnsavedChanges && (
+                            <span className="unsaved-indicator">⚠️ Unsaved changes</span>
+                        )}
                         <span>
                             Last updated: {plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('en-GB', {
                                 year: 'numeric',
@@ -444,16 +458,19 @@ const PlanDetailModal = ({ isOpen, onClose, plan, onUpdate }) => {
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'
-                            }) : new Date(plan.createdAt).toLocaleDateString('en-GB', {
+                            }) : plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('en-GB', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'
-                            })}
+                            }) : 'N/A'}
                         </span>
                     </div>
-                    <div>
+                    <div className="footer-buttons">
+                        <button onClick={handleSaveAllChanges} className="save-all-btn">
+                            💾 Save All Changes
+                        </button>
                         <button onClick={onClose} className="close-footer-btn">Close</button>
                     </div>
                 </div>
