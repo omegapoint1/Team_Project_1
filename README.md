@@ -66,6 +66,14 @@ gleam test
 
 ---
 
+To run the frontend tests:
+**Prerequisites:**
+nvm install 20 (make sure nvm is at least on version 20)
+npm install
+
+Then use: 'npm run test' to run the tests.
+
+
 ## Tech Stack
 
 | Layer      | Technology                  |
