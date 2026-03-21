@@ -16,6 +16,8 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
+// This test suite checks that the LoginPage component properly handles user login, 
+// including making the correct API call, storing the user in localStorage, and navigating to the correct page based on the user's role.
 describe('LoginPage', () => {
   beforeEach(() => {
     localStorage.clear()
