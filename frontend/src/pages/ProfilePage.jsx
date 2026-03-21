@@ -126,7 +126,7 @@ function ProfilePage() {
 
     try {
       const response = await fetch('/api/delete-account', {
-        method: 'DELETE',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },

@@ -29,6 +29,141 @@ pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
   }
 }
 
+//{ id: 1, name: "North-West", bounds: [[50.74, -3.58], [50.74, -3.52], [50.72, -3.52], [50.72, -3.58]] },
+//        { id: 2, name: "North-Central-West", bounds: [[50.74, -3.52], [50.74, -3.49], [50.72, -3.49], [50.72, -3.52]] },
+//        { id: 3, name: "North-Central-East", bounds: [[50.74, -3.49], [50.74, -3.46], [50.72, -3.46], [50.72, -3.49]] },
+//        { id: 4, name: "North-East", bounds: [[50.74, -3.46], [50.74, -3.40], [50.72, -3.40], [50.72, -3.46]] },
+//
+//        // Row 2
+//        { id: 5, name: "Central-North-West", bounds: [[50.72, -3.58], [50.72, -3.52], [50.70, -3.52], [50.70, -3.58]] },
+//        { id: 6, name: "Central-North-Central-West", bounds: [[50.72, -3.52], [50.72, -3.49], [50.70, -3.49], [50.70, -3.52]] },
+//        { id: 7, name: "Central-North-Central-East", bounds: [[50.72, -3.49], [50.72, -3.46], [50.70, -3.46], [50.70, -3.49]] },
+//        { id: 8, name: "Central-North-East", bounds: [[50.72, -3.46], [50.72, -3.40], [50.70, -3.40], [50.70, -3.46]] },
+//
+//        // Row 3
+//        { id: 9, name: "Central-South-West", bounds: [[50.70, -3.58], [50.70, -3.52], [50.68, -3.52], [50.68, -3.58]] },
+//        { id: 10, name: "Central-South-Central-West", bounds: [[50.70, -3.52], [50.70, -3.49], [50.68, -3.49], [50.68, -3.52]] },
+//        { id: 11, name: "Central-South-Central-East", bounds: [[50.70, -3.49], [50.70, -3.46], [50.68, -3.46], [50.68, -3.49]] },
+//        { id: 12, name: "Central-South-East", bounds: [[50.70, -3.46], [50.70, -3.40], [50.68, -3.40], [50.68, -3.46]] },
+//
+//        // Row 4 (Southmost)
+//        { id: 13, name: "South-West", bounds: [[50.68, -3.58], [50.68, -3.52], [50.66, -3.52], [50.66, -3.58]] },
+//        { id: 14, name: "South-Central-West", bounds: [[50.68, -3.52], [50.68, -3.49], [50.66, -3.49], [50.66, -3.52]] },
+//        { id: 15, name: "South-Central-East", bounds: [[50.68, -3.49], [50.68, -3.46], [50.66, -3.46], [50.66, -3.49]] },
+//        { id: 16, name: "South-East", bounds: [[50.68, -3.46], [50.68, -3.40], [50.66, -3.40], [50.66, -3.46]] }
+
+fn get_zone(lat: String, long: String) -> String {
+  let lat = float.parse(lat)
+  let long = float.parse(long)
+  case lat, long {
+    // Row 1
+    Ok(lat_val), Ok(long_val)
+      if 50.74 >=. lat_val
+      && lat_val >. 50.72
+      && -3.52 >=. long_val
+      && long_val >=. -3.58
+    -> "North-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.74 >=. lat_val
+      && lat_val >. 50.72
+      && -3.49 >=. long_val
+      && long_val >. -3.52
+    -> "North-Central-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.74 >=. lat_val
+      && lat_val >. 50.72
+      && -3.46 >=. long_val
+      && long_val >. -3.49
+    -> "North-Central-East"
+    Ok(lat_val), Ok(long_val)
+      if 50.74 >=. lat_val
+      && lat_val >. 50.72
+      && -3.4 >=. long_val
+      && long_val >. -3.46
+    -> "North-East"
+
+    // Row 2
+    Ok(lat_val), Ok(long_val)
+      if 50.72 >=. lat_val
+      && lat_val >. 50.7
+      && -3.52 >=. long_val
+      && long_val >=. -3.58
+    -> "Central-North-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.72 >=. lat_val
+      && lat_val >. 50.7
+      && -3.49 >=. long_val
+      && long_val >. -3.52
+    -> "Central-North-Central-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.72 >=. lat_val
+      && lat_val >. 50.7
+      && -3.46 >=. long_val
+      && long_val >. -3.49
+    -> "Central-North-Central-East"
+    Ok(lat_val), Ok(long_val)
+      if 50.72 >=. lat_val
+      && lat_val >. 50.7
+      && -3.4 >=. long_val
+      && long_val >. -3.46
+    -> "Central-North-East"
+
+    // Row 3
+    Ok(lat_val), Ok(long_val)
+      if 50.7 >=. lat_val
+      && lat_val >. 50.68
+      && -3.52 >=. long_val
+      && long_val >=. -3.58
+    -> "Central-South-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.7 >=. lat_val
+      && lat_val >. 50.68
+      && -3.49 >=. long_val
+      && long_val >. -3.52
+    -> "Central-South-Central-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.7 >=. lat_val
+      && lat_val >. 50.68
+      && -3.46 >=. long_val
+      && long_val >. -3.49
+    -> "Central-South-Central-East"
+    Ok(lat_val), Ok(long_val)
+      if 50.7 >=. lat_val
+      && lat_val >. 50.68
+      && -3.4 >=. long_val
+      && long_val >. -3.46
+    -> "Central-South-East"
+
+    // Row 4
+    Ok(lat_val), Ok(long_val)
+      if 50.68 >=. lat_val
+      && lat_val >=. 50.66
+      && -3.52 >=. long_val
+      && long_val >=. -3.58
+    -> "South-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.68 >=. lat_val
+      && lat_val >=. 50.66
+      && -3.49 >=. long_val
+      && long_val >. -3.52
+    -> "South-Central-West"
+    Ok(lat_val), Ok(long_val)
+      if 50.68 >=. lat_val
+      && lat_val >=. 50.66
+      && -3.46 >=. long_val
+      && long_val >. -3.49
+    -> "South-Central-East"
+    Ok(lat_val), Ok(long_val)
+      if 50.68 >=. lat_val
+      && lat_val >=. 50.66
+      && -3.4 >=. long_val
+      && long_val >. -3.46
+    -> "South-East"
+
+    _, _ -> "outside of zones"
+  }
+}
+
 pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
   wisp.log_alert(item.noisetype)
   let noisetype = item.noisetype
@@ -37,7 +172,7 @@ pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
   let description = item.description
   let tags = item.tags
   let location_of_noise = item.location_of_noise
-  let zone = item.zone
+  let zone = get_zone(item.lat, item.long)
   let lat = item.lat
   let long = item.long
   let assert Ok(report_id_temp) =
@@ -170,16 +305,17 @@ pub type ReportItemId {
     approved: String,
   )
 }
+
 pub fn extract_approve_report(req: Request, db: pog.Connection) -> Response {
-    use json <- wisp.require_json(req)
+  use json <- wisp.require_json(req)
   let assert Ok(item) = decode.run(json, accept_json.accept_item_decoder())
   case approve_report(item, db) {
     1 -> wisp.ok()
     _ -> wisp.bad_request("Request failed")
   }
 }
-pub fn approve_report(item: accept_json.AcceptItem, db: pog.Connection) -> Int {
 
+pub fn approve_report(item: accept_json.AcceptItem, db: pog.Connection) -> Int {
   let assert Ok(_) = sql.report_accept(db, item.accepted, item.id)
   let report_data = get_report_by_id(db, item.id)
   let lat = case float.parse(report_data.lat) {
@@ -231,17 +367,16 @@ pub fn get_report_by_id_testing(
     )
   report_item
 }
-pub fn generate_reports(db: pog.Connection){
+
+pub fn generate_reports(db: pog.Connection) {
   let reports = generate_reports_list(0, [])
   list.map(reports, fn(report) {
     let id = store_report(report, db)
-    let accept_item = accept_json.AcceptItem(
-      id: id,
-      accepted: "Accepted",
-    )
+    let accept_item = accept_json.AcceptItem(id: id, accepted: "Accepted")
     approve_report(accept_item, db)
   })
 }
+
 fn generate_reports_list(
   i: Int,
   acc: List(report_json.ReportItem),
@@ -264,6 +399,7 @@ fn generate_reports_list(
     "South-Central-West",
     "South-Central-East",
   ]
+  let tags = ["road", "people", "cars", "industrial"]
   case i {
     100 -> acc
     _ -> {
@@ -275,6 +411,7 @@ fn generate_reports_list(
       }
       let assert Ok(category) = list.first(list.sample(catagories, 1))
       let assert Ok(zone) = list.first(list.sample(zones, 1))
+      let tag = list.sample(tags, 2)
 
       let time =
         timestamp.add(
@@ -289,10 +426,10 @@ fn generate_reports_list(
           long: float.to_string(long),
           description: "this is a random description",
           severity: int.to_string(int.random(10)),
-          tags: [],
+          tags: tag,
           location_of_noise: "exeter",
           noisetype: category,
-          zone: zone
+          zone: zone,
         )
       generate_reports_list(i + 1, [data, ..acc])
     }

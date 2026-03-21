@@ -35,11 +35,38 @@ function parseBackendDate(dt) {
     return d;
 }
 
+function fmtHour(h) {
+    const hh = String(h).padStart(2, "0");
+    return `${hh}:00`;
+}
+
+function countBy(list, keyFn) {
+    const m = new Map();
+    for (const item of list) {
+        const k = keyFn(item);
+        if (!k) continue;
+        m.set(k, (m.get(k) ?? 0) + 1);
+    }
+    return m;
+}
+
+function topNFromMap(map, n) {
+    return [...map.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, n)
+        .map(([name, count]) => ({ name, count }));
+}
+
 function normalizeReport(r) {
 
+    console.log("normalizeReport raw:", r); // DEBUG
     const zone = r.zone ?? r.locationofnoise ?? r.location_of_noise ?? "";
     const location = r.location_of_noise ?? r.locationofnoise ?? "";
-    const tags = Array.isArray(r.tags) ? r.tags : [];
+    const tags =
+        Array.isArray(r.tags) ? r.tags
+        : Array.isArray(r.tag_list) ? r.tag_list
+        : Array.isArray(r.tagList) ? r.tagList
+        : [];
     const noisetype = r.noisetype ?? r.noiseType ?? "";
     const severity = Number(r.severity ?? 0);
 
@@ -61,10 +88,11 @@ function normalizeReport(r) {
 }
 
 function UserDashboard() {
-    // Filter bar states (you can wire these into map/overview later)
+    // Filter bar states
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("All");
     const [timeRange, setTimeRange] = useState("24h");
+    const [selectedZone, setSelectedZone] = useState("All");
 
     // Reports from backend
     const [reports, setReports] = useState([]);
@@ -116,7 +144,7 @@ useEffect(() => {
         setReportsLoading(true);
         setReportsError("");
 
-        // 1) Forced test mode (fastest way to see UI working)
+        
         if (USE_TEST_DATA) {
         const list = TEST_REPORTS.map(normalizeReport);
         if (!cancelled) setReports(list);
@@ -124,20 +152,25 @@ useEffect(() => {
         return;
         }
 
-        // 2) Normal backend mode (+ fallback if backend returns [])
+        
         try {
         const res = await fetch("/api/report/get");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const raw = await res.json(); // ONLY ONCE
+        const raw = await res.json(); 
         let list = Array.isArray(raw) ? raw.map(normalizeReport) : [];
 
-        // fallback if backend returns [] for now
+        
+        console.log("reports count:", list.length);
+        console.log("first report normalized:", list[0]);
+        console.log("tags sample (first 10):", list.slice(0, 10).map(r => r.tags));
+
+        
         if (list.length === 0) list = TEST_REPORTS.map(normalizeReport);
 
         if (!cancelled) setReports(list);
         } catch (e) {
-        // fallback on error too
+        
         if (!cancelled) {
             setReportsError("Backend unavailable — showing test data.");
             setReports(TEST_REPORTS.map(normalizeReport));
@@ -152,6 +185,69 @@ useEffect(() => {
         cancelled = true;
     };
     }, []);
+
+    const allZones = useMemo(() => {
+    const s = new Set();
+    for (const r of reports) {
+        const z = String(r.zone ?? "").trim();
+        if (z) s.add(z);
+    }
+    return ["All", ...Array.from(s).sort((a, b) => a.localeCompare(b))];
+    }, [reports]);
+
+    const zoneStats = useMemo(() => {
+    const now = new Date();
+    const cutoff24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const cutoff7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const scoped =
+        selectedZone === "All"
+        ? reports
+        : reports.filter((r) => (r.zone ?? "").trim() === selectedZone);
+
+    const dated = scoped.filter(
+        (r) => r.dateObj instanceof Date && !Number.isNaN(r.dateObj.getTime())
+    );
+
+    const totalAllTime = scoped.length;
+    const reports24h = dated.filter((r) => r.dateObj >= cutoff24h).length;
+
+    const reports7dList = dated.filter((r) => r.dateObj >= cutoff7d);
+    const reports7d = reports7dList.length;
+
+    const avgSeverity7d =
+        reports7d === 0
+        ? "-"
+        : (
+            reports7dList.reduce((acc, r) => acc + (Number(r.severity) || 0), 0) /
+            reports7d
+            ).toFixed(1);
+
+    const highSeverity7d = reports7dList.filter(
+        (r) => (Number(r.severity) || 0) >= 7
+    ).length;
+
+    const typeCounts = countBy(scoped, (r) => String(r.noisetype ?? "").trim());
+    const topTypes = topNFromMap(typeCounts, 3);
+
+    const forPeak = reports7dList.length > 0 ? reports7dList : dated;
+    let peakHour = "-";
+    if (forPeak.length > 0) {
+        const hourCounts = countBy(forPeak, (r) => r.dateObj.getHours());
+        const best = [...hourCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+        if (best) peakHour = fmtHour(best[0]);
+    }
+
+    return {
+        totalAllTime,
+        reports24h,
+        reports7d,
+        avgSeverity7d,
+        highSeverity7d,
+        topTypes,
+        peakHour,
+    };
+    }, [reports, selectedZone]);
 
     const filteredForPanel = useMemo(() => {
         let list = [...reports];
@@ -168,7 +264,7 @@ useEffect(() => {
             list = list.filter((r) => (r.status ?? "Accepted") === status);
         }
 
-        // timeRange filter (for panel/map only)
+        
         const now = new Date();
         const ms =
             timeRange === "24h" ? 24 * 60 * 60 * 1000 :
@@ -181,12 +277,12 @@ useEffect(() => {
             list = list.filter((r) => r.dateObj && r.dateObj >= cutoff);
         }
 
-        // newest first
+        
         list.sort((a, b) => (b.dateObj?.getTime?.() ?? 0) - (a.dateObj?.getTime?.() ?? 0));
         return list;
     }, [reports, search, status, timeRange]);
 
-  // Bottom cards summary (NOT tied to filter bar)
+
     const summary = useMemo(() => {
         const now = new Date();
         const cutoff24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -199,7 +295,7 @@ useEffect(() => {
         const avgSeverity7d =
             in7d.length === 0 ? "-" : (in7d.reduce((acc, r) => acc + (r.severity || 0), 0) / in7d.length).toFixed(1);
 
-    // Most active zone (all-time)
+    
     const zoneCounts = new Map();
     for (const r of reports) {
         const z = (r.zone || r.location_of_noise || "Unknown").trim() || "Unknown";
@@ -210,13 +306,13 @@ useEffect(() => {
             ? "-"
             : [...zoneCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
 
-    // Top hotspots (zones)
+    
     const topHotspots = [...zoneCounts.entries()]
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4)
         .map(([name, count]) => ({ name, count }));
 
-    // Common tags (all-time)
+    
     const tagCounts = new Map();
     for (const r of reports) {
         for (const t of r.tags ?? []) {
@@ -230,7 +326,7 @@ useEffect(() => {
         .slice(0, 4)
         .map(([tag]) => tag);
 
-    // Updates = last few reports
+    
     const updates = [...dated]
         .sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime())
         .slice(0, 3)
@@ -261,7 +357,6 @@ useEffect(() => {
 
     return (
         <div className="userDashboardPage">
-        {/* Filter bar (map/right panel only) */}
         <div className="userDashboardFilterBar">
             <div className="userDashboardSearchWrap">
             <input
@@ -303,7 +398,7 @@ useEffect(() => {
             </div>
         </div>
 
-        {/* Main row: map + right panel */}
+        
         <div className="userDashboardMainRow">
             <div className="userDashboardMapCard">
                 <MapModule />
@@ -311,29 +406,68 @@ useEffect(() => {
 
             <div className="userDashboardRightPanel">
             <div className="userDashboardRightPanelInner">
-                <div className="userDashboardPanelTitle">Reports (filtered)</div>
+                <div className="userDashboardPanelSection">
+                    <div className="userDashboardPanelTitle">Reports (filtered)</div>
 
-                {renderReportsState("No reports available yet.")}
+                    {renderReportsState("No reports available yet.")}
 
-                {!reportsLoading && !reportsError && (
-                filteredForPanel.length === 0 ? (
-                    <p className="userDashboardEmptyText">No reports match your filters.</p>
-                ) : (
-                    <ul className="userDashboardUpdates">
-                    {filteredForPanel.slice(0, 8).map((r, idx) => (
-                        <li key={r.id ?? idx} className="userDashboardUpdateItem">
-                        <b>{r.zone || r.location_of_noise || "Unknown"}</b>
-                        {" • "}
-                        {r.noisetype || "Noise"}
-                        {" • "}
-                        sev {r.severity || "-"}
-                        {r.datetime ? ` • ${r.datetime}` : ""}
-                        </li>
-                    ))}
-                    </ul>
-                )
-                )}
-            </div>
+                    {!reportsLoading && !reportsError && (
+                    filteredForPanel.length === 0 ? (
+                        <p className="userDashboardEmptyText">No reports match your filters.</p>
+                    ) : (
+                        <div className="userDashboardReportList">
+                        {filteredForPanel.map((r, idx) => (
+                            <div key={r.id ?? idx} className="userDashboardReportRow">
+                            <div className="userDashboardReportMain">
+                                <div className="userDashboardReportTitle">
+                                {r.zone || r.location_of_noise || "Unknown"}
+                                </div>
+
+                                <div className="userDashboardReportMeta">
+                                <span className="userDashboardPill userDashboardPillType">
+                                    {r.noisetype || "Noise"}
+                                </span>
+                                <span className="userDashboardPill userDashboardPillSeverity">
+                                    Sev {Number.isFinite(r.severity) ? r.severity : "-"}
+                                </span>
+                                <span className="userDashboardPill">
+                                    {r.status || "Accepted"}
+                                </span>
+                                </div>
+                            </div>
+
+                            <div className="userDashboardReportRight">
+                                <div className="userDashboardReportDate">
+                                {r.datetime || "-"}
+                                </div>
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+                    )
+                    )}
+                </div>
+
+                <div className="userDashboardPanelSection userDashboardUpdatesPanel">
+                    <div className="userDashboardCardTitle">Updates</div>
+
+                    {renderReportsState("Nothing to show yet.")}
+
+                    {!reportsLoading && !reportsError && (
+                    summary.updates.length === 0 ? (
+                        <p className="userDashboardEmptyText">Nothing to show yet.</p>
+                    ) : (
+                        <ul className="userDashboardUpdates">
+                        {summary.updates.map((u, idx) => (
+                            <li key={u.id ?? idx} className="userDashboardUpdateItem">
+                            {u.message}
+                            </li>
+                        ))}
+                        </ul>
+                    )
+                    )}
+                </div>
+                </div>
             </div>
         </div>
 
@@ -384,42 +518,105 @@ useEffect(() => {
             </div>
 
             <div className="userDashboardInfoCard">
-            <div className="userDashboardCardTitle">Common Tags</div>
-            {renderReportsState("Not available yet.")}
-            {!reportsLoading && !reportsError && (
-                summary.commonTags.length === 0 ? (
-                <p className="userDashboardEmptyText">Not available yet.</p>
-                ) : (
-                <div className="userDashboardTagWrap">
-                    {summary.commonTags.map((t, idx) => (
-                    <span key={`${t}-${idx}`} className="userDashboardTagPill">
-                        {t}
-                    </span>
-                    ))}
+                <div className="userDashboardCardTitle">Common Tags</div>
+                {renderReportsState("Not available yet.")}
+                {!reportsLoading && !reportsError && (
+                    summary.commonTags.length === 0 ? (
+                    <p className="userDashboardEmptyText">Not available yet.</p>
+                    ) : (
+                    <div className="userDashboardTagWrap">
+                        {summary.commonTags.map((t, idx) => (
+                        <span key={`${t}-${idx}`} className="userDashboardTagPill">
+                            {t}
+                        </span>
+                        ))}
+                    </div>
+                    )
+                )}
                 </div>
-                )
-            )}
             </div>
 
-            <div className="userDashboardInfoCard">
-            <div className="userDashboardCardTitle">Updates</div>
-            {renderReportsState("Nothing to show yet.")}
-            {!reportsLoading && !reportsError && (
-                summary.updates.length === 0 ? (
-                <p className="userDashboardEmptyText">Nothing to show yet.</p>
-                ) : (
-                <ul className="userDashboardUpdates">
-                    {summary.updates.map((u, idx) => (
-                    <li key={u.id ?? idx} className="userDashboardUpdateItem">
-                        {u.message}
-                    </li>
-                    ))}
-                </ul>
-                )
-            )}
+            <div className="userDashboardZoneStatsRow">
+                <div className="userDashboardZoneStatsCard">
+                    <div className="userDashboardZoneStatsHeader">
+                    <div>
+                        <div className="userDashboardCardTitle">Zone Statistics</div>
+                        <div className="userDashboardZoneStatsSub">
+                        Pick a zone to see a quick breakdown.
+                        </div>
+                    </div>
+
+                    <div className="userDashboardSelectorWrap userDashboardZoneSelectWrap">
+                        <select
+                        className="userDashboardSelect"
+                        value={selectedZone}
+                        onChange={(e) => setSelectedZone(e.target.value)}
+                        aria-label="Select zone"
+                        >
+                        {allZones.map((z) => (
+                            <option key={z} value={z}>
+                            {z}
+                            </option>
+                        ))}
+                        </select>
+                    </div>
+                    </div>
+
+                    {reportsLoading ? (
+                    <p className="userDashboardEmptyText">Loading…</p>
+                    ) : reportsError ? (
+                    <p className="userDashboardEmptyText">{reportsError}</p>
+                    ) : (
+                    <div className="userDashboardZoneStatsGrid">
+                        <div className="userDashboardZoneStat">
+                        <span>Total reports</span>
+                        <b>{zoneStats.totalAllTime}</b>
+                        </div>
+                        <div className="userDashboardZoneStat">
+                        <span>Reports (24h)</span>
+                        <b>{zoneStats.reports24h}</b>
+                        </div>
+                        <div className="userDashboardZoneStat">
+                        <span>Reports (7d)</span>
+                        <b>{zoneStats.reports7d}</b>
+                        </div>
+                        <div className="userDashboardZoneStat">
+                        <span>Avg severity (7d)</span>
+                        <b>{zoneStats.avgSeverity7d}</b>
+                        </div>
+                        <div className="userDashboardZoneStat">
+                        <span>High severity (≥7, 7d)</span>
+                        <b>{zoneStats.highSeverity7d}</b>
+                        </div>
+                        <div className="userDashboardZoneStat">
+                        <span>Peak hour</span>
+                        <b>{zoneStats.peakHour}</b>
+                        </div>
+
+                        <div className="userDashboardZoneTypes">
+                        <div className="userDashboardZoneTypesTitle">Top noise types</div>
+
+                        {zoneStats.topTypes.length === 0 ? (
+                            <p className="userDashboardEmptyText">No data for this zone yet.</p>
+                        ) : (
+                            <ul className="userDashboardZoneTypesList">
+                            {zoneStats.topTypes.map((t) => (
+                                <li key={t.name} className="userDashboardZoneTypesItem">
+                                <span>{t.name}</span>
+                                <b>{t.count}</b>
+                                </li>
+                            ))}
+                            </ul>
+                        )}
+                        </div>
+                    </div>
+                    )}
+                </div>
             </div>
+
         </div>
-        </div>
+
+        
     );
 }
 

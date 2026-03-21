@@ -17,6 +17,7 @@ import pog
 import quest
 import report
 import scenario
+import delete_account
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 import map_data
@@ -42,6 +43,7 @@ pub fn main() {
   map_data.generate_map_data(db)
   report.generate_reports(db)
   quest.generate_initial_quests(db)
+  intervention.add_reports(db)
   let assert Ok(_) =
     handle_request(static_directory, _, db)
     |> wisp_mist.handler(secret_key_base)
@@ -94,7 +96,8 @@ fn handle_request(
     Post, ["api", "scenario", "store"] -> scenario.extract_scenario_store(req, db)
     Get, ["api", "scenario", "get"] -> scenario.get_all_scenarios(db)
     Post, ["api", "report", "accept"] -> report.extract_approve_report(req, db)
-    Post, ["api", "intervention-plan", "store"] ->
+    Post, ["api", "delete-account"] -> delete_account.delete_account(req, db)
+    Post, ["api", "intervention-plan", "store"] -> 
       plan.extract_plan_store(req, db)
     Get, ["api", "intervention-plan", "get"] -> plan.get_all_plans(db)
     Post, ["api", "intervention", "store"] ->
