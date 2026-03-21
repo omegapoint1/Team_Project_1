@@ -170,6 +170,7 @@ function ProfilePage() {
               <div className="progress-bar">
                 <div
                   className="progress-bar-fill"
+                  data-testid="xp-bar-fill"
                   style={{ width: `${progressPercent}%` }}
                 />
                 <span className="progress-bar-text">{progressPercent}%</span>
@@ -213,7 +214,7 @@ function ProfilePage() {
 
             <div className="xp-highlight-card">
               <div className="xp-highlight-label">Experience Points</div>
-              <div className="xp-highlight-value">
+              <div className="xp-highlight-value" data-testid="xp-value">
                 {loadingProgression ? '...' : totalXp}
               </div>
               <div className="xp-highlight-subtext">
