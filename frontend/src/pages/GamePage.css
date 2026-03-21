@@ -40,11 +40,55 @@
 
 }
 
+.search-full-input:focus {
+    border-color: rgb( 62,122,62);
+    box-shadow: 0 0 0 2px rgba(34, 197, 34, 0.2);
+}
 .filter-section{
     display: flex;
     gap: 10px;
     align-items: center;
 
+    margin: 0 auto;
+}
+
+.filter-section select {
+    appearance:none ;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 32px;
+}
+
+.filter-section select:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+}
+
+.results-count {
+    font-size: 16px;
+    font-weight: normal;
+    color: #666;
+    margin-left: 10px;
+}
+
+.no-results {
+    text-align: center;
+    padding:40px;
+    background: white;
+    border-radius: 14px;
+    border: 2px solid rgb(119, 119, 119);
+    margin-bottom: 14px;
+}
+
+.no-results p {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #666;
+}
+
+.no-results button {
     margin: 0 auto;
 }
 
