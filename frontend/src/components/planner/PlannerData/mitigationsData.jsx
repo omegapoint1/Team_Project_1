@@ -172,9 +172,21 @@ export const interventionsData = [
   }
 ];
 
-export const zones = [
-    { id: "zone_a", name: "Zone A", type: "residential", priority: "high" },
-    { id: "zone_b", name: "Zone B", type: "campus", priority: "medium" },
-    { id: "zone_c", name: "Zone C", type: "commercial", priority: "low" },
-    { id: "zone_d", name: "Zone D", type: "mixed", priority: "medium" }
-];
+ export const zones = [
+    { id: 1, name: "North-West" },
+    { id: 2, name: "North-Central-West" },
+    { id: 3, name: "North-Central-East" },
+    { id: 4, name: "North-East" },
+    { id: 5, name: "Central-North-West" },
+    { id: 6, name: "Central-North-Central-West" },
+    { id: 7, name: "Central-North-Central-East" },
+    { id: 8, name: "Central-North-East" },
+    { id: 9, name: "Central-South-West" },
+    { id: 10, name: "Central-South-Central-West" },
+    { id: 11, name: "Central-South-Central-East" },
+    { id: 12, name: "Central-South-East" },
+    { id: 13, name: "South-West" },
+    { id: 14, name: "South-Central-West" },
+    { id: 15, name: "South-Central-East" },
+    { id: 16, name: "South-East" },
+  ];

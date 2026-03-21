@@ -3,8 +3,6 @@ import InterventionCatalog from './Mitigations/InterventionCatalog';
 import PlanBuilder from './Mitigations/PlanBuilder';
 import PlansList from './Mitigations/PlansList';
 import PlanDetailModal from './Mitigations/PlanDetailModal';
-// Remove this line - don't import hardcoded data
-// import { interventionsData } from './PlannerData/mitigationsData';
 import { planServerService, planLocalService } from '../services/planService';
 import { interventionServerService, interventionLocalService } from '../services/interventionService';
 import './MitigationTab.css';
@@ -52,11 +50,17 @@ const MitigationTab = () => {
                     setPlans(serverPlans);
                     planLocalService.saveAll(serverPlans);
                 } else {
-                    setPlans([]);
+                    const localPlans = planLocalService.getAll();
+                    if (localPlans && localPlans.length > 0) {
+                        setPlans(localPlans);
+                    } else {
+                        setPlans([]);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load plans from server:', error);
-                setPlans([]);
+                const localPlans = planLocalService.getAll();
+                setPlans(localPlans || []);
             } finally {
                 setLoading(false);
             }
@@ -118,32 +122,52 @@ const MitigationTab = () => {
     };
 
     const handleCreatePlan = async (newPlan) => {
-        let newId;
-        let isUnique = false;
-
-        while (!isUnique) {
-            newId = Math.floor(Math.random() * 999999) + 1;
-            isUnique = !plans.some(plan => plan.id === newId.toString());
-        }
-        
-        const planWithId = {
-            ...newPlan,
-            id: `${newId}`,
-            status: 'draft',
-            created_at: new Date().toISOString()
-        };
-        
         try {
-            await planServerService.create(planWithId);
-            setPlans(prevPlans => [...prevPlans, planWithId]);
-            planLocalService.create(planWithId);
+            const allInterventions = interventions;
+            
+            const interventionObjects = newPlan.interventions.map(id => {
+                const found = allInterventions.find(i => String(i.id) === String(id));
+                return found || { id, name: 'Unknown Intervention' };
+            });
+            
+            const planWithId = {
+                ...newPlan,
+                id: `plan_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                status: 'Planned',
+                interventions: interventionObjects,
+                interventionIds: newPlan.interventions,
+                totalCost: newPlan.totalCost || 0,
+                impact: Array.isArray(newPlan.impact) ? newPlan.impact : [newPlan.impact || 0, newPlan.impact || 0],
+                notes: '',
+                evidence: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            const planForAPI = {
+                ...planWithId,
+                interventions: newPlan.interventions
+            };
+            
+            try {
+                const serverResponse = await planServerService.create(planForAPI);
+                if (serverResponse) {
+                    setPlans(prevPlans => [...prevPlans, serverResponse]);
+                    planLocalService.create(serverResponse);
+                } else {
+                    throw new Error('Server returned no response');
+                }
+            } catch (error) {
+                console.log('Server create failed, storing locally only:', error);
+                setPlans(prevPlans => [...prevPlans, planWithId]);
+                planLocalService.create(planWithId);
+            }
+            
             setActiveTab('plans');
+            alert('Plan created successfully!');
+            
         } catch (error) {
-            console.log('Failed to create plan on server:', error);
-            setPlans(prevPlans => [...prevPlans, planWithId]);
-            planLocalService.create(planWithId);
-            setActiveTab('plans');
-            throw error;
+            console.error('Error creating plan:', error);
+            alert('Failed to create plan. Please try again.');
         }
     };
 
@@ -217,7 +241,7 @@ const MitigationTab = () => {
                         onUpdateIntervention={handleUpdateIntervention}
                         onDeleteIntervention={handleDeleteIntervention}
                         onAddToPlan={(intervention) => {
-   
+                            setActiveTab('builder');
                         }}
                     />
                 );
@@ -292,15 +316,15 @@ const MitigationTab = () => {
                 <div className="tab-status-indicators">
                     <span className="status-indicator draft">
                         <span className="status-dot"></span>
-                        Draft: {getStatusCount('draft')}
+                        Planned: {getStatusCount('Planned')}
                     </span>
                     <span className="status-indicator submitted">
                         <span className="status-dot"></span>
-                        Submitted: {getStatusCount('submitted')}
+                        In Progress: {getStatusCount('In Progress')}
                     </span>
                     <span className="status-indicator implemented">
                         <span className="status-dot"></span>
-                        Implemented: {getStatusCount('implemented')}
+                        Completed: {getStatusCount('Done')}
                     </span>
                 </div>
             </div>
@@ -314,7 +338,7 @@ const MitigationTab = () => {
                     isOpen={true}
                     onClose={handleCloseModal}
                     plan={selectedPlan}
-                    onUpdatePlan={handleUpdatePlan}
+                    onUpdate={handleUpdatePlan}
                 />
             )}
         </div>

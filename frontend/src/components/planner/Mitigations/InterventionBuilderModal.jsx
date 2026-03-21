@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
-import { calculateInterventionImpact } from './impactModel';
+import { calculateInterventionImpact, formatImpact } from './impactModel';
 import './InterventionBuilderModal.css';
 
 ReactModal.setAppElement('#root');
@@ -10,6 +10,7 @@ const InterventionBuilderModal = ({
     onClose, 
     intervention,
     onCreate,
+    onUpdate,
     onDelete,
     totalCount
 }) => {
@@ -26,45 +27,93 @@ const InterventionBuilderModal = ({
     });
     
     const [preview, setPreview] = useState(null);
-    const [zone, setZone] = useState('mixed');
 
+    // Load intervention data if editing
     useEffect(() => {
         if (intervention) {
+            // Handle different possible data formats
+            let impactMin = 1, impactMax = 5;
+            
+            if (Array.isArray(intervention.impact)) {
+                impactMin = intervention.impact[0];
+                impactMax = intervention.impact[1];
+            } else if (intervention.impactRange) {
+                impactMin = intervention.impactRange.min;
+                impactMax = intervention.impactRange.max;
+            } else if (intervention.impactMin !== undefined) {
+                impactMin = intervention.impactMin;
+                impactMax = intervention.impactMax;
+            }
+            
             setForm({
                 name: intervention.name || '',
                 category: intervention.category || 'physical',
                 description: intervention.description || '',
-                costMin: intervention.cost?.[0] || intervention.costRange?.min || 1000,
-                costMax: intervention.cost?.[1] || intervention.costRange?.max || 5000,
-                impactMin: intervention.impact?.[0] || intervention.impactRange?.min || 1,
-                impactMax: intervention.impact?.[1] || intervention.impactRange?.max || 5,
-                feasibility: (intervention.feasibility * 10) || 5,
+                costMin: intervention.costMin || intervention.costRange?.min || 1000,
+                costMax: intervention.costMax || intervention.costRange?.max || 5000,
+                impactMin: impactMin,
+                impactMax: impactMax,
+                feasibility: intervention.feasibility || 5,
                 tags: intervention.tags?.join(', ') || ''
             });
+        } else {
+            // Reset form for new intervention
+            setForm({
+                name: '',
+                category: 'physical',
+                description: '',
+                costMin: 1000,
+                costMax: 5000,
+                impactMin: 1,
+                impactMax: 5,
+                feasibility: 5,
+                tags: ''
+            });
         }
-    }, [intervention]);
+    }, [intervention, isOpen]);
 
+    // Update preview whenever form changes
     useEffect(() => {
-        const impact = calculateInterventionImpact({
-            type: form.category,
-            category: form.category
-        }, zone);
+        const mockIntervention = {
+            impact: [form.impactMin, form.impactMax]
+        };
+        const impact = calculateInterventionImpact(mockIntervention);
         setPreview(impact);
-    }, [form, zone]);
+    }, [form.impactMin, form.impactMax]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        // Validate form
+        if (!form.name.trim()) {
+            alert('Please enter a name');
+            return;
+        }
+        
+        if (form.costMin > form.costMax) {
+            alert('Minimum cost cannot be greater than maximum cost');
+            return;
+        }
+        
+        if (form.impactMin > form.impactMax) {
+            alert('Minimum impact cannot be greater than maximum impact');
+            return;
+        }
+        
+        // Build intervention data in consistent format
         const interventionData = {
-            id: `${Date.now()}`,
+            id: intervention?.id || `int-${Date.now()}`,
             name: form.name,
             category: form.category,
             description: form.description,
-            cost: [ form.costMin,form.costMax ],
-            impact: [form.impactMin,form.impactMax],
-            feasibility: Math.round(form.feasibility) || 5,
+            costRange: {
+                min: form.costMin,
+                max: form.costMax
+            },
+            impact: [form.impactMin, form.impactMax], // Simple array format
+            feasibility: form.feasibility / 10, // Convert to 0-1 scale
             tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
-            created_at: intervention?.created_at || new Date().toISOString()
+            createdAt: intervention?.createdAt || new Date().toISOString()
         };
 
         if (intervention) {
@@ -97,25 +146,27 @@ const InterventionBuilderModal = ({
             width: '500px',
             maxHeight: '90vh',
             borderRadius: '8px',
-            padding: '20px'
+            padding: '20px',
+            overflow: 'auto'
         }
     };
 
     return (
         <ReactModal isOpen={isOpen} onRequestClose={onClose} style={modalStyles}>
-            <div>
-                <div >
-                    <h2>{intervention ? 'Edit' : 'New'} Intervention</h2>
-                    <button onClick={onClose} >×</button>
+            <div className="imb-container">
+                <div className="imb-header">
+                    <h2>{intervention ? 'Edit Intervention' : 'Create New Intervention'}</h2>
+                    <button className="imb-close" onClick={onClose}>×</button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="imb-form">
                     <div className="imb-field">
                         <label>Name *</label>
                         <input
                             type="text"
                             value={form.name}
                             onChange={e => setForm({...form, name: e.target.value})}
+                            placeholder="e.g., Acoustic Noise Barrier"
                             required
                         />
                     </div>
@@ -126,11 +177,17 @@ const InterventionBuilderModal = ({
                             value={form.category}
                             onChange={e => setForm({...form, category: e.target.value})}
                         >
-                            <option value="physical">Physical</option>
+                            <option value="physical">Physical Barrier</option>
+                            <option value="traffic">Traffic Management</option>
+                            <option value="infrastructure">Infrastructure</option>
                             <option value="regulatory">Regulatory</option>
-                            <option value="educational">Educational</option>
-                            <option value="green">Green</option>
-                            <option value="technical">Technical</option>
+                            <option value="building">Building</option>
+                            <option value="green">Natural/Green</option>
+                            <option value="enforcement">Enforcement</option>
+                            <option value="industrial">Industrial</option>
+                            <option value="technology">Technology</option>
+                            <option value="transport">Transport</option>
+                            <option value="community">Community Engagement</option>
                         </select>
                     </div>
 
@@ -139,17 +196,18 @@ const InterventionBuilderModal = ({
                         <textarea
                             value={form.description}
                             onChange={e => setForm({...form, description: e.target.value})}
-                            rows="2"
+                            rows="3"
+                            placeholder="Describe the intervention..."
                         />
                     </div>
 
-                    <div className="row">
+                    <div className="imb-row">
                         <div className="imb-field">
                             <label>Cost Min (£)</label>
                             <input
                                 type="number"
                                 value={form.costMin}
-                                onChange={e => setForm({...form, costMin: +e.target.value})}
+                                onChange={e => setForm({...form, costMin: parseInt(e.target.value) || 0})}
                                 min="0" step="100"
                             />
                         </div>
@@ -158,20 +216,20 @@ const InterventionBuilderModal = ({
                             <input
                                 type="number"
                                 value={form.costMax}
-                                onChange={e => setForm({...form, costMax: +e.target.value})}
+                                onChange={e => setForm({...form, costMax: parseInt(e.target.value) || 0})}
                                 min="0" step="100"
                             />
                         </div>
                     </div>
 
-                    <div className='row'>
+                    <div className="imb-row">
                         <div className="imb-field">
                             <label>Impact Min (dB)</label>
                             <input
                                 type="number"
                                 value={form.impactMin}
-                                onChange={e => setForm({...form, impactMin: +e.target.value})}
-                                min="0" max="30"
+                                onChange={e => setForm({...form, impactMin: parseInt(e.target.value) || 0})}
+                                min="0" max="30" step="1"
                             />
                         </div>
                         <div className="imb-field">
@@ -179,8 +237,8 @@ const InterventionBuilderModal = ({
                             <input
                                 type="number"
                                 value={form.impactMax}
-                                onChange={e => setForm({...form, impactMax: +e.target.value})}
-                                min="0" max="30"
+                                onChange={e => setForm({...form, impactMax: parseInt(e.target.value) || 0})}
+                                min="0" max="30" step="1"
                             />
                         </div>
                     </div>
@@ -190,40 +248,41 @@ const InterventionBuilderModal = ({
                         <input
                             type="range"
                             value={form.feasibility}
-                            onChange={e => setForm({...form, feasibility: +e.target.value})}
-                            min="1" max="10"
+                            onChange={e => setForm({...form, feasibility: parseInt(e.target.value)})}
+                            min="1" max="10" step="1"
                         />
+                        <div className="imb-range-labels">
+                            <span>Difficult</span>
+                            <span>Easy</span>
+                        </div>
                     </div>
 
                     <div className="imb-field">
-                        <label>Tags </label>
+                        <label>Tags (comma-separated)</label>
                         <input
                             type="text"
                             value={form.tags}
                             onChange={e => setForm({...form, tags: e.target.value})}
+                            placeholder="e.g., barrier, high-impact, quick-win"
                         />
-                    </div>
-
-                    <div className="imb-field">
-                        <label>Preview Zone</label>
-                        <select value={zone} onChange={e => setZone(e.target.value)}>
-                            <option value="mixed">Mixed</option>
-                            <option value="residential">Residential</option>
-                            <option value="commercial">Commercial</option>
-                            <option value="campus">Campus</option>
-                            <option value="event">Event</option>
-                        </select>
                     </div>
 
                     {preview && (
                         <div className="imb-preview">
-                            <strong>Impact Preview:</strong> {preview.min}-{preview.max} dB
-                            <br />
-                            <small>Confidence: {preview.confidence}</small>
+                            <h4>Impact Preview</h4>
+                            <div className="imb-preview-content">
+                                <div className="preview-item">
+                                    <span className="preview-label">Single intervention:</span>
+                                    <span className="preview-value">{formatImpact(preview)}</span>
+                                </div>
+                                <div className="preview-note">
+                                    <small>This is the value that will be used in calculations</small>
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    <div >
+                    <div className="imb-actions">
                         {intervention && (
                             <button 
                                 type="button" 
@@ -234,8 +293,12 @@ const InterventionBuilderModal = ({
                                 Delete
                             </button>
                         )}
-                        <button type="button" onClick={onClose}>Cancel</button>
-                        <button type="submit">Save</button>
+                        <button type="button" onClick={onClose} className="imb-cancel">
+                            Cancel
+                        </button>
+                        <button type="submit" className="imb-save">
+                            {intervention ? 'Update' : 'Create'}
+                        </button>
                     </div>
                 </form>
             </div>

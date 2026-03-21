@@ -1,70 +1,107 @@
-
 /*
-   impact model for noise reduction calculations based on intervention type and zone context. 
-   Produce more conext based on the map and deeper information late
+ * Simplified impact model
+ * Uses intervention's own impact values with diminishing returns for combinations
  */
 
-const ZONE_FACTORS = {//variable factor impact based on type
-    residential: 1.2,  
-    commercial: 0.8,    
-    campus: 1.3,        
-    event: 0.6,         // Temporary event
-    mixed: 1.0          //average
-};
-
-//effectiveness by intervention type
-const INTERVENTION_BASE = {
-    barrier: { min: 5, max: 15 },
-    signage: { min: 1, max: 3 },
-    scheduling: { min: 2, max: 6 },
-    green: { min: 2, max: 5 },
-    insulation: { min: 10, max: 25 },
-    traffic: { min: 3, max: 7 },
-    monitoring: { min: 0, max: 0 },
-    educational: { min: 1, max: 3 },
-    regulatory: { min: 2, max: 8 }
-};
-
-/*
-  Calculate impact for a single intervention
+/**
+ * Calculate impact for a single intervention
+ * Simply returns the intervention's own impact values
  */
-export const calculateInterventionImpact = (intervention, zoneType = 'mixed') => {
-    const type = intervention.type || intervention.category?.toLowerCase() || 'barrier';
-    const base = INTERVENTION_BASE[type] || INTERVENTION_BASE.barrier;
-    const factor = ZONE_FACTORS[zoneType] || 1.0;
+export const calculateInterventionImpact = (intervention) => {
+    // Handle different possible impact formats
+    let min = 0, max = 0;
+    
+    if (Array.isArray(intervention.impact)) {
+        // Format: [min, max]
+        min = intervention.impact[0] || 0;
+        max = intervention.impact[1] || min;
+    } else if (intervention.impactRange) {
+        // Format: { min, max }
+        min = intervention.impactRange.min || 0;
+        max = intervention.impactRange.max || min;
+    } else if (intervention.impactMin !== undefined) {
+        // Format: separate fields
+        min = intervention.impactMin || 0;
+        max = intervention.impactMax || min;
+    } else if (typeof intervention.impact === 'number') {
+        // Format: single number
+        min = intervention.impact;
+        max = intervention.impact;
+    }
     
     return {
-        min: Math.round(base.min * factor * 10) / 10,
-        max: Math.round(base.max * factor * 10) / 10,
+        min,
+        max,
+        reduction: `${min}-${max} dB`,
+        confidence: min > 0 ? 'high' : 'low'
     };
 };
 
-/*
- Calculate combined impact with a diminishing return
+/**
+ * Calculate combined impact for multiple interventions
+ * Uses diminishing returns: each additional intervention contributes less
  */
-export const calculateCombinedImpact = (interventions, zoneType = 'mixed') => {
-    if (!interventions?.length) return { min: 0, max: 0, reduction: '0 dB' };
+export const calculateCombinedImpact = (interventions) => {
+    if (!interventions?.length) {
+        return { 
+            min: 0, 
+            max: 0, 
+            reduction: '0 dB',
+            explanation: 'No interventions selected'
+        };
+    }
     
     const count = interventions.length;
-    const factor = Math.sqrt(count) / count; // 1 for 1, 0.7 for 2, 0.58 for 3
     
-    let totalMin = 0, totalMax = 0;
+    // Diminishing returns factor: sqrt(n)/n
+    // 1 intervention: 1.0
+    // 2 interventions: 0.71
+    // 3 interventions: 0.58
+    // 4 interventions: 0.5
+    const diminishingFactor = Math.sqrt(count) / count;
     
-    interventions.forEach(i => {
-        const impact = calculateInterventionImpact(i, zoneType);
+    // Calculate individual impacts
+    const individualImpacts = interventions.map(intervention => 
+        calculateInterventionImpact(intervention)
+    );
+    
+    // Sum impacts
+    let totalMin = 0;
+    let totalMax = 0;
+    
+    individualImpacts.forEach(impact => {
         totalMin += impact.min;
         totalMax += impact.max;
     });
     
-    totalMin = Math.round(totalMin * factor * 10) / 10;
-    totalMax = Math.round(totalMax * factor * 10) / 10;
+    // Apply diminishing returns
+    totalMin = Math.round(totalMin * diminishingFactor * 10) / 10;
+    totalMax = Math.round(totalMax * diminishingFactor * 10) / 10;
+    
+    // Generate explanation
+    const explanation = {
+        summary: `${count} interventions combined with diminishing returns`,
+        factor: diminishingFactor.toFixed(2),
+        calculation: `Total (${totalMin}-${totalMax} dB) = Sum of individual impacts × ${diminishingFactor.toFixed(2)}`,
+        note: 'Multiple interventions have diminishing returns. First intervention has highest impact.'
+    };
     
     return {
         min: totalMin,
         max: totalMax,
         reduction: `${totalMin}-${totalMax} dB`,
-        explanation: `${count} interventions: ${totalMin}-${totalMax} db reduction`
+        individualImpacts,
+        count,
+        diminishingFactor,
+        explanation
     };
 };
 
-
+/**
+ * Format impact for display
+ */
+export const formatImpact = (impact) => {
+    if (!impact) return 'No impact data';
+    if (impact.min === impact.max) return `${impact.min} dB`;
+    return `${impact.min}-${impact.max} dB`;
+};

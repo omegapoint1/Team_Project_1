@@ -1,11 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ScenarioBuilder.css';
-import { mockInterventions } from '../PlannerData/scenarioData';
+import { interventionServerService, interventionLocalService } from '../../services/interventionService';
 
 const ScenarioBuilder = ({ onSave, onClose }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedInterventions, setSelectedInterventions] = useState([]);
+  const [availableInterventions, setAvailableInterventions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch interventions on component mount
+  useEffect(() => {
+    const fetchInterventions = async () => {
+      try {
+        setLoading(true);
+        // Try server first, fall back to local
+        let interventions = await interventionServerService.getAll();
+        
+        // If server returns empty, try local
+        if (!interventions || interventions.length === 0) {
+          interventions = interventionLocalService.getAll();
+        }
+        
+        setAvailableInterventions(interventions);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching interventions:', err);
+        setError('Failed to load interventions');
+        // Fallback to local
+        setAvailableInterventions(interventionLocalService.getAll());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInterventions();
+  }, []);
 
   const toggleIntervention = (id) => {
     if (selectedInterventions.includes(id)) {
@@ -16,13 +47,27 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
   };
 
   const calculateMetrics = () => {
-    const selected = mockInterventions.filter(i => selectedInterventions.includes(i.id));
+    const selected = availableInterventions.filter(i => selectedInterventions.includes(i.id));
     
-    const totalCost = selected.reduce((sum, int) => sum + int.cost, 0);
-    const minImpact = selected.reduce((sum, int) => sum + int.impact.min, 0);
-    const maxImpact = selected.reduce((sum, int) => sum + int.impact.max, 0);
+    const totalCost = selected.reduce((sum, int) => sum + (int.cost || 0), 0);
+    
+    // Handle impact which could be object {min, max} or direct values
+    const minImpact = selected.reduce((sum, int) => {
+      if (typeof int.impact === 'object' && int.impact !== null) {
+        return sum + (int.impact.min || 0);
+      }
+      return sum + (int.impact || 0);
+    }, 0);
+    
+    const maxImpact = selected.reduce((sum, int) => {
+      if (typeof int.impact === 'object' && int.impact !== null) {
+        return sum + (int.impact.max || int.impact.min || 0);
+      }
+      return sum + (int.impact || 0);
+    }, 0);
+    
     const avgFeasibility = selected.length > 0 
-      ? selected.reduce((sum, int) => sum + int.feasibility, 0) / selected.length
+      ? selected.reduce((sum, int) => sum + (int.feasibility || 0), 0) / selected.length
       : 0;
 
     return { totalCost, minImpact, maxImpact, avgFeasibility };
@@ -36,27 +81,81 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
 
     const metrics = calculateMetrics();
     const newScenario = {
-      id: `scenario${Date.now()}`,
+      id: `scenario-${Date.now()}`,
       name,
       description,
+      interventionIds: selectedInterventions,
       metrics: {
         totalCost: metrics.totalCost,
-        impact: { min: metrics.minImpact, max: metrics.maxImpact },
+        impact: { 
+          min: metrics.minImpact, 
+          max: metrics.maxImpact 
+        },
         feasibility: metrics.avgFeasibility,
         timeline: '3-4 weeks'
       },
       scores: {
-        cost: Math.max(0, 10 - (metrics.totalCost / 1000)),
+        cost: Math.max(0, 10 - (metrics.totalCost / 10000)),
         impact: ((metrics.minImpact + metrics.maxImpact) / 2) * 0.5,
         feasibility: metrics.avgFeasibility * 10,
-        total: 7.5
-      }
+        total: 7.5 // This could be calculated based on weights
+      },
+      createdAt: new Date().toISOString()
     };
 
     onSave(newScenario);
   };
 
   const metrics = calculateMetrics();
+
+  // Helper to format cost
+  const formatCost = (cost) => {
+    if (typeof cost === 'object' && cost !== null) {
+      return `£${cost.min}-${cost.max}`;
+    }
+    return `£${cost}`;
+  };
+
+  // Helper to format impact
+  const formatImpact = (impact) => {
+    if (typeof impact === 'object' && impact !== null) {
+      return `${impact.min}-${impact.max} dB`;
+    }
+    return `${impact} dB`;
+  };
+
+  if (loading) {
+    return (
+      <div className="builder-modal">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Create New Scenario</h3>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
+          <div className="loading-state">
+            <p>Loading interventions...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && availableInterventions.length === 0) {
+    return (
+      <div className="builder-modal">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Create New Scenario</h3>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
+          <div className="error-state">
+            <p>{error}</p>
+            <button onClick={onClose}>Close</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="builder-modal">
@@ -87,9 +186,9 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
         </div>
 
         <div className="form-group">
-          <label>Select Interventions</label>
+          <label>Select Interventions ({availableInterventions.length} available)</label>
           <div className="intervention-list">
-            {mockInterventions.map(intervention => (
+            {availableInterventions.map(intervention => (
               <div
                 key={intervention.id}
                 className={`intervention-item ${selectedInterventions.includes(intervention.id) ? 'selected' : ''}`}
@@ -104,9 +203,17 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
                   <h5>{intervention.name}</h5>
                   <p>{intervention.description}</p>
                   <div className="item-meta">
-                    <span>£{intervention.cost}</span>
-                    <span>{intervention.impact.min}-{intervention.impact.max} dB</span>
+                    <span className="cost">{formatCost(intervention.cost)}</span>
+                    <span className="impact">{formatImpact(intervention.impact)}</span>
+                    <span className="feasibility">Feasibility: {intervention.feasibility}/10</span>
                   </div>
+                  {intervention.tags && intervention.tags.length > 0 && (
+                    <div className="item-tags">
+                      {intervention.tags.map(tag => (
+                        <span key={tag} className="tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -119,15 +226,15 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
             <div className="preview-metrics">
               <div className="metric">
                 <span>Cost:</span>
-                <strong>£{metrics.totalCost}</strong>
+                <strong>£{metrics.totalCost.toLocaleString()}</strong>
               </div>
               <div className="metric">
                 <span>Impact:</span>
-                <strong>{metrics.minImpact}-{metrics.maxImpact} dB</strong>
+                <strong>{metrics.minImpact.toFixed(1)}-{metrics.maxImpact.toFixed(1)} dB</strong>
               </div>
               <div className="metric">
                 <span>Feasibility:</span>
-                <strong>{metrics.avgFeasibility.toFixed(2)}/1.0</strong>
+                <strong>{metrics.avgFeasibility.toFixed(2)}/10</strong>
               </div>
             </div>
           </div>
@@ -135,7 +242,13 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
 
         <div className="modal-actions">
           <button className="cancel-btn" onClick={onClose}>Cancel</button>
-          <button className="save-btn" onClick={handleSave}>Save Scenario</button>
+          <button 
+            className="save-btn" 
+            onClick={handleSave}
+            disabled={!name.trim() || selectedInterventions.length === 0}
+          >
+            Save Scenario
+          </button>
         </div>
       </div>
     </div>

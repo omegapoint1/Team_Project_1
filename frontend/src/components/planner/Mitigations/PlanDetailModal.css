@@ -1,0 +1,263 @@
+
+.modal-content {
+    background: rgb(244, 244, 244);
+    border-radius: 12px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: rgb(243, 243, 243);
+    border-bottom: 2px solid rgb(119, 119, 119);
+}
+
+.modal-title-section h2 {
+    font-weight: 900;
+    font-size: 24px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.modal-title-section input {
+    font-size: 24px;
+    padding: 4px 8px;
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.modal-subtitle {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.close-modal-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgb(222, 222, 222);
+    border: 2px solid rgb(119, 119, 119);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-tabs {
+    display: flex;
+    background: rgb(243, 243, 243);
+    border-bottom: 2px solid rgb(119, 119, 119);
+    padding: 0 20px;
+    gap: 4px;
+}
+
+.modal-tabs button {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.modal-tabs button.active {
+    background: rgb(244, 244, 244);
+    border-top: 2px solid rgb(119, 119, 119);
+    border-left: 2px solid rgb(119, 119, 119);
+    border-right: 2px solid rgb(119, 119, 119);
+}
+
+.modal-body {
+    padding: 24px;
+    max-height: calc(90vh - 180px);
+    overflow-y: auto;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+}
+
+.overview-card {
+    background: rgb(244, 244, 244);
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.overview-card.full-width {
+    grid-column: span 2;
+}
+
+.overview-card h4 {
+    font-weight: 900;
+    margin-bottom: 12px;
+}
+
+.budget-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgb(200, 200, 200);
+    font-weight: 700;
+}
+
+.budget-meter-modal {
+    margin-top: 12px;
+}
+
+.meter-header-modal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.meter-bar-modal {
+    height: 8px;
+    background: rgb(200, 200, 200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.meter-fill-modal {
+    height: 100%;
+}
+
+.timeline-impact {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.timeline-info, .impact-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.zone-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.zone-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.zone-info span:first-child {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.interventions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.intervention-detail {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.intervention-header-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.intervention-stats-detail {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    background: rgb(222, 222, 222);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-box span:first-child {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.actions-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.status-actions, .evidence-actions, .plan-notes {
+    background: rgb(222, 222, 222);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.action-buttons button {
+    padding: 8px 16px;
+    border: 2px solid rgb(60, 60, 60);
+    border-radius: 8px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+}
+
+.plan-notes textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.plan-notes button {
+    padding: 8px 20px;
+    background: rgb(125, 223, 125);
+    border: 2px solid rgb(60, 60, 60);
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: rgb(243, 243, 243);
+    border-top: 2px solid rgb(119, 119, 119);
+}
+
+@media (max-width: 768px) {
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .overview-card.full-width {
+        grid-column: span 1;
+    }
+    
+    .zone-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .intervention-stats-detail {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
