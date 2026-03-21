@@ -1,0 +1,97 @@
+/* WeightControls.css */
+
+.weights-card {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.weights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.weights-header h3 {
+    font-weight: 900;
+    font-size: 18px;
+    color: #1e293b;
+    margin: 0;
+}
+
+.weight-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.reset-btn, .equalize-btn {
+    padding: 4px 8px;
+    background: rgb(222, 222, 222);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.weight-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.weight-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.weight-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weight-label label {
+    font-weight: 800;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.weight-value {
+    font-weight: 900;
+    min-width: 45px;
+    text-align: right;
+    color: rgb(125, 223, 125);
+}
+
+.weight-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgb(200, 200, 200);
+    outline: none;
+}
+
+.weight-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 2px solid rgb(122, 122, 122);
+}
+
+.weight-total {
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.total-valid {
+    color: rgb(125, 223, 125);
+    font-weight: 800;
+    font-size: 13px;
+}

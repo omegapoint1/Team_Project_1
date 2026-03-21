@@ -5,6 +5,7 @@ import './IncidentCard.css';
 
 const IncidentCard = ({ incident, onViewMore }) => {
   const formatDate = (dateString) => {
+    if (!dateString) return 'Date not available';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: 'numeric',
@@ -15,6 +16,7 @@ const IncidentCard = ({ incident, onViewMore }) => {
   };
 
   const truncateText = (text, maxLength = 100) => {
+    if (!text) return '';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
@@ -22,39 +24,35 @@ const IncidentCard = ({ incident, onViewMore }) => {
   const getZoneClass = () => {
     const zoneName = incident.zone || '';
     
-    // Color zones based on their position/region
     if (zoneName.includes('North')) return 'zone-blue';
     if (zoneName.includes('South')) return 'zone-green';
     if (zoneName.includes('East')) return 'zone-yellow';
     if (zoneName.includes('West')) return 'zone-red';
     if (zoneName.includes('Central')) return 'zone-purple';
     
-    return 'zone-gray'; // default
+    return 'zone-gray';
   };
 
-  const getZoneInitial = () => {
-    const zoneName = incident.zone || '';
-    
-    if (zoneName.includes('North')) return 'N';
-    if (zoneName.includes('South')) return 'S';
-    if (zoneName.includes('East')) return 'E';
-    if (zoneName.includes('West')) return 'W';
-    if (zoneName.includes('Central')) return 'C';
-    
-    return '?';
+  const getZoneDisplay = () => {
+    if (!incident.zone) return 'Unknown Zone';
+    return incident.zone.replace('_', ' ').toUpperCase();
   };
 
+  const getZoneChar = () => {
+    if (!incident.zone) return '?';
+    return incident.zone.charAt(incident.zone.length - 1).toUpperCase();
+  };
 
   return (
     <div className="incident-card">
       <div className="card-header">
         <div className="zone-info">
           <div className={`zone-badge ${getZoneClass()}`}>
-            <span>{incident.zone.charAt(incident.zone.length - 1).toUpperCase()}</span>
+            <span>{getZoneChar()}</span>
           </div>
           <div>
             <h3 className="zone-name">
-              {incident.zone.replace('_', ' ').toUpperCase()}
+              {getZoneDisplay()}
             </h3>
             <p className="zone-time">
               {formatDate(incident.timestamp)}
@@ -73,7 +71,7 @@ const IncidentCard = ({ incident, onViewMore }) => {
 
       <div className="card-tags">
         <Tag 
-          label={incident.category} 
+          label={incident.category || 'General'} 
           color={
             incident.category === 'construction' ? 'yellow' :
             incident.category === 'music' ? 'purple' :
@@ -82,13 +80,13 @@ const IncidentCard = ({ incident, onViewMore }) => {
           }
         />
         
-        {incident.description.toLowerCase().includes('drilling') && (
+        {(incident.description || '').toLowerCase().includes('drilling') && (
           <Tag label="Drilling" color="red" />
         )}
-        {incident.description.toLowerCase().includes('night') && (
+        {(incident.description || '').toLowerCase().includes('night') && (
           <Tag label="Night Time" color="purple" />
         )}
-        {incident.description.toLowerCase().includes('weekend') && (
+        {(incident.description || '').toLowerCase().includes('weekend') && (
           <Tag label="Weekend" color="green" />
         )}
         {incident.severity === 'high' && (

@@ -2,7 +2,6 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, NavLink} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import PlannerPage from './pages/PlannerPage';
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
@@ -16,7 +15,6 @@ import Dashboard from './pages/Dashboard';
 import ScenarioTab from './components/planner/Scenarios';
 import MitigationTab from './components/planner/MitigationTab';
 import Incidents from './components/planner/Incidents';
-import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -72,7 +70,6 @@ function App() {
 
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
-        <Route path="/planner"  element={<PlannerPage/>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
@@ -89,7 +86,7 @@ function App() {
           <Route path="reportProcessing" element={<Incidents />} />
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
-          <Route path="ExportingReport" element={<Navigate to="/report" replace />} />
+          {/*<Route path="ExportingReport" element={<Reports />} />*/}
           <Route path="tracker" element={<IncidentManagement />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
 
