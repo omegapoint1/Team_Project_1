@@ -123,16 +123,14 @@ function ProfilePage() {
   const handleDeleteAccount = async () => {
     setDeleteError('');
     setIsDeleting(true);
-
     try {
       const response = await fetch('/api/delete-account', {
-        method: 'POST',
+        method: 'Post',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: user.username,
-          email: user.email,
+          user_id: userId,
         }),
       });
 
