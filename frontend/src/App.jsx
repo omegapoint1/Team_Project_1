@@ -89,7 +89,7 @@ function App() {
           <Route path="reportProcessing" element={<Incidents />} />
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
-          <Route path="ExportingReport" element={<Reports />} />
+          <Route path="ExportingReport" element={<Navigate to="/report" replace />} />
           <Route path="tracker" element={<IncidentManagement />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
 

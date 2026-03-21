@@ -58,7 +58,7 @@ describe('DashboardPage', () => {
 
     expect(
       screen.getByRole('link', { name: /generate report/i }).getAttribute('href')
-    ).toBe('/dashboard/report')
+    ).toBe('/report')
 
     expect(
       screen.getByRole('link', { name: /hotspot analytics/i }).getAttribute('href')
