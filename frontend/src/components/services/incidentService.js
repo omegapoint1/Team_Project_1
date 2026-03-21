@@ -5,6 +5,7 @@ const STORAGE_KEY = 'reports';
 const fetchAPI = async (url, options = {}) => {
     try {
         const response = await fetch(url, {
+            method: options.method || 'GET',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -95,32 +96,27 @@ export const incidentServerService = {
         }
     },
 
+
     update: async (id, updates) => {
         try {
             const existingIncidents = incidentLocalService.getAll();
             const existingIncident = existingIncidents.find(inc => String(inc.id) === String(id));
-            
+
             if (!existingIncident) return null;
-            
+
             const updatedIncident = {
                 ...existingIncident,
                 ...updates,
                 id: String(id),
                 updated_at: new Date().toISOString()
             };
-            
-            const response = await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/store`, {
+
+            await fetchAPI(`${API_URL}${INCIDENTS_ENDPOINT}/accept`, {
                 method: 'POST',
-                body: JSON.stringify(convertIncidentToAPI(updatedIncident))
+                body: JSON.stringify({ id: Number(id), accepted: updatedIncident.status })
             });
 
-            if (!response) return updatedIncident;
-
-          
-            return convertIncidentFromAPI({
-                ...response,
-                id: String(id)
-            });
+            return updatedIncident;
         } catch (error) {
             console.error('Error updating incident:', error);
             return null;
@@ -183,8 +179,6 @@ export const incidentLocalService = {
             const uniqueMap = new Map();
             incidents.forEach(inc => {
                 const idKey = String(inc.id);
-                // FIX: last-write-wins — always overwrite so the most recent
-                // version of an incident is what gets persisted, never a stale one
                 uniqueMap.set(idKey, {
                     ...inc,
                     id: idKey,

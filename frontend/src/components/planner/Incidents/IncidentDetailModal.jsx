@@ -7,7 +7,7 @@ import './IncidentDetailModal.css';
 import { incidentServerService } from '../../services/incidentService'; 
 
 const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
-  const [selectedStatus, setSelectedStatus] = useState('pending');
+  const [selectedStatus, setSelectedStatus] = useState('Pending');
   const [processingNotes, setProcessingNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -52,17 +52,8 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
     setIsUpdating(true);
     
     try {
-      const statusMap = {
-        'pending': 'Pending',
-        'accepted': 'Accepted',
-        'rejected': 'Rejected'
-      };
-      
-      const formattedStatus = statusMap[selectedStatus.toLowerCase()] || 'Pending';
-      
-  
       if (onUpdateStatus) {
-        onUpdateStatus(incident.id, formattedStatus, processingNotes);
+        onUpdateStatus(incident.id, selectedStatus, processingNotes);
       }
       
       onClose();
@@ -112,9 +103,9 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
   };
 
   const statusOptions = [
-    { value: 'pending', label: 'Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
-    { value: 'accepted', label: 'Accepted', icon: '✓', color: 'green', description: 'Accept as genuine' },
-    { value: 'rejected', label: 'Rejected', icon: '✗', color: 'red', description: 'False or inaccurate report' }
+    { value: 'Pending', label: 'Pending', icon: '⏳', color: 'yellow', description: 'Needs further review' },
+    { value: 'Accepted', label: 'Accepted', icon: '✓', color: 'green', description: 'Accept as genuine' },
+    { value: 'Rejected', label: 'Rejected', icon: '✗', color: 'red', description: 'False or inaccurate report' }
   ];
 
   if (!incident) return null;

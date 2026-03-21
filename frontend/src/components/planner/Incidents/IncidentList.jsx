@@ -11,7 +11,6 @@ const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
-  const [syncStatus, setSyncStatus] = useState('synced');
   
   const [filters, setFilters] = useState({
     status: ['Pending'], 
@@ -30,7 +29,6 @@ const IncidentList = () => {
       } else {
         setLoading(true);
       }
-      setSyncStatus('syncing');
       
       let serverData = [];
       try {
@@ -38,24 +36,20 @@ const IncidentList = () => {
         console.log('Server data loaded:', serverData.length);
       } catch (serverError) {
         console.log('Failed to load incidents from server:', serverError);
-        setSyncStatus('offline');
       }
       
       if (serverData.length > 0) {
         incidentLocalService.saveAll(serverData);
         setIncidents(serverData);
-        setSyncStatus('synced');
       } else {
         const localData = incidentLocalService.getAll();
         setIncidents(localData);
-        setSyncStatus('local-only');
       }
       
     } catch (error) {
       console.error('Error loading incidents:', error);
       const localData = incidentLocalService.getAll();
       setIncidents(localData);
-      setSyncStatus('error');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -111,7 +105,6 @@ const IncidentList = () => {
           return updated;
         });
 
-        setSyncStatus('unsynced');
         alert('Changes saved locally. Will sync when connection restored.');
       }
       
@@ -151,8 +144,13 @@ const IncidentList = () => {
       alert('Failed to update incident status');
     }
   };
-  // Filter incidents
+
   useEffect(() => {
+    if (!incidents.length) {
+      setFilteredIncidents([]);
+      return;
+    }
+    
     let filtered = [...incidents];
     
     if (filters.status && filters.status.length > 0) {
@@ -211,34 +209,11 @@ const IncidentList = () => {
     setSelectedIncident(incident);
   };
 
-
   const getStatusCount = (status, source = incidents) => {
     if (!status) return 0;
     return source.filter(inc =>
       (inc.status || '').toLowerCase() === status.toLowerCase()
     ).length;
-  };
-
-  const getSyncStatusIcon = () => {
-    switch(syncStatus) {
-      case 'synced': return '✅';
-      case 'syncing': return '🔄';
-      case 'unsynced': return '⚠️';
-      case 'offline': return '📡';
-      case 'local-only': return '💾';
-      default: return '❓';
-    }
-  };
-
-  const getSyncStatusText = () => {
-    switch(syncStatus) {
-      case 'synced': return 'Synced with server';
-      case 'syncing': return 'Syncing...';
-      case 'unsynced': return 'Unsynced changes';
-      case 'offline': return 'Offline mode';
-      case 'local-only': return 'Local only';
-      default: return 'Unknown';
-    }
   };
 
   if (loading) {
@@ -249,10 +224,6 @@ const IncidentList = () => {
     <div className="incident-list-container">
       <div className="incident-header">
         <h1>Incident Management</h1>
-        <div className="sync-status">
-          <span className="sync-icon">{getSyncStatusIcon()}</span>
-          <span className="sync-text">{getSyncStatusText()}</span>
-        </div>
         <p>Review and process noise incident reports</p>
       </div>
 
@@ -301,9 +272,6 @@ const IncidentList = () => {
           <div className="scrollable-footer">
             <div>
               {isRefreshing && <span className="refreshing-text"> (Refreshing...)</span>}
-              {syncStatus === 'unsynced' && (
-                <span className="unsynced-warning"> ⚠️ Some changes not synced</span>
-              )}
             </div>
             <div className="footer-actions">
               <button 
