@@ -15,7 +15,8 @@ export default function GamePage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [sortBy, setSortBy] = useState("default");
-    const userId = localStorage.getItem('userId');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id;
     if (!userId) {
         window.location.href = '/login';
         return null;
