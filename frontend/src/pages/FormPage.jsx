@@ -43,10 +43,10 @@ function TagsAdder(event) {
             remove.value = "hello";
             remove.addEventListener("click", RemoveTag);
 
-
-            pill.className = "formnopadding formpill";
-            tagdiv.className = "formflexrow";
-            tagp.textContent = tag;
+            pill.className = "formpill";
+            tagdiv.className = "formflexrow formverticalcenter pillalittlegap";
+            tagp.textContent = tag.replace(" ", "");
+            tagp.className = "nopaddingnomargin formpilltext";
             tagdiv.appendChild(tagp);
             tagdiv.appendChild(remove);
             pill.appendChild(tagdiv);
@@ -66,7 +66,7 @@ function GetAllTags() {
 }
 
 // checks the validity of all the values that need validating
-function CheckValidity(noisetype, datetime, severity, description, zone, tags) {
+function CheckValidity(noisetype, datetime, severity, description, tags) {
     if (noisetype === "" || datetime === "" || description === "") {
         alert("Make sure you have filled out all values");
         return false
@@ -101,9 +101,8 @@ async function Submit(event) {
     const severity = document.getElementById("severity").value;
     const description = document.getElementById("description").value;
     const position = document.getElementById("position").value;
-    const zone = document.getElementById("zone").value;
     const tags = GetAllTags();
-    if (!CheckValidity(noisetype, datetime, severity, description, zone, tags)) {
+    if (!CheckValidity(noisetype, datetime, severity, description, tags)) {
         return;
     }
     const [lat, long] = position.split(",");
@@ -113,7 +112,7 @@ async function Submit(event) {
         "severity": severity,
         "description": description,
         "location_of_noise": "nil",
-        "zone": zone,
+        "zone": "nil",
         "tags": tags,
         "lat": lat,
         "long": long,
@@ -232,7 +231,7 @@ function FormPage() {
                                 <h1>Location</h1>
                             </div>
                             <div class="formflexcolumn formalittlegap">
-                                <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '400px', width: '100%' }}>
+                                <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '30vh', width: '30vw' }}>
                                     <TileLayer
                                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -240,31 +239,6 @@ function FormPage() {
                                     <MapClick />
                                 </MapContainer>
                                 <input type="hidden" id="position" value={position}></input>
-                                <div>
-                                    <div class="formflexcolumn formspacebetween">
-                                        <div class="formflexrow formspacebetween">
-                                            <label>Zone</label>
-                                            <select id="zone">
-                                                <option value="North-West">North West</option>
-                                                <option value="North-Central-West">North Central West</option>
-                                                <option value="North-Central-East">North Central East</option>
-                                                <option value="North-East">North East</option>
-                                                <option value="Central-North-West">Central North West</option>
-                                                <option value="Central-North-Central-West">Central North Central West</option>
-                                                <option value="Central-North-Central-East">Central North Central East</option>
-                                                <option value="Central-North-East">Central North East</option>
-                                                <option value="Central-South-West">Central South West</option>
-                                                <option value="Central-South-Central-West">Central South Central-West</option>
-                                                <option value="Central-South-Central-East">Central South Central-East</option>
-                                                <option value="Central-South-East">Central South East</option>
-                                                <option value="South-West">South West</option>
-                                                <option value="South-Central-West">South Central West</option>
-                                                <option value="South-Central-East">South Central East</option>
-                                                <option value="South-East">South East</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
