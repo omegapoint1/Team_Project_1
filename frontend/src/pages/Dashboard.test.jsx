@@ -9,6 +9,7 @@ afterEach(() => {
   cleanup()
 })
 
+// This test suite checks that the DashboardPage component renders the correct navigation tabs with the correct hrefs, and that it properly renders content passed through the Outlet.
 describe('DashboardPage', () => {
   it('renders all dashboard navigation tabs', () => {
     render(
