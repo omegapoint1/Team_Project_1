@@ -71,6 +71,10 @@ export default function GamePage() {
             setError(err.message);
         }
     };
+    const getCurrentLevelXP = (totalXP, level) => {
+        const previousLevelXP = (level - 1) * 1000;
+        return totalXP - previousLevelXP;
+    };
     const completeQuest = async(questId) => {
         try{
             const response = await fetch('/api/quests/complete', {
@@ -114,7 +118,8 @@ export default function GamePage() {
         };
         loadData();
     }, []);
-    const xpPercentage = maxXP > 0 ? (userXP/maxXP) * 100 : 0;
+    const currentLevelXP = getCurrentLevelXP(userXP, userLevel);
+    const xpPercentage = (currentLevelXP / 1000) * 100;
     const filteredQuests = quests.filter(quest => {
         const matchesSearch = searchTerm === "" ||
             quest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,7 +153,7 @@ export default function GamePage() {
             <div className="user-progress">
                 <div className="level-info">
                     <span className="level-badge"> Level {userLevel}</span>
-                    <span className="xp-test"> {userXP}/{maxXP}</span>
+                    <span className="xp-test"> {currentLevelXP}/1000 XP</span>
                 </div>
                 <div className="xp-bar-container">
                     <div
