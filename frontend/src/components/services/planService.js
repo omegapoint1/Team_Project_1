@@ -1,3 +1,8 @@
+/**
+  Service module providing CRUD operations for mitigation plans with server API and local storage persistence.
+ Supports creating, updating retrieving intervention plans 
+ */
+
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/intervention-plan';
 const STORAGE_KEY = 'intervention-plan';

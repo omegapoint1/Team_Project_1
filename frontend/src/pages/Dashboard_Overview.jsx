@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import MapModule from "../components/map/MapModule";
+import StakeholderReport from "../components/common/StakeholderReport";
 import "./Dashboard_Overview.css";
 
 /* This function is responsible for recieving data from the backend and creating a single object of a card. */
@@ -127,6 +128,7 @@ function OverviewPage() {
     };
     getHotspots();
   }, []);
+  
 useEffect(() => {
     const getReports = async () => {
       try {
@@ -348,6 +350,13 @@ useEffect(() => {
               <option value="30d">Last 30 days</option>
             </select>
           </div>
+
+          {/* Stakeholder Report Button - generates comprehensive PDF report with incidents, hotspots, scenarios, and plans data */}
+          <StakeholderReport 
+            incidents={reports_data}
+            hotspots={hotspots}
+            overviewStats={keyStats}
+          />
         </div>
       </div>
 
@@ -384,7 +393,7 @@ useEffect(() => {
               />
             ))}
           </div>
-        </div>dashboard
+        </div>
       </div>
 
       <div className="analyticsSection">
@@ -486,7 +495,7 @@ useEffect(() => {
               <div><strong>Noise Type:</strong> {selectedReport.noisetype}</div>
               <div><strong>Severity:</strong> {selectedReport.severity}/10</div>
               <div><strong>Status:</strong> {selectedReport.status}</div>
-              <div><strong>Status:</strong> {selectedReport.zone}</div>
+              <div><strong>Zone:</strong> {selectedReport.zone}</div>
               <div><strong>Time:</strong> {new Date(selectedReport.time).toLocaleString()}</div>
               <div><strong>Tags:</strong> {selectedReport.tags.length > 0 ? selectedReport.tags.join(', ') : 'None'}</div>
               <div><strong>Description:</strong></div>

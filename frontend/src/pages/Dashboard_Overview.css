@@ -338,3 +338,31 @@
     grid-template-columns: 1fr;
   }
 }
+.filterRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.export-report-btn {
+  padding: 9px 16px;
+  background: rgb(125, 223, 125);
+  border: 2px solid rgb(60, 60, 60);
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.export-report-btn:hover {
+  background: rgb(100, 200, 100);
+  transform: translateY(-1px);
+}
+
+.export-report-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}

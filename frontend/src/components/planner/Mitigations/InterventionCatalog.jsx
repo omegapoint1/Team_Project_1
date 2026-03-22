@@ -4,7 +4,7 @@ import { interventionServerService, interventionLocalService } from '../../servi
 import InterventionBuilderModal from './InterventionBuilderModal';
 
 const InterventionCatalog = ({ 
-  interventions: propInterventions, // Rename the prop to avoid conflict
+  interventions: propInterventions,
   onUpdateIntervention,
   onCreateIntervention,
   onDeleteIntervention,
@@ -20,7 +20,7 @@ const InterventionCatalog = ({
 
     const interventions = propInterventions || localInterventions;
 
-    const categories = ['all', 'awareness', 'regulatory', 'physical', 'education', 'technical', 'environmental'];
+    const categories = ['all', 'physical', 'traffic', 'infrastructure', 'regulatory', 'building', 'green', 'enforcement', 'industrial', 'technology', 'transport', 'community'];
     const costBands = ['all', 'low', 'medium', 'high'];
 
     useEffect(() => {
@@ -48,13 +48,50 @@ const InterventionCatalog = ({
         loadInterventions();
     }, [propInterventions]);
 
+    // Helper function to determine cost band from cost value
+    const getCostBandFromCost = (cost) => {
+        if (!cost) return 'medium';
+        const avgCost = typeof cost === 'number' ? cost : (cost.min + cost.max) / 2;
+        if (avgCost < 10000) return 'low';
+        if (avgCost < 50000) return 'medium';
+        return 'high';
+    };
+
+    // Helper function to format cost display
+    const formatCost = (cost) => {
+        if (!cost) return '£0';
+        if (typeof cost === 'number') return `£${cost.toLocaleString()}`;
+        if (Array.isArray(cost)) return `£${cost[0].toLocaleString()}-£${cost[1].toLocaleString()}`;
+        if (cost.min !== undefined) return `£${cost.min.toLocaleString()}-£${cost.max.toLocaleString()}`;
+        return '£0';
+    };
+
+    // Helper function to format impact display
+    const formatImpact = (impact) => {
+        if (!impact) return '0-0 dB';
+        if (Array.isArray(impact)) return `${impact[0]}-${impact[1]} dB`;
+        if (impact.min !== undefined) return `${impact.min}-${impact.max} dB`;
+        if (typeof impact === 'number') return `${impact} dB`;
+        return '0-0 dB';
+    };
+
+    // Helper function to format feasibility 
+    const formatFeasibility = (feasibility) => {
+        if (feasibility === undefined || feasibility === null) return '0%';
+        if (typeof feasibility === 'number') {
+            if (feasibility <= 1) {
+                return `${Math.round(feasibility * 100)}%`;
+            }
+            return `${Math.round(feasibility)}%`;
+        }
+        return '0%';
+    };
+
     const handleCreate = async (newIntervention) => {
         try {
             if (onCreateIntervention) {
-                // If parent handler exists, use it
                 await onCreateIntervention(newIntervention);
             } else {
-                // Otherwise handle locally
                 interventionServerService.create(newIntervention).catch(error => {
                     console.log('Server create call failed');
                 });
@@ -128,14 +165,19 @@ const InterventionCatalog = ({
 
     const filteredInterventions = interventions.filter(intervention => {
         const matchesCategory = selectedCategory === 'all' || intervention.category === selectedCategory;
-        const matchesCost = selectedCost === 'all' || intervention.costBand === selectedCost;
-        const matchesSearch = intervention.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        
+        const costBand = getCostBandFromCost(intervention.cost || intervention.costRange);
+        const matchesCost = selectedCost === 'all' || costBand === selectedCost;
+        
+        const matchesSearch = searchTerm === '' ||
+                             intervention.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                              intervention.description?.toLowerCase().includes(searchTerm.toLowerCase());
         
         return matchesCategory && matchesCost && matchesSearch;
     });
 
-    const getCostColor = (costBand) => {
+    const getCostColor = (cost) => {
+        const costBand = getCostBandFromCost(cost);
         switch(costBand) {
             case 'low': return '#10b981';
             case 'medium': return '#f59e0b';
@@ -145,8 +187,9 @@ const InterventionCatalog = ({
     };
 
     const getFeasibilityColor = (feasibility) => {
-        if (feasibility >= 0.8) return '#10b981';
-        if (feasibility >= 0.6) return '#f59e0b';
+        const value = typeof feasibility === 'number' ? (feasibility <= 1 ? feasibility : feasibility / 10) : 0.5;
+        if (value >= 0.7) return '#10b981';
+        if (value >= 0.4) return '#f59e0b';
         return '#ef4444';
     };
 
@@ -157,9 +200,11 @@ const InterventionCatalog = ({
     return (
         <div className="intervention-catalog">
             <div className="catalog-header">
-                <h2>Intervention Catalog</h2>
-                <p>Browse available interventions for noise mitigation</p>
-                <button onClick={handleCreateNewClick}>
+                <div>
+                    <h2>Intervention Catalog</h2>
+                    <p>Browse available interventions for noise mitigation</p>
+                </div>
+                <button onClick={handleCreateNewClick} className="create-button">
                     + New Intervention
                 </button>
             </div>
@@ -225,17 +270,16 @@ const InterventionCatalog = ({
                                 <span className="detail-label">Cost:</span>
                                 <span 
                                     className="detail-value"
-                                    style={{ color: getCostColor(intervention.costBand) }}
+                                    style={{ color: getCostColor(intervention.cost || intervention.costRange) }}
                                 >
-                                    {intervention.costBand?.toUpperCase()} 
-                                    (£{intervention.costRange?.min}-£{intervention.costRange?.max})
+                                    {formatCost(intervention.cost || intervention.costRange)}
                                 </span>
                             </div>
 
                             <div className="detail-item">
                                 <span className="detail-label">Impact:</span>
                                 <span className="detail-value">
-                                    {intervention.impact[0]}-{intervention.impact[1]} dB reduction
+                                    {formatImpact(intervention.impact || intervention.impactRange)}
                                 </span>
                             </div>
 
@@ -245,22 +289,42 @@ const InterventionCatalog = ({
                                     className="detail-value"
                                     style={{ color: getFeasibilityColor(intervention.feasibility) }}
                                 >
-                                    {Math.round(intervention.feasibility * 100)}%
+                                    {formatFeasibility(intervention.feasibility)}
                                 </span>
                             </div>
 
                             <div className="detail-item">
                                 <span className="detail-label">Time:</span>
-                                <span className="detail-value">{intervention.implementationTime}</span>
+                                <span className="detail-value">{intervention.implementationTime || '3-6 months'}</span>
                             </div>
+
+                            {intervention.tags && intervention.tags.length > 0 && (
+                                <div className="detail-item tags">
+                                    <span className="detail-label">Tags:</span>
+                                    <div className="tag-list">
+                                        {intervention.tags.map(tag => (
+                                            <span key={tag} className="tag-badge">{tag}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="card-actions">
-                            {/*<button 
+                            <button 
                                 className="edit-button"
-                                onClick={() => handleEditClick(intervention)}>
+                                onClick={() => handleEditClick(intervention)}
+                            >
                                 Edit
-                            </button>*/}
+                            </button>
+                            {onAddToPlan && (
+                                <button 
+                                    className="add-to-plan-button"
+                                    onClick={() => onAddToPlan(intervention)}
+                                >
+                                    Add to Plan
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
