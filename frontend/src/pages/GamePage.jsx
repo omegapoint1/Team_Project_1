@@ -243,6 +243,8 @@ export default function GamePage() {
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
+                            <span className="difficulty-badge">{quest.difficulty}</span>
+                            <span className="xp-badge">{quest.xp_reward} XP</span>
                             </div>
                             <div className="game-main">
                                 <h3>{quest.title}</h3>
