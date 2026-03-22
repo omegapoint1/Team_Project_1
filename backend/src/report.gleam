@@ -29,28 +29,6 @@ pub fn extract_report_store(req: Request, db: pog.Connection) -> Response {
   }
 }
 
-//{ id: 1, name: "North-West", bounds: [[50.74, -3.58], [50.74, -3.52], [50.72, -3.52], [50.72, -3.58]] },
-//        { id: 2, name: "North-Central-West", bounds: [[50.74, -3.52], [50.74, -3.49], [50.72, -3.49], [50.72, -3.52]] },
-//        { id: 3, name: "North-Central-East", bounds: [[50.74, -3.49], [50.74, -3.46], [50.72, -3.46], [50.72, -3.49]] },
-//        { id: 4, name: "North-East", bounds: [[50.74, -3.46], [50.74, -3.40], [50.72, -3.40], [50.72, -3.46]] },
-//
-//        // Row 2
-//        { id: 5, name: "Central-North-West", bounds: [[50.72, -3.58], [50.72, -3.52], [50.70, -3.52], [50.70, -3.58]] },
-//        { id: 6, name: "Central-North-Central-West", bounds: [[50.72, -3.52], [50.72, -3.49], [50.70, -3.49], [50.70, -3.52]] },
-//        { id: 7, name: "Central-North-Central-East", bounds: [[50.72, -3.49], [50.72, -3.46], [50.70, -3.46], [50.70, -3.49]] },
-//        { id: 8, name: "Central-North-East", bounds: [[50.72, -3.46], [50.72, -3.40], [50.70, -3.40], [50.70, -3.46]] },
-//
-//        // Row 3
-//        { id: 9, name: "Central-South-West", bounds: [[50.70, -3.58], [50.70, -3.52], [50.68, -3.52], [50.68, -3.58]] },
-//        { id: 10, name: "Central-South-Central-West", bounds: [[50.70, -3.52], [50.70, -3.49], [50.68, -3.49], [50.68, -3.52]] },
-//        { id: 11, name: "Central-South-Central-East", bounds: [[50.70, -3.49], [50.70, -3.46], [50.68, -3.46], [50.68, -3.49]] },
-//        { id: 12, name: "Central-South-East", bounds: [[50.70, -3.46], [50.70, -3.40], [50.68, -3.40], [50.68, -3.46]] },
-//
-//        // Row 4 (Southmost)
-//        { id: 13, name: "South-West", bounds: [[50.68, -3.58], [50.68, -3.52], [50.66, -3.52], [50.66, -3.58]] },
-//        { id: 14, name: "South-Central-West", bounds: [[50.68, -3.52], [50.68, -3.49], [50.66, -3.49], [50.66, -3.52]] },
-//        { id: 15, name: "South-Central-East", bounds: [[50.68, -3.49], [50.68, -3.46], [50.66, -3.46], [50.66, -3.49]] },
-//        { id: 16, name: "South-East", bounds: [[50.68, -3.46], [50.68, -3.40], [50.66, -3.40], [50.66, -3.46]] }
 
 fn get_zone(lat: String, long: String) -> String {
   let lat = float.parse(lat)
@@ -399,10 +377,11 @@ fn generate_reports_list(
     "South-Central-West",
     "South-Central-East",
   ]
-  let tags = ["road", "people", "cars", "industrial"]
+  let tags = ["road", "people", "cars", "industrial","sensor"]
   case i {
-    100 -> acc
+    10000 -> acc
     _ -> {
+      
       let lat = {
         { float.random() /. 12.0 } +. 50.65
       }
@@ -411,7 +390,10 @@ fn generate_reports_list(
       }
       let assert Ok(category) = list.first(list.sample(catagories, 1))
       let assert Ok(zone) = list.first(list.sample(zones, 1))
-      let tag = list.sample(tags, 2)
+      let tag = case float.random() {
+        num if num <. 0.1 -> ["sensor"]
+        _ -> list.sample(tags, 2)
+      }
 
       let time =
         timestamp.add(
