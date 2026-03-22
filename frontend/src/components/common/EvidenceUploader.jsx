@@ -1,11 +1,8 @@
 import { useState } from 'react';
-
-/*
- Reusable EvidenceUploader component for attaching files to plans // rename to file uploader
- @param {function} onEvidenceUploaded - Callback function when evidence is uploaded
- @param {array<files>} attachedEvidence - Current list of attached evidence files
- @param {function} onRemoveEvidence - Callback function to remove evidence files
- @param {string} planId - ID of the plan for tracking
+/**
+ EvidenceUploader component for uploading files as evidence with description,
+ displaying attached evidence list, and providing removal functionality.
+ Supports multiple file types.
  */
 const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveEvidence, planId }) => {
     const [isUploading, setIsUploading] = useState(false);
@@ -33,7 +30,7 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
                 fileName: selectedFile.name,
                 fileType: selectedFile.type,
                 description: fileDescription,
-                uploaded: new Date().toISOString(),
+                uploadedAt: new Date().toISOString(),
                 size: `${(selectedFile.size / 1024).toFixed(2)} KB`,
                 status: 'uploaded'
             };
@@ -46,91 +43,86 @@ const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveE
             setFileDescription('');
             setIsUploading(false);
             
-            document.getElementById('evidence-file-input').value = '';
+            const fileInput = document.getElementById('evidence-file-input');
+            if (fileInput) fileInput.value = '';
         }, 1000);
     };
 
-    const handleRemove = (evidenceId) => {
-        if (onRemoveEvidence) {
-            onRemoveEvidence(evidenceId);
-        }
-    };
-
     const formatFileType = (type) => {
-        if (type.includes('pdf')) return 'PDF';
-        if (type.includes('image')) return 'Image';
-        if (type.includes('word') || type.includes('document')) return 'Document';
+        if (type?.includes('pdf')) return 'PDF';
+        if (type?.includes('image')) return 'Image';
+        if (type?.includes('word') || type?.includes('document')) return 'Document';
         return 'File';
     };
 
     return (
-        <div>
-            <div>
-                <div>
-                    <div>
-                        <input
-                            type="file"
-                            id="evidence-file-input"
-                            onChange={handleFileSelect}
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt"
-                        />
-                        <label htmlFor="evidence-file-input">
-                            {selectedFile ? selectedFile.name : 'Choose File'}
-                        </label>
-                    </div>
+        <div className="evidence-uploader">
+            <div className="upload-section">
+                <div className="file-select-row">
+                    <input
+                        type="file"
+                        id="evidence-file-input"
+                        onChange={handleFileSelect}
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt"
+                        style={{ display: 'none' }}
+                    />
+                    <label htmlFor="evidence-file-input" className="file-select-label">
+                        {selectedFile ? selectedFile.name : '📎 Choose File'}
+                    </label>
                     
-                    <div>
-                        <input
-                            type="text"
-                            value={fileDescription}
-                            onChange={(e) => setFileDescription(e.target.value)}
-                            placeholder="Enter file description"
-                        />
-                    </div>
+                    <input
+                        type="text"
+                        value={fileDescription}
+                        onChange={(e) => setFileDescription(e.target.value)}
+                        placeholder="Enter file description"
+                        className="description-input"
+                    />
                     
                     <button
                         onClick={handleUpload}
                         disabled={!selectedFile || !fileDescription.trim() || isUploading}
+                        className="upload-button"
                     >
-                        {isUploading ? 'Uploading...' : 'Attach'}
+                        {isUploading ? '⏳ Uploading...' : '📤 Attach'}
                     </button>
                 </div>
                 
-                <div>
+                <div className="file-hint">
                     <small>Allowed: PDF, Images, Documents (Max 10MB)</small>
                 </div>
             </div>
 
-            {attachedEvidence.length > 0 && (
-                <div>
-                    <h5>Attached Evidence ({attachedEvidence.length})</h5>
-                    <div>
+            {attachedEvidence && attachedEvidence.length > 0 && (
+                <div className="evidence-list-section">
+                    <h5>📋 Attached Evidence ({attachedEvidence.length})</h5>
+                    <div className="evidence-items">
                         {attachedEvidence.map((evidence) => (
-                            <div key={evidence.id}>
-                                <div>
-                                    {evidence.fileType.includes('pdf') ? '📄' : 
-                                     evidence.fileType.includes('image') ? '🖼️' : '📎'}
+                            <div key={evidence.id} className="evidence-item">
+                                <div className="evidence-icon">
+                                    {evidence.fileType?.includes('pdf') ? '📄' : 
+                                     evidence.fileType?.includes('image') ? '🖼️' : '📎'}
                                 </div>
-                                <div>
-                                    <div>{evidence.fileName}</div>
-                                    <div>{evidence.description}</div>
-                                    <div>
+                                <div className="evidence-info">
+                                    <div className="evidence-filename">{evidence.fileName}</div>
+                                    <div className="evidence-description">{evidence.description}</div>
+                                    <div className="evidence-meta">
                                         <span>{formatFileType(evidence.fileType)}</span>
                                         <span> • </span>
                                         <span>{evidence.size}</span>
                                         <span> • </span>
                                         <span>
-                                            {new Date(evidence.uploaded).toLocaleDateString('en-GB', {
+                                            {evidence.uploadedAt ? new Date(evidence.uploadedAt).toLocaleDateString('en-GB', {
                                                 day: 'numeric',
                                                 month: 'short',
                                                 year: 'numeric'
-                                            })}
+                                            }) : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleRemove(evidence.id)}
+                                    onClick={() => onRemoveEvidence && onRemoveEvidence(evidence.id)}
                                     title="Remove evidence"
+                                    className="remove-evidence-btn"
                                 >
                                     ✕
                                 </button>

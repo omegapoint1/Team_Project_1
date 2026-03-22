@@ -21,20 +21,19 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
 
     const calculateTotalCost = () => {
         return selectedInterventions.reduce((total, intervention) => {
-            // Use cost array directly, not costRange
-            const costMin = intervention.cost?.[0] || 0;
-            const costMax = intervention.cost?.[1] || 0;
+            const costMin = intervention.cost?.[0] || intervention.costRange?.min || 0;
+            const costMax = intervention.cost?.[1] || intervention.costRange?.max || 0;
             return total + (costMin + costMax) / 2;
         }, 0);
     };
 
     const calculateTotalImpact = () => {
         const minImpact = selectedInterventions.reduce((total, intervention) => {
-            return total + (intervention.impact?.[0] || 0);
+            return total + (intervention.impact?.[0] || intervention.impactRange?.min || 0);
         }, 0);
         
         const maxImpact = selectedInterventions.reduce((total, intervention) => {
-            return total + (intervention.impact?.[1] || 0);
+            return total + (intervention.impact?.[1] || intervention.impactRange?.max || 0);
         }, 0);
         
         return { min: minImpact, max: maxImpact };
@@ -47,7 +46,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
         }
         
         const interventionIds = selectedInterventions.map(intervention => String(intervention.id));
-
+        const totalImpact = calculateTotalImpact();
+        
         const plan = {
             name: planName,
             zone: selectedZone,
@@ -55,14 +55,13 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
             budget: budget,
             timeline: timeline,
             totalCost: calculateTotalCost(),
-            impact: calculateTotalImpact().max,
-            status: 'draft',
+            impact: [totalImpact.min, totalImpact.max],
+            status: 'Planned',
             createdAt: new Date().toISOString()
         };
 
         onCreatePlan(plan);
         
-        //reset form
         setPlanName('');
         setSelectedZone('');
         setSelectedInterventions([]);
@@ -123,8 +122,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
                                     <h4>{intervention.name}</h4>
                                     <p>{intervention.description}</p>
                                     <div className="intervention-stats">
-                                        <span>Cost: £{intervention.cost?.[0] || 0}-{intervention.cost?.[1] || 0}</span>
-                                        <span>Impact: {intervention.impact?.[0] || 0}-{intervention.impact?.[1] || 0} dB</span>
+                                        <span>Cost: £{intervention.cost?.[0] || intervention.costRange?.min || 0}-{intervention.cost?.[1] || intervention.costRange?.max || 0}</span>
+                                        <span>Impact: {intervention.impact?.[0] || intervention.impactRange?.min || 0}-{intervention.impact?.[1] || intervention.impactRange?.max || 0} dB</span>
                                     </div>
                                 </div>
                                 <button
@@ -149,8 +148,8 @@ const PlanBuilder = ({ interventions = [], onCreatePlan }) => {
                                 <div key={intervention.id} className="selected-intervention">
                                     <div className="selected-intervention-info">
                                         <h4>{intervention.name}</h4>
-                                        <p>Cost: £{intervention.cost?.[0] || 0}-{intervention.cost?.[1] || 0}</p>
-                                        <p>Impact: {intervention.impact?.[0] || 0}-{intervention.impact?.[1] || 0} dB</p>
+                                        <p>Cost: £{intervention.cost?.[0] || intervention.costRange?.min || 0}-{intervention.cost?.[1] || intervention.costRange?.max || 0}</p>
+                                        <p>Impact: {intervention.impact?.[0] || intervention.impactRange?.min || 0}-{intervention.impact?.[1] || intervention.impactRange?.max || 0} dB</p>
                                     </div>
                                     <button
                                         onClick={() => handleRemoveIntervention(intervention.id)}

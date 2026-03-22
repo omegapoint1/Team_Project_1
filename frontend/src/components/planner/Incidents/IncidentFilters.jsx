@@ -2,10 +2,9 @@ import { useState } from 'react';
 import './IncidentFilters.css';
 
 const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
-
-const zones = [
+  const zones = [
     { id: 1, name: "North-West" },
-     { id: 2, name: "North-Central-West" },
+    { id: 2, name: "North-Central-West" },
     { id: 3, name: "North-Central-East" },
     { id: 4, name: "North-East" },
     { id: 5, name: "Central-North-West" },
@@ -21,11 +20,17 @@ const zones = [
     { id: 15, name: "South-Central-East" },
     { id: 16, name: "South-East" },
   ];
- const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8];
- 
+  
+  const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  const statusOptions = [
+    { value: 'Pending', label: 'Pending', color: 'yellow' },
+    { value: 'Accepted', label: 'Accepted', color: 'green' },
+    { value: 'Rejected', label: 'Rejected', color: 'red' }
+  ];
 
   const [filters, setFilters] = useState({
-    status: initialFilters.status || ['pending'],
+    status: initialFilters.status || ['Pending'],
     zone: initialFilters.zone || 'all',
     severity: initialFilters.severity || 'all',
     timeRange: initialFilters.timeRange || '7d'
@@ -49,12 +54,6 @@ const zones = [
     onFilterChange(newFilters);
   };
 
-  const statusOptions = [
-    { value: 'pending', label: 'Pending', color: 'yellow' },
-    { value: 'accepted', label: 'Accepted', color: 'green' },
-    { value: 'rejected', label: 'Rejected', color: 'red' }
-  ];
-
   return (
     <div className="filters-container">
       <div className="filters-header">
@@ -62,7 +61,7 @@ const zones = [
         <button 
           onClick={() => {
             const reset = { 
-              status: ['pending'], 
+              status: ['Pending'], 
               zone: 'all', 
               severity: 'all', 
               timeRange: '7d' 
@@ -77,7 +76,27 @@ const zones = [
       </div>
 
       <div className="filters-grid">
-        {/*
+        {/* Status Filter  */}
+        <div className="filter-group">
+          <label className="filter-label">Status</label>
+          <div className="status-checkboxes">
+            {statusOptions.map(option => (
+              <label key={option.value} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  value={option.value}
+                  checked={filters.status.includes(option.value)}
+                  onChange={(e) => handleFilterChange('status', option.value)}
+                />
+                <span className={`status-badge ${option.color}`}>
+                  {option.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Zone Filter */}
         <div className="filter-group">
           <label className="filter-label">Zone</label>
           <select
@@ -93,9 +112,8 @@ const zones = [
             ))}
           </select>
         </div>
-        */}
 
-        {/*
+        {/* Severity Filter */}
         <div className="filter-group">
           <label className="filter-label">Severity (1-8)</label>
           <select
@@ -111,9 +129,8 @@ const zones = [
             ))}
           </select>
         </div>
-        */}
 
-        {/*
+        {/* Time Range Filter */}
         <div className="filter-group">
           <label className="filter-label">Time Range</label>
           <select
@@ -128,23 +145,35 @@ const zones = [
             <option value="all">All Time</option>
           </select>
         </div>
-        */}
       </div>
 
-      {/*
+      {/* Active Filters Display */}
       {filters.status.length > 0 && (
         <div className="active-filters">
           <div className="filters-summary">
             <span className="summary-label">Active filters:</span>
             {filters.status.map(status => (
               <span key={status} className="filter-tag">
-                {statusOptions.find(s => s.value === status)?.label}
+                {status}
               </span>
             ))}
+            {filters.zone !== 'all' && (
+              <span className="filter-tag">Zone: {filters.zone}</span>
+            )}
+            {filters.severity !== 'all' && (
+              <span className="filter-tag">Severity: {filters.severity}</span>
+            )}
+            {filters.timeRange !== 'all' && (
+              <span className="filter-tag">
+                {filters.timeRange === '1d' ? 'Last 24h' : 
+                 filters.timeRange === '7d' ? 'Last 7d' :
+                 filters.timeRange === '30d' ? 'Last 30d' :
+                 filters.timeRange === '90d' ? 'Last Quarter' : ''}
+              </span>
+            )}
           </div>
         </div>
       )}
-      */}
     </div>
   );
 };

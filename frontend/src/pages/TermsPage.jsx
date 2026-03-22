@@ -1,5 +1,7 @@
 import './TermsPage.css';
 
+// Simple terms and conditions page that displays the NeighbourhoodNoise UK Member Agreement to users,
+// outlining the terms of service and user responsibilities when using the platform.
 function TermsPage() {
   return (
     <div className="terms-container">

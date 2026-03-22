@@ -16,8 +16,8 @@ export default function GamePage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [sortBy, setSortBy] = useState("default");
-    const [questProgressState, setQuestProgressState] = useState({});
-    const userId = localStorage.getItem('userId');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id;
     if (!userId) {
         window.location.href = '/login';
         return null;
@@ -282,6 +282,8 @@ export default function GamePage() {
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
+                            <span className="difficulty-badge">{quest.difficulty}</span>
+                            <span className="xp-badge">{quest.xp_reward} XP</span>
                             </div>
                             <div className="game-main">
                                 <h3>{quest.title}</h3>

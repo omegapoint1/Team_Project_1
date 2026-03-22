@@ -1,47 +1,138 @@
 .scenario-tab {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 1845px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+    background: rgb(230, 230, 230);
+    min-height: 100vh;
 }
 
 .tab-header {
-  text-align: center;
-  margin-bottom: 30px;
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: rgb(243, 243, 243);
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 12px;
 }
 
 .tab-header h1 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 8px;
+    font-weight: 900;
+    font-size: 24px;
+    color: #1e293b;
+    margin-bottom: 6px;
 }
 
 .tab-header p {
-  color: #666;
-  font-size: 16px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .scenario-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
 }
 
 .left-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .right-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  background: #f8f9fa;
+    text-align: center;
+    padding: 60px 20px;
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+}
+
+.create-first-btn {
+    padding: 10px 24px;
+    background: rgb(125, 223, 125);
+    border: 2px solid rgb(60, 60, 60);
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .scenario-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-header h1 {
+        font-size: 20px;
+    }
+}
+.tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: rgb(243, 243, 243);
+  border: 2px solid rgb(119, 119, 119);
+  border-radius: 12px;
+}
+
+.header-left h1 {
+  font-weight: 900;
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.header-left p {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.export-pdf-button {
+  padding: 10px 20px;
+  background: rgb(125, 223, 125);
+  border: 2px solid rgb(60, 60, 60);
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.export-pdf-button:hover {
+  background: rgb(100, 200, 100);
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 8px 16px;
   border-radius: 8px;
-  color: #666;
+  font-size: 13px;
+  font-weight: 600;
 }

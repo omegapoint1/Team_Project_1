@@ -12,28 +12,8 @@ const IncidentList = () => {
   const [filteredIncidents, setFilteredIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
   
-  // Zone list matching the zones from IncidentFilters
-  const zones = [
-    { id: 1, name: "North-West" },
-    { id: 2, name: "North-Central-West" },
-    { id: 3, name: "North-Central-East" },
-    { id: 4, name: "North-East" },
-    { id: 5, name: "Central-North-West" },
-    { id: 6, name: "Central-North-Central-West" },
-    { id: 7, name: "Central-North-Central-East" },
-    { id: 8, name: "Central-North-East" },
-    { id: 9, name: "Central-South-West" },
-    { id: 10, name: "Central-South-Central-West" },
-    { id: 11, name: "Central-South-Central-East" },
-    { id: 12, name: "Central-South-East" },
-    { id: 13, name: "South-West" },
-    { id: 14, name: "South-Central-West" },
-    { id: 15, name: "South-Central-East" },
-    { id: 16, name: "South-East" },
-  ];
-
   const [filters, setFilters] = useState({
-    status: ['pending'], 
+    status: ['Pending'], 
     zone: 'all',
     severity: 'all',
     timeRange: '7d'
@@ -43,71 +23,90 @@ const IncidentList = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadIncidents = async (showRefreshingState = false) => {
-  try {
-    if (showRefreshingState) {
-      setIsRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-
-    let freshData;
     try {
-      freshData = await incidentServerService.getAll();
-    } catch (serverError) {
-      console.log('Failed to load incidents from server:', serverError);
-      freshData = incidentLocalService.getAll();
+      if (showRefreshingState) {
+        setIsRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
+      let serverData = [];
+      try {
+        serverData = await incidentServerService.getAll();
+        console.log('Server data loaded:', serverData.length);
+      } catch (serverError) {
+        console.log('Failed to load incidents from server:', serverError);
+      }
+      
+      if (serverData.length > 0) {
+        incidentLocalService.saveAll(serverData);
+        setIncidents(serverData);
+      } else {
+        const localData = incidentLocalService.getAll();
+        setIncidents(localData);
+      }
+      
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      const localData = incidentLocalService.getAll();
+      setIncidents(localData);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-
-    if (freshData && freshData.length > 0) {
-      const uniqueIncidents = [];
-      const ids = new Set();
-      
-      freshData.forEach(incident => {
-        if (!ids.has(incident.id)) {
-          ids.add(incident.id);
-          uniqueIncidents.push(incident);
-        }
-      });
-      
-      console.log(`Loaded ${uniqueIncidents.length} unique incidents`);
-      
-      incidentLocalService.saveAll(uniqueIncidents);
-      setIncidents(uniqueIncidents);
-    }
-  } catch (error) {
-    console.error('Error loading incidents:', error);
-    const localData = incidentLocalService.getAll();
-    setIncidents(localData || []);
-  } finally {
-    setLoading(false);
-    setIsRefreshing(false);
-  }
-};
-
-useEffect(() => {
-  loadIncidents();
-}, []); 
+  };
   
-
-
-
+  useEffect(() => {
+    loadIncidents();
+  }, []);
+  
   const handleRefresh = async () => {
     await loadIncidents(true);
   };
 
   const handleIncidentUpdate = async (updatedIncident) => {
     try {
+      const stringId = String(updatedIncident.id);
+      
+      let serverSuccess = false;
+      let serverResult = null;
+      
       try {
-        await incidentServerService.update(updatedIncident);
+        serverResult = await incidentServerService.update(stringId, updatedIncident);
+        if (serverResult) {
+          serverSuccess = true;
+          console.log('Server update successful');
+        }
       } catch (error) {
         console.log('Server update failed:', error);
       }
       
-      incidentLocalService.update(updatedIncident);
-      
-      setIncidents(prev => 
-        prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc)
-      );
+      if (serverSuccess && serverResult) {
+        setIncidents(prev => {
+          const updated = prev.map(inc =>
+            String(inc.id) === stringId ? serverResult : inc
+          );
+          incidentLocalService.saveAll(updated);
+          return updated;
+        });
+      } else {
+        const incidentWithSyncStatus = {
+          ...updatedIncident,
+          _synced: false,
+          _lastUpdated: new Date().toISOString(),
+          id: stringId
+        };
+        
+        setIncidents(prev => {
+          const updated = prev.map(inc =>
+            String(inc.id) === stringId ? incidentWithSyncStatus : inc
+          );
+          incidentLocalService.saveAll(updated);
+          return updated;
+        });
+
+        alert('Changes saved locally. Will sync when connection restored.');
+      }
       
     } catch (error) {
       console.log('Error updating incident:', error);
@@ -116,66 +115,91 @@ useEffect(() => {
   };
 
   const handleStatusUpdate = async (incidentId, newStatus, notes = '') => {
-    const currentIncident = incidents.find(inc => inc.id === incidentId);
-    if (!currentIncident) return;
+    const currentIncident = incidents.find(inc => String(inc.id) === String(incidentId));
+    if (!currentIncident) {
+      console.error('Incident not found:', incidentId);
+      return;
+    }
 
+    if (!newStatus || typeof newStatus !== 'string') {
+      console.error('Invalid status provided:', newStatus);
+      alert('Invalid status value');
+      return;
+    }
+
+    const capitalizedStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+    
     const updatedIncident = {
       ...currentIncident,
-      status: newStatus,
-      ...(notes && { moderation_notes: notes }),
+      status: capitalizedStatus,
+      ...(notes && { processingNotes: notes }),
       updated_at: new Date().toISOString()
     };
 
     try {
       await handleIncidentUpdate(updatedIncident);
-      alert(`Incident ${incidentId} marked as ${newStatus}`);
+      alert(`Incident ${incidentId} marked as ${capitalizedStatus}`);
     } catch (error) {
+      console.error('Failed to update incident status:', error);
       alert('Failed to update incident status');
     }
   };
 
   useEffect(() => {
+    if (!incidents.length) {
+      setFilteredIncidents([]);
+      return;
+    }
+    
     let filtered = [...incidents];
-
-    /*if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter(incident => 
-        filters.status.includes(incident.status)
-      );
-    }*/
-
-    /*Zone filter 
-    if (filters.zone !== 'all') {
-      const selectedZone = zones.find(z => z.id.toString() === filters.zone.toString());
-      if (selectedZone) {
-        filtered = filtered.filter(incident => incident.zone === selectedZone.name);
-      }
-    }
-    */
-
-    /*sevrity filter
-    if (filters.severity !== 'all') {
-      const severityNum = parseInt(filters.severity);
-      filtered = filtered.filter(incident => 
-        parseInt(incident.severity) === severityNum
-      );
-    }
-    */
-
-    /* time range filter 
-    if (filters.timeRange !== 'all') {
-      const days = parseInt(filters.timeRange);
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      
+    
+    if (filters.status && filters.status.length > 0) {
       filtered = filtered.filter(incident => {
-        const incidentDate = new Date(incident.timestamp || incident.datetime);
-        return incidentDate >= cutoff;
+        const incidentStatus = (incident.status || '').toLowerCase();
+        return filters.status.some(status => 
+          status.toLowerCase() === incidentStatus
+        );
       });
     }
-    */
-
+    
+    if (filters.zone && filters.zone !== 'all') {
+      filtered = filtered.filter(incident => 
+        incident.zone === filters.zone
+      );
+    }
+    
+    if (filters.severity && filters.severity !== 'all') {
+      const severityNum = parseInt(filters.severity);
+      filtered = filtered.filter(incident => {
+        const incidentSeverity = parseInt(incident.severity);
+        return incidentSeverity === severityNum;
+      });
+    }
+    
+    if (filters.timeRange && filters.timeRange !== 'all') {
+      const now = new Date();
+      const cutoff = new Date();
+      
+      const timeRanges = {
+        '1d': 1,
+        '7d': 7,
+        '30d': 30,
+        '90d': 90
+      };
+      
+      const days = timeRanges[filters.timeRange];
+      if (days) {
+        cutoff.setDate(now.getDate() - days);
+        filtered = filtered.filter(incident => {
+          const incidentDate = new Date(incident.datetime || incident.created_at || incident.createdAt);
+          return incidentDate >= cutoff;
+        });
+      }
+    }
+    
     setFilteredIncidents(filtered);
-  }, [filters, incidents]); // Removed zones from dependencies
+    
+  }, [filters, incidents]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -185,16 +209,11 @@ useEffect(() => {
     setSelectedIncident(incident);
   };
 
-  const getStatusCount = (status) => {
-    return incidents.filter(inc => inc.status === status).length;
-  };
-
-  const handleExport = () => {
-    alert(`Exporting ${filteredIncidents.length} incidents as CSV`);
-  };
-
-  const handleReport = () => {
-    alert('Generating incident report');
+  const getStatusCount = (status, source = incidents) => {
+    if (!status) return 0;
+    return source.filter(inc =>
+      (inc.status || '').toLowerCase() === status.toLowerCase()
+    ).length;
   };
 
   if (loading) {
@@ -214,15 +233,15 @@ useEffect(() => {
           <div className="stat-label">Total Incidents</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number pending">{getStatusCount('pending')}</div>
+          <div className="stat-number pending">{getStatusCount('Pending')}</div>
           <div className="stat-label">Pending</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number accepted">{getStatusCount('accepted')}</div>
+          <div className="stat-number accepted">{getStatusCount('Accepted')}</div>
           <div className="stat-label">Accepted</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number rejected">{getStatusCount('rejected')}</div>
+          <div className="stat-number rejected">{getStatusCount('Rejected')}</div>
           <div className="stat-label">Rejected</div>
         </div>
       </div>
@@ -247,20 +266,6 @@ useEffect(() => {
             >
               {isRefreshing ? '⏳' : '🔄'}
             </button>
-            <button 
-              onClick={handleExport}
-              className="icon-button"
-              title="Export as CSV"
-            >
-              📥
-            </button>
-            <button 
-              onClick={handleReport}
-              className="icon-button"
-              title="Generate Report"
-            >
-              📊
-            </button>
           </div>
         }
         footer={
@@ -275,18 +280,6 @@ useEffect(() => {
                 disabled={isRefreshing}
               >
                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
-              </button>
-              <button 
-                onClick={handleExport}
-                className="text-button"
-              >
-                Export as CSV
-              </button>
-              <button 
-                onClick={handleReport}
-                className="text-button"
-              >
-                Generate Report
               </button>
             </div>
           </div>
@@ -308,7 +301,7 @@ useEffect(() => {
       >
         {filteredIncidents.map(incident => (
           <IncidentCard
-            key={`${incident.id}-${incident.status}`}
+            key={incident.id}
             incident={incident}
             onViewMore={handleViewMore}
           />

@@ -1,59 +1,66 @@
-.table-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px black;
+
+.comparison-table-card {
+    background: rgb(244, 244, 244);
+    border: 2px solid rgb(122, 122, 122);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
-.table-card h3 {
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 20px;
+.comparison-table-card h3 {
+    font-weight: 900;
+    font-size: 18px;
+    color: #1e293b;
+    margin-bottom: 16px;
 }
 
 .table-wrapper {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-th {
-  text-align: left;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-  color: #333;
-  font-weight: 600;
+.comparison-table th {
+    text-align: left;
+    padding: 12px;
+    background: rgb(222, 222, 222);
+    border-bottom: 2px solid rgb(122, 122, 122);
+    font-weight: 900;
+    font-size: 14px;
+    color: #1e293b;
 }
 
-td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #dee2e6;
+.comparison-table td {
+    padding: 12px;
+    border-bottom: 2px solid rgb(200, 200, 200);
+    font-weight: 700;
+    font-size: 14px;
 }
 
-tr:last-child td {
-  border-bottom: none;
+.metric-label {
+    font-weight: 900;
+    color: #1e293b;
 }
 
-.metric-cost {
-  color: #28a745;
-  font-weight: 600;
+.cost-value {
+    color: rgb(125, 223, 125);
+    font-weight: 800;
 }
 
-.metric-impact {
-  color: #dc3545;
-  font-weight: 600;
+.impact-value {
+    color: rgb(220, 70, 70);
+    font-weight: 800;
 }
 
-.metric-feasibility {
-  color: #6f42c1;
-  font-weight: 600;
+.feasibility-value {
+    color: rgb(100, 100, 200);
+    font-weight: 800;
 }
 
-.metric-timeline {
-  color: #fd7e14;
-  font-weight: 600;
+.timeline-value {
+    color: rgb(255, 140, 0);
+    font-weight: 800;
 }

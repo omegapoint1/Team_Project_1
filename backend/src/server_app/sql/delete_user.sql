@@ -1,0 +1,3 @@
+DELETE FROM
+  USERS
+WHERE UserId = $1;

@@ -6,14 +6,12 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
     const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState('desc');
 
-    //fix to use interventionplans import
-
-const statusOptions = [
-    { value: 'Planned', label: 'Planned' },
-    { value: 'In Progress', label: 'In Progress' }, 
-    { value: 'Done', label: 'Done'  },
-    { value: 'Rejected/Cancelled', label: 'Rejected/Cancelled' }
-];
+    const statusOptions = [
+        { value: 'Planned', label: 'Planned' },
+        { value: 'In Progress', label: 'In Progress' }, 
+        { value: 'Done', label: 'Done' },
+        { value: 'Rejected/Cancelled', label: 'Rejected/Cancelled' }
+    ];
 
     const sortOptions = [
         { value: 'createdAt', label: 'Date Created' },
@@ -21,6 +19,24 @@ const statusOptions = [
         { value: 'totalCost', label: 'Total Cost' },
         { value: 'budget', label: 'Budget' }
     ];
+
+    const formatImpact = (impact) => {
+        if (impact === undefined || impact === null) return '0 dB';
+        if (typeof impact === 'number') return `${impact} dB`;
+        if (Array.isArray(impact)) {
+            return `${impact[0] || 0}-${impact[1] || 0} dB`;
+        }
+        if (impact.min !== undefined) return `${impact.min}-${impact.max} dB`;
+        return '0 dB';
+    };
+
+    const getImpactValue = (impact) => {
+        if (impact === undefined || impact === null) return 0;
+        if (typeof impact === 'number') return impact;
+        if (Array.isArray(impact)) return impact[0] || 0;
+        if (impact.min !== undefined) return impact.min;
+        return 0;
+    };
 
     const filteredPlans = plans.filter(plan => {
         if (filterStatus === 'all') return true;
@@ -31,13 +47,16 @@ const statusOptions = [
         let aValue = a[sortBy];
         let bValue = b[sortBy];
 
-        //Handle date sorting
         if (sortBy === 'createdAt') {
             aValue = new Date(aValue);
             bValue = new Date(bValue);
         }
+        
+        if (sortBy === 'totalCost' || sortBy === 'budget') {
+            aValue = aValue || 0;
+            bValue = bValue || 0;
+        }
 
-        //Handle string sorting
         if (typeof aValue === 'string') {
             aValue = aValue.toLowerCase();
             bValue = bValue.toLowerCase();
@@ -55,15 +74,18 @@ const statusOptions = [
         if (!option) return null;
         
         return (
-            <span className='status-badge'>
+            <span className='status-badge' style={{
+                backgroundColor: status === 'Planned' ? '#f59e0b' : 
+                               status === 'In Progress' ? '#3b82f6' : 
+                               status === 'Done' ? '#10b981' : '#ef4444'
+            }}>
                 {option.label}
             </span>
         );
     };
 
-
-
     const calculateBudgetUtilization = (totalCost, budget) => {
+        if (!budget || budget === 0) return 0;
         return Math.min(Math.round((totalCost / budget) * 100), 100);
     };
 
@@ -87,20 +109,17 @@ const statusOptions = [
             <div className="filter-controls">
                 <div className="filter-section">
                     <label className="filter-label">Filter by Status</label>
-                    <div>
-                        <label>Filter by Status</label>
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                        >
-                            <option value="all">All Plans ({plans.length})</option>
-                            {statusOptions.map(option => (
-                                                    <option key={option.value} value={option.value}>
-                                    {option.label} ({plans.filter(p => p.status === option.value).length})
-                                  </option>
-                            ))}
-                        </select>
-                    </div>
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                        <option value="all">All Plans ({plans.length})</option>
+                        {statusOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label} ({plans.filter(p => p.status === option.value).length})
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="sort-controls">
@@ -162,6 +181,7 @@ const statusOptions = [
                 <div className="plans-grid">
                     {sortedPlans.map(plan => {
                         const budgetUtilization = calculateBudgetUtilization(plan.totalCost, plan.budget);
+                        const impactDisplay = formatImpact(plan.impact);
                         
                         return (
                             <div key={plan.id} className="plan-card">
@@ -196,26 +216,28 @@ const statusOptions = [
                                         </div>
                                         <div className="meta-item">
                                             <span className="meta-label">Created:</span>
-                                            <span className="meta-value">{plan.createdAt}</span>
+                                            <span className="meta-value">
+                                                {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : 'N/A'}
+                                            </span>
                                         </div>
                                     </div>
 
                                     <div className="plan-stats">
                                         <div className="stat-item">
                                             <div className="stat-label">Budget</div>
-                                            <div className="stat-value">£{plan.budget}</div>
+                                            <div className="stat-value">£{plan.budget || 0}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Total Cost</div>
-                                            <div className="stat-value">£{plan.totalCost}</div>
+                                            <div className="stat-value">£{plan.totalCost || 0}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Interventions</div>
-                                            <div className="stat-value">{plan.interventions.length}</div>
+                                            <div className="stat-value">{plan.interventions?.length || 0}</div>
                                         </div>
                                         <div className="stat-item">
                                             <div className="stat-label">Timeline</div>
-                                            <div className="stat-value">{plan.timeline} weeks</div>
+                                            <div className="stat-value">{plan.timeline || 0} weeks</div>
                                         </div>
                                     </div>
 
@@ -237,20 +259,22 @@ const statusOptions = [
                                     </div>
 
                                     <div className="plan-impact">
-                                        <div className="impact-label">Estimated Impact</div>{/*Predicted impact?*/}
+                                        <div className="impact-label">Estimated Impact</div>
                                         <div className="impact-value">
-                                            {plan.impact[0] || 0}-{plan.impact[1] || 0} dB reduction
+                                            {impactDisplay}
                                         </div>
                                     </div>
 
                                     <div className="plan-footer">
                                         <div className="intervention-tags">
-                                            {plan.interventions.slice(0, 3).map((intervention, index) => (
+                                            {plan.interventions?.slice(0, 3).map((intervention, index) => (
                                                 <span key={index} className="intervention-tag">
-                                                    {intervention.name}
+                                                    {typeof intervention === 'string' 
+                                                        ? `ID: ${intervention}` 
+                                                        : intervention.name || intervention}
                                                 </span>
                                             ))}
-                                            {plan.interventions.length > 3 && (
+                                            {plan.interventions?.length > 3 && (
                                                 <span className="intervention-tag more">
                                                     +{plan.interventions.length - 3} more
                                                 </span>
@@ -272,20 +296,19 @@ const statusOptions = [
                             <div className="summary-stat">
                                 <span className="stat-label">Total Investment</span>
                                 <span className="stat-value">
-                                    £{plans.reduce((sum, plan) => sum + plan.totalCost, 0)}
+                                    £{plans.reduce((sum, plan) => sum + (plan.totalCost || 0), 0)}
                                 </span>
                             </div>
                             <div className="summary-stat">
                                 <span className="stat-label">Average Impact</span>
                                 <span className="stat-value">
-                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[0] || 0), 0) / plans.length)}-
-                                    {Math.round(plans.reduce((sum, plan) => sum + (plan.impact[1] || 0), 0) / plans.length)} dB
+                                    {formatImpact(plans.reduce((sum, plan) => sum + getImpactValue(plan.impact), 0) / plans.length)}
                                 </span>
                             </div>
                             <div className="summary-stat">
                                 <span className="stat-label">Active Plans</span>
                                 <span className="stat-value">
-                                    {plans.filter(p => p.status !== 'Rejected/Cancelled').length}
+                                    {plans.filter(p => p.status !== 'Rejected/Cancelled' && p.status !== 'Done').length}
                                 </span>
                             </div>
                         </div>

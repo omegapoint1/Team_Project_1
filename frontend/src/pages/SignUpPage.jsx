@@ -3,6 +3,8 @@ import './LoginPage.css';
 import './SignUpPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 
+// SignUpPage component provides a user interface for new users to create an account,
+// including form validation for password strength and matching, as well as handling form submission to the backend API for registration.
 function SignUpPage() {
   const navigate = useNavigate();
 
@@ -15,6 +17,7 @@ function SignUpPage() {
   const [termsError, setTermsError] = useState('');
   const [error, setError] = useState('');
 
+  // Function to validate password strength based on defined criteria and return an array of error messages for any unmet requirements.
   const validatePassword = (password) => {
     const errors = [];
 
@@ -27,6 +30,8 @@ function SignUpPage() {
     return errors;
   };
 
+  // Function to handle form submission for user registration, including validation checks for password matching and terms acceptance,
+  // and communicating with the backend API to create a new user account.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMatchError('');
@@ -76,6 +81,8 @@ function SignUpPage() {
     }
   };
 
+  //Rendering the sign-up form with input fields for email and password, and displaying any error messages that occur during the registration process.
+  // The form submission is handled by the handleSubmit function, which communicates with the backend API to create a new user account.
   return (
     <div className="page">
       <h1>Sign up to Neighborhood Noise</h1>

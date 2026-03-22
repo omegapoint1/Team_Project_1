@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import MapModule from "../components/map/MapModule";
+import StakeholderReport from "../components/common/StakeholderReport";
 import "./Dashboard_Overview.css";
 
 /* This function is responsible for recieving data from the backend and creating a single object of a card. */
@@ -21,7 +22,7 @@ function RequestCard({ req, onAccept, onReject, onViewMore }) {
 
         <div className="requestMeta">
           <div className="requestMetaRow">
-            <span className="requestLabel">Time:</span> {req.time}
+            <span className="requestLabel">Time:</span> {new Date(req.time).toLocaleString()}
           </div>
           <div className="requestMetaRow">
             <span className="requestLabel">Severity:</span> {req.severity}
@@ -65,6 +66,7 @@ function OverviewPage() {
   const [loading, setLoading] = useState(true);
   const [reports_data, setReports] = useState([]);
   const [hotspots, setHotspots] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
 
   useEffect(() => {
     const pendingQuest = sessionStorage.getItem('pendingQuestComplete');
@@ -100,7 +102,7 @@ function OverviewPage() {
             long: feature.geometry.coordinates[0],
             decibels: feature.properties.decibels,
             time: feature.properties.time,
-            category: feature.properties.category
+            category: feature.properties.category,
           }));
         } else {
           // assume its in the right format
@@ -136,6 +138,7 @@ function OverviewPage() {
     };
     getHotspots();
   }, []);
+  
 useEffect(() => {
     const getReports = async () => {
       try {
@@ -144,15 +147,25 @@ useEffect(() => {
         });
         const reportData = await report_response.json();
 
-        const reports = reportData.map((report, index) => ({
-          id: report.id || index,
-          location: report.locationofnoise || report.location_of_noise || "Unknown",
-          tags: report.tag_list || report.tags || [],
-          time: Date.now(),
-          severity: report.severity,
-          status: report.approved,
-          createdAt: report.datetime ? new Date(report.datetime).getTime() : Date.now(),
-        }));  
+        const reports = reportData.map((report, index) => {
+          let statusStr = "Pending";
+          if (report.approved === "Accepted" || report.approved === true) statusStr = "Accepted";
+          if (report.approved === "Rejected" || report.approved === false) statusStr = "Rejected";
+          if (report.status) statusStr = report.status;
+          
+          return {
+            id: report.id || index,
+            location: report.locationofnoise || report.location_of_noise || "Unknown",
+            tags: report.tag_list || report.tags || [],
+            time: report.datetime || new Date().toISOString(),
+            severity: report.severity,
+            status: statusStr,
+            description: report.description || "No description provided.",
+            noisetype: report.noisetype || report.noiseType || "Unknown",
+            createdAt: report.datetime ? new Date(report.datetime).getTime() : Date.now(),
+            zone: report.zone
+          };
+        });  
         console.log(reports)
 
         setReports(reports);
@@ -215,7 +228,8 @@ useEffect(() => {
         })
       });}
   const onViewMore = (id) => {
-    console.log("view more", id);
+    const report = sampleRequests.find(r => r.id === id);
+    setSelectedReport(report);
   };
 
   /* Key stats */
@@ -346,6 +360,13 @@ useEffect(() => {
               <option value="30d">Last 30 days</option>
             </select>
           </div>
+
+          {/* Stakeholder Report Button - generates comprehensive PDF report with incidents, hotspots, scenarios, and plans data */}
+          <StakeholderReport 
+            incidents={reports_data}
+            hotspots={hotspots}
+            overviewStats={keyStats}
+          />
         </div>
       </div>
 
@@ -382,7 +403,7 @@ useEffect(() => {
               />
             ))}
           </div>
-        </div>dashboard
+        </div>
       </div>
 
       <div className="analyticsSection">
@@ -462,6 +483,37 @@ useEffect(() => {
           </div>
         </div>
       </div>
+
+      {selectedReport && (
+        <div 
+          className="modal-overlay" 
+          style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center'}}
+          onClick={() => setSelectedReport(null)}
+        >
+          <div 
+            className="modal-content" 
+            style={{backgroundColor: 'white', padding: '24px', borderRadius: '8px', maxWidth: '500px', width: '90%', maxHeight: '80vh', overflowY: 'auto'}}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+              <h2 style={{margin: 0}}>Report Details</h2>
+              <button onClick={() => setSelectedReport(null)} style={{background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer'}}>&times;</button>
+            </div>
+            
+            <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+              <div><strong>Location:</strong> {selectedReport.location}</div>
+              <div><strong>Noise Type:</strong> {selectedReport.noisetype}</div>
+              <div><strong>Severity:</strong> {selectedReport.severity}/10</div>
+              <div><strong>Status:</strong> {selectedReport.status}</div>
+              <div><strong>Zone:</strong> {selectedReport.zone}</div>
+              <div><strong>Time:</strong> {new Date(selectedReport.time).toLocaleString()}</div>
+              <div><strong>Tags:</strong> {selectedReport.tags.length > 0 ? selectedReport.tags.join(', ') : 'None'}</div>
+              <div><strong>Description:</strong></div>
+              <div style={{backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', whiteSpace: 'pre-wrap'}}>{selectedReport.description}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

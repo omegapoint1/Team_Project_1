@@ -2,7 +2,6 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, NavLink} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import PlannerPage from './pages/PlannerPage';
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
   import Overview from './pages/Dashboard_Overview';
@@ -16,22 +15,24 @@ import Dashboard from './pages/Dashboard';
 import ScenarioTab from './components/planner/Scenarios';
 import MitigationTab from './components/planner/MitigationTab';
 import Incidents from './components/planner/Incidents';
-import Reports from './components/planner/Reports';
 import GamePage from './pages/GamePage';
 import Terms from './pages/TermsPage';
 import ProfilePage from './pages/ProfilePage';
 import HelpPage from './pages/HelpPage.jsx';
 
 function App() {
+  // State to manage the current user and determine if they have planner access for conditional rendering of navigation links and routes.
   const [user, setUser] = useState(null);
   const isPlanner = user?.role === 'planner';
 
+  // Effect to load user information from localStorage on component mount and set up an event listener for user login events to update the user state accordingly.
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
 
+    // Event listener to update user state when a login event occurs, allowing for dynamic updates to the navigation and access based on the user's authentication status and role.
     const handleUserLogin = () => {
       const updatedUser = localStorage.getItem('user');
       setUser(updatedUser ? JSON.parse(updatedUser) : null);
@@ -72,7 +73,6 @@ function App() {
 
       <Routes>
         <Route path="/"         element={<LoginPage/>} />
-        <Route path="/planner"  element={<PlannerPage/>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/game" element={<GamePage/>} />
         <Route path="/signup" element={<SignUpPage/>} />
@@ -89,7 +89,7 @@ function App() {
           <Route path="reportProcessing" element={<Incidents />} />
           <Route path="mitigation" element={<MitigationTab />} />
           <Route path="comparison" element={<ScenarioTab />} />
-          <Route path="ExportingReport" element={<Reports />} />
+          {/*<Route path="ExportingReport" element={<Reports />} />*/}
           <Route path="tracker" element={<IncidentManagement />} />
           <Route path="hotspots" element={<HotspotAnalytics />} />
 
