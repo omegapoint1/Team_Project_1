@@ -12,10 +12,13 @@ const rankImages = {
   Grandmaster: '/static/GM.png',
 };
 
+// ProfilePage component displays user profile information, progression, and allows account management actions.
 function ProfilePage() {
+  // Retrieve user information from localStorage and determine user ID for API calls
   const storedUser = JSON.parse(localStorage.getItem('user')) || {};
   const userId = storedUser.id ?? storedUser.user_id ?? null;
 
+  // State to hold user information and progression details
   const [user, setUser] = useState(storedUser);
   const [progression, setProgression] = useState({
     total_xp: storedUser.total_xp ?? 0,
@@ -24,6 +27,7 @@ function ProfilePage() {
   });
   const [loadingProgression, setLoadingProgression] = useState(true);
 
+  // State for managing delete account modal and its related actions
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -38,6 +42,7 @@ function ProfilePage() {
     return 'Bronze';
   };
 
+  // Function to fetch user progression data from the backend API and update state accordingly.
   const fetchProgression = async (showLoader = false) => {
   if (!userId) {
     setLoadingProgression(false);
@@ -80,7 +85,10 @@ function ProfilePage() {
   }
 };
 
-  useEffect(() => {
+// useEffect to fetch progression data on component mount and set up an interval to refresh it every 2 seconds.
+// Without polling the profile page, the user would have to refresh the page to see their updated progression after completing quests. 
+// This ensures they see real-time updates without needing to refresh.  
+useEffect(() => {
     fetchProgression(true);
 
     const intervalId = setInterval(() => {
@@ -103,23 +111,27 @@ function ProfilePage() {
   const displayName = user.username || user.email || 'User';
   const displayRole = user.role === 'planner' ? 'Planner' : 'User';
 
+  // Function to handle user logout by clearing localStorage and redirecting to the login page.
   const handleLogout = () => {
     localStorage.removeItem('user');
     window.dispatchEvent(new Event('userLogout'));
     window.location.href = '/login';
   };
 
+  // Functions to manage the delete account modal, handle account deletion, and display any errors that occur during the process.
   const openDeleteModal = () => {
     setDeleteError('');
     setShowDeleteModal(true);
   };
 
+  // Prevent closing the modal while deletion is in progress to avoid interrupting the process and causing potential issues.
   const closeDeleteModal = () => {
     if (isDeleting) return;
     setDeleteError('');
     setShowDeleteModal(false);
   };
 
+  // Function to handle account deletion by sending a request to the backend API and managing the response accordingly.
   const handleDeleteAccount = async () => {
     setDeleteError('');
     setIsDeleting(true);
@@ -154,6 +166,8 @@ function ProfilePage() {
     }
   };
 
+  //Rendering the profile page with user information, progression details, and account management options.
+  // The delete account modal is conditionally rendered based on the state.
   return (
     <div className="profile-page">
       <div className="profile-card">
