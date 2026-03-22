@@ -1,25 +1,47 @@
 import React, { useState, useEffect } from "react";
 import "./GamePage.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function GamePage() {
+    const navigate = useNavigaate();
     const [showBadges, setShowBadges] = useState(false);
     const [userXP, setUserXP] = useState(0);
     const [maxXP, setMaxXP] = useState(1000);
     const [userLevel, setUserLevel] = useState(1);
     const [quests,setQuests] = useState([]);
-    const [ userQuests, setUserQuests ] = useState({});
+    const [ userQuests, setUserQuests ] = useState([]);
     const [progression, setProgression] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [sortBy, setSortBy] = useState("default");
+    const [questProgressState, setQuestProgressState] = useState({});
     const userId = localStorage.getItem('userId');
     if (!userId) {
         window.location.href = '/login';
         return null;
     }
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                checkQuestProgressFromSession();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        checkQuestProgressFromSession();
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+    const checkQuestProgressFromSession = () => {
+        const savedProgress = sessionStorage.getItem('questProgress');
+        if(savedProgress) {
+            const progress = JSON.parse(savedProgress);
+            setQuestProgressState(prev => ({ ...prev, ...progress}));
+            sessionStorage.removeItem('questProgress');
+        }
+    };
     const fetchQuests = async () =>{
         try {
             const response = await fetch('/api/quests');
@@ -74,6 +96,23 @@ export default function GamePage() {
     const getCurrentLevelXP = (totalXP, level) => {
         const previousLevelXP = (level - 1) * 1000;
         return totalXP - previousLevelXP;
+    };
+    const canCompleteQuest = (quest) => {
+        if (quest.id === 1) {
+            return questProgressState[`quest_${quest.id}`] === true;
+
+        }
+        return true;
+    };
+    const handleQuestAction = (quest, isInProgress) => {
+        if (quest.id === 1 && isInProgress) {
+            sessionStorage.setItem(`pendingQuestComplete`, quest.id);
+            navigate('/map');
+        } else if (isInProgress) {
+            completeQuest(quest.id);
+        } else {
+            startQuest(quest.id);
+        }
     };
     const completeQuest = async(questId) => {
         try{
@@ -239,6 +278,7 @@ export default function GamePage() {
                     const userQuest = userQuests.find(uq => uq.quest_id === quest.id);
                     const isInProgress = userQuest && userQuest.status === 'in_progress';
                     const isCompleted = userQuest && userQuest.status === 'completed';
+                    const requirementsMet = canCompleteQuest(quest);
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
@@ -249,17 +289,11 @@ export default function GamePage() {
                             </div>
                             <button 
                                 className= "game-accept"
-                                onClick={() => {
-                                    if (isCompleted) return;
-                                    if (isInProgress) {
-                                        completeQuest(quest.id);
-                                    }else{
-                                        startQuest(quest.id);
-                                    }
-                                }}
-                                disabled={isCompleted}
-                            >
-                                {isCompleted ? 'Completed' : (isInProgress ? 'Complete' : 'Accept Quest')}
+                                onClick={() => handleQuestAction (quest, isInProgress)}
+                                disabled ={isCompleted || (isInProgress && !requirementsMet)}
+                                >
+                                    {isCompleted ? 'Completed' :
+                                    (isInProgress ? (requirementsMet ? 'Complete' : 'Complete (Locked)') : 'Accept Quest')}                                
                             </button>
                         </div>
                     );
