@@ -66,6 +66,16 @@ function OverviewPage() {
   const [reports_data, setReports] = useState([]);
   const [hotspots, setHotspots] = useState([]);
 
+  useEffect(() => {
+    const pendingQuest = sessionStorage.getItem('pendingQuestComplete');
+    if(pendingQuest) {
+      console.log('Quest pending completion', pendingQuest);
+      const questProgress = {
+        quest_1: true
+      };
+      sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
+    }
+  }, []); 
 
   useEffect(() => {
     const fetchNoiseReports = async () => {
