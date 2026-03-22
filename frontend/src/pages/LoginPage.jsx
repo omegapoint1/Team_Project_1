@@ -2,8 +2,10 @@ import { useState } from 'react';
 import './LoginPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 
+// LoginPage component provides a user interface for logging into the application, handling form submission, and managing authentication state.
 function LoginPage() {
 
+  // State variables to manage form inputs and error messages
   const[email, setEmail] = useState('');
   const[password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,6 +14,7 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear any previous error messages before attempting to log in
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -45,6 +48,8 @@ function LoginPage() {
     }
   };
 
+  //Rendering the login form with input fields for email and password, and displaying any error messages that occur during the login process.
+  // The form submission is handled by the handleSubmit function, which communicates with the backend API to authenticate the user and manage navigation based on their role.
   return (
 
     <div className="page">

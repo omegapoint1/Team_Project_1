@@ -21,15 +21,18 @@ import ProfilePage from './pages/ProfilePage';
 import HelpPage from './pages/HelpPage.jsx';
 
 function App() {
+  // State to manage the current user and determine if they have planner access for conditional rendering of navigation links and routes.
   const [user, setUser] = useState(null);
   const isPlanner = user?.role === 'planner';
 
+  // Effect to load user information from localStorage on component mount and set up an event listener for user login events to update the user state accordingly.
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
 
+    // Event listener to update user state when a login event occurs, allowing for dynamic updates to the navigation and access based on the user's authentication status and role.
     const handleUserLogin = () => {
       const updatedUser = localStorage.getItem('user');
       setUser(updatedUser ? JSON.parse(updatedUser) : null);
