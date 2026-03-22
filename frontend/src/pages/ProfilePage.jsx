@@ -6,7 +6,7 @@ const rankImages = {
   Silver: '/static/silver.png',
   Gold: '/static/Gold.webp',
   Platinum: '/static/Platinum.webp',
-  Diamond: '/static/Diamond.png',
+  Diamond: '/static/Diamond.jpg',
   Champion: '/static/Champion.png',
   Master: '/static/Master.webp',
   Grandmaster: '/static/GM.png',
