@@ -1,3 +1,8 @@
+/**
+ * Scenario service module providing CRUD operations for mitigation scenarios with server API and local storage persistence.
+ * Supports creating, updating, deleting, and retrieving scenarios with intervention tracking and metric calculations.
+ */
+
 const SCENARIO_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const SCENARIO_ENDPOINT = '/scenario';
 const SCENARIO_STORAGE_KEY = 'scenarios';

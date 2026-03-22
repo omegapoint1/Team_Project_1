@@ -1,12 +1,18 @@
+/**
+  EvidenceDisplay component for rendering a list of evidence items with file icons,
+ and removal capability, supports various file types
+ */
 import { useState } from 'react';
 
 const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
     const [expandedItem, setExpandedItem] = useState(null);
 
+    // Returns if no evidence to display
     if (!evidence || evidence.length === 0) {
         return null;
     }
 
+    // Returns appropriate icon based on file type
     const getFileIcon = (fileType) => {
         if (!fileType) return '📎';
         if (fileType.includes('pdf')) return '📄';
@@ -16,6 +22,7 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
         return '📎';
     };
 
+    // Returns human-readable label for file type
     const getFileTypeLabel = (fileType) => {
         if (!fileType) return 'File';
         if (fileType.includes('pdf')) return 'PDF Document';
@@ -26,8 +33,8 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
         return 'File';
     };
 
+    // Handles file download, creating blob from base64 data or showing simulated download
     const handleDownload = (evidence) => {
-        // If we have actual file data stored
         if (evidence.fileData) {
             try {
                 // Create blob from base64 or array buffer
@@ -57,6 +64,7 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
         }
     };
 
+    // Handles file preview
     const handleView = (evidence) => {
         // For images, try to display in new tab
         if (evidence.fileType?.includes('image') && evidence.fileData) {
@@ -93,11 +101,12 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
                 alert('Could not preview this PDF.');
             }
         } else {
-            // For other files, show file info
+            //For other files, show file info
             setExpandedItem(expandedItem === evidence.id ? null : evidence.id);
         }
     };
 
+    // Formats file size from bytes to human-readable format
     const formatFileSize = (size) => {
         if (!size) return 'Unknown size';
         if (typeof size === 'number') {
@@ -111,7 +120,7 @@ const EvidenceDisplay = ({ evidence = [], onRemoveEvidence }) => {
     return (
         <div className="evidence-display">
             <div className="evidence-header">
-                <h5>📋 Current Evidence ({evidence.length})</h5>
+                <h5> Current Evidence ({evidence.length})</h5>
             </div>
             <div className="evidence-list">
                 {evidence.map((item) => (

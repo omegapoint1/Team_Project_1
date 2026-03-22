@@ -1,5 +1,9 @@
 import { useState } from 'react';
-
+/**
+ EvidenceUploader component for uploading files as evidence with description,
+ displaying attached evidence list, and providing removal functionality.
+ Supports multiple file types.
+ */
 const EvidenceUploader = ({ onEvidenceUploaded, attachedEvidence = [], onRemoveEvidence, planId }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [fileDescription, setFileDescription] = useState('');

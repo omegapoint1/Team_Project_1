@@ -1,7 +1,10 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
-
+/*
+  PlanExportButtons component providing CSV and PDF export functionality for mitigation plans.
+ exports plan details including metadata, interventions, evidence, and notes using jsPDF with autoTable.
+ */
 const PlanExportButtons = ({ plan }) => {
   if (!plan) return null;
 
