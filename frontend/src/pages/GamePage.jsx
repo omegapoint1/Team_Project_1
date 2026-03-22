@@ -108,7 +108,7 @@ export default function GamePage() {
     const handleQuestAction = (quest, isInProgress) => {
         if (quest.id === 1 && isInProgress) {
             sessionStorage.setItem(`pendingQuestComplete`, quest.id);
-            navigate('/map');
+            navigate('/user-dashboard');
         } else if (isInProgress) {
             completeQuest(quest.id);
         } else {
