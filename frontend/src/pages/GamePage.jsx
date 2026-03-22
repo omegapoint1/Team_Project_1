@@ -16,6 +16,7 @@ export default function GamePage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [sortBy, setSortBy] = useState("default");
+    const [questProgressState, setQuestProgressState] = useState({});
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userId = user.id;
     if (!userId) {
