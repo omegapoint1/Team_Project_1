@@ -3,7 +3,7 @@ import "./GamePage.css";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function GamePage() {
-    const navigate = useNavigaate();
+    const navigate = useNavigate();
     const [showBadges, setShowBadges] = useState(false);
     const [userXP, setUserXP] = useState(0);
     const [maxXP, setMaxXP] = useState(1000);
