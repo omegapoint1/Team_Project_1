@@ -3,19 +3,17 @@ import gleam/json
 
 
 pub type DeleteItem {
-  DeleteItem(username: String, email: String)
+  DeleteItem(user_id: Int)
 }
 
 pub fn delete_item_to_json(delete_item: DeleteItem) -> json.Json {
-  let DeleteItem(username:, email:) = delete_item
+  let DeleteItem(user_id:) = delete_item
   json.object([
-    #("username", json.string(username)),
-    #("email", json.string(email)),
+    #("user_id", json.int(user_id)),
   ])
 }
 
 pub fn delete_item_decoder() -> decode.Decoder(DeleteItem) {
-  use username <- decode.field("username", decode.string)
-  use email <- decode.field("email", decode.string)
-  decode.success(DeleteItem(username:, email:))
+  use user_id <- decode.field("user_id", decode.int)
+  decode.success(DeleteItem(user_id:))
 }

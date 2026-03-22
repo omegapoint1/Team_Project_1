@@ -1,3 +1,3 @@
 DELETE FROM
   USERS
-WHERE Email = $1;
+WHERE UserId = $1;

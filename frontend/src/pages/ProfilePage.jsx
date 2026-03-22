@@ -6,7 +6,7 @@ const rankImages = {
   Silver: '/static/silver.png',
   Gold: '/static/Gold.webp',
   Platinum: '/static/Platinum.webp',
-  Diamond: '/static/Diamond.png',
+  Diamond: '/static/Diamond.jpg',
   Champion: '/static/Champion.png',
   Master: '/static/Master.webp',
   Grandmaster: '/static/GM.png',
@@ -123,16 +123,14 @@ function ProfilePage() {
   const handleDeleteAccount = async () => {
     setDeleteError('');
     setIsDeleting(true);
-
     try {
       const response = await fetch('/api/delete-account', {
-        method: 'POST',
+        method: 'Post',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: user.username,
-          email: user.email,
+          user_id: userId,
         }),
       });
 

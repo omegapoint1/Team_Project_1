@@ -6,7 +6,7 @@ const tabs = [
   { name: "Mitigation Plans", to: "mitigation" },
   { name: "Scenario Comparison", to: "comparison" },
   { name: "Incident Management", to: "tracker" },
-  { name: "Generate Report", to: "report" },
+  { name: "Generate Report", to: "/report" },
   { name: "Hotspot Analytics", to: "hotspots" },
 ];
 

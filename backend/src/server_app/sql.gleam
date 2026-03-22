@@ -47,15 +47,15 @@ INTO
 ///
 pub fn delete_user(
   db: pog.Connection,
-  arg_1: String,
+  arg_1: Int,
 ) -> Result(pog.Returned(Nil), pog.QueryError) {
   let decoder = decode.map(decode.dynamic, fn(_) { Nil })
 
   "DELETE FROM
   USERS
-WHERE Email = $1;"
+WHERE UserId = $1;"
   |> pog.query
-  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
