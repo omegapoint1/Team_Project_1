@@ -25,6 +25,34 @@ function MapModule({
     const [reports_data, setReports] = useState([]);
     
     useEffect(() => {
+        const checkAndUnlockQuest = async () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = user.id;
+            if (!userId) return;
+            try{
+                const response = await fetch(`/api/user/quests/${userId}`);
+                if (response.ok) {
+                    const userQuests = await response.json();
+                    const firstStepsQuest = userQuests.find(q => q.quest_id === 1);
+                    const isAccepted = firstStepsQuest && firstStepsQuest.status === 'in_progress';
+                    if (isAccepted) {
+                        console.log('Quest accepted');
+                        const questProgress = {
+                            quest_1: true
+                        };
+                        sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
+                    } else {
+                        console.log('Quest not accepted');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking quest status:', error);
+            }
+        };
+        checkAndUnlockQuest();
+    }, []);
+
+    useEffect(() => {
         const getReports = async () => {
           try {
             const map_data_response = await fetch("/api/map-data/get", {
