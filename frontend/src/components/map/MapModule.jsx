@@ -25,6 +25,15 @@ function MapModule({
     const [reports_data, setReports] = useState([]);
     
     useEffect(() => {
+        console.log('Map Module Loaded Unlocking QUest');
+        const questProgress = {
+            quest_1: true
+        };
+        sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
+        console.log('MapModule saved questProgress:', sessionStorage.getItem('questProgress'));
+    }, []);
+
+    useEffect(() => {
         const getReports = async () => {
           try {
             const map_data_response = await fetch("/api/map-data/get", {
