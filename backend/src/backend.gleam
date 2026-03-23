@@ -40,7 +40,7 @@ pub fn main() {
     |> pog.host("db")
     |> pog.start
   let db = pog.named_connection(pool_name)
-  map_data.generate_map_data(db)
+//  map_data.generate_map_data(db)
   report.generate_reports(db)
   quest.generate_initial_quests(db)
   intervention.add_reports(db)

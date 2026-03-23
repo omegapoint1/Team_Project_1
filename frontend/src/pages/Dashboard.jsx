@@ -9,7 +9,6 @@ const tabs = [
   { name: "Scenario Comparison", to: "comparison" },
   { name: "Incident Management", to: "tracker" },
   { name: "Generate Report", to: "/report" },
-  { name: "Hotspot Analytics", to: "hotspots" },
 ];
 
 function DashboardPage() {
