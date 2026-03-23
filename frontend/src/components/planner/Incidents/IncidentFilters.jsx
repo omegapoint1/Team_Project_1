@@ -29,11 +29,18 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
     { value: 'Rejected', label: 'Rejected', color: 'red' }
   ];
 
+  const tagOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'sensor', label: 'Sensor' },
+    { value: 'human', label: 'Human' }
+  ];
+
   const [filters, setFilters] = useState({
-    status: initialFilters.status || ['Pending'],
+    status: initialFilters.status || ['Accepted'],
     zone: initialFilters.zone || 'all',
     severity: initialFilters.severity || 'all',
-    timeRange: initialFilters.timeRange || '7d'
+    timeRange: initialFilters.timeRange || 'all',
+    tag: initialFilters.tag || 'all'
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -61,10 +68,11 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
         <button 
           onClick={() => {
             const reset = { 
-              status: ['Pending'], 
+              status: ['Accepted'], 
               zone: 'all', 
               severity: 'all', 
-              timeRange: '7d' 
+              timeRange: 'all',
+              tag: 'all'
             };
             setFilters(reset);
             onFilterChange(reset);
@@ -145,10 +153,26 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
             <option value="all">All Time</option>
           </select>
         </div>
+
+        {/* Tag Filter - New Dropdown */}
+        <div className="filter-group">
+          <label className="filter-label">Tag Source</label>
+          <select
+            value={filters.tag}
+            onChange={(e) => handleFilterChange('tag', e.target.value)}
+            className="filter-select"
+          >
+            {tagOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Active Filters Display */}
-      {filters.status.length > 0 && (
+      {(filters.status.length > 0 || filters.tag !== 'all') && (
         <div className="active-filters">
           <div className="filters-summary">
             <span className="summary-label">Active filters:</span>
@@ -170,6 +194,9 @@ const IncidentFilters = ({ onFilterChange, initialFilters = {} }) => {
                  filters.timeRange === '30d' ? 'Last 30d' :
                  filters.timeRange === '90d' ? 'Last Quarter' : ''}
               </span>
+            )}
+            {filters.tag !== 'all' && (
+              <span className="filter-tag">Source: {filters.tag === 'sensor' ? 'Sensor' : 'Human'}</span>
             )}
           </div>
         </div>

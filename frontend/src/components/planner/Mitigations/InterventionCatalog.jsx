@@ -322,23 +322,6 @@ const InterventionCatalog = ({
                                 </div>
                             )}
                         </div>
-
-                        <div className="card-actions">
-                            <button 
-                                className="edit-button"
-                                onClick={() => handleEditClick(intervention)}
-                            >
-                                Edit
-                            </button>
-                            {onAddToPlan && (
-                                <button 
-                                    className="add-to-plan-button"
-                                    onClick={() => onAddToPlan(intervention)}
-                                >
-                                    Add to Plan
-                                </button>
-                            )}
-                        </div>
                     </div>
                 ))}
             </div>
