@@ -78,6 +78,13 @@ function OverviewPage() {
       sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
     }
   }, []); 
+  useEffect(() => {
+    const questProgress = {
+      quest_1: true
+    };
+    sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
+    console.log('dashboard loaded - quest unlocked');
+  }, []);
 
   useEffect(() => {
     const fetchNoiseReports = async () => {
