@@ -111,7 +111,7 @@ export default function GamePage() {
     const handleQuestAction = (quest, isInProgress) => {
         console.log('handleQuestAction - quest:', quest.id, 'isInProgress:', isInProgress, 'canComplete:', canCompleteQuest(quest));
         if(isInProgress) {
-            if (quest.id === 1 && !canComplateQuest(quest)) {
+            if (quest.id === 1 && !canCompleteQuest(quest)) {
                 console.log('Requirements NOT met - redirecting to dashboard');
                 sessionStorage.setItem('pendingQuestComplete', quest.id);
                 navigate('/user-dashboard');
