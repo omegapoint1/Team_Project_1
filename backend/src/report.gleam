@@ -159,7 +159,7 @@ pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
       datetime,
       severity,
       description,
-      location_of_noise,
+      noisetype,
       zone,
       lat,
       long,
