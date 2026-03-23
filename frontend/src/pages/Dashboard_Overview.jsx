@@ -79,11 +79,12 @@ function OverviewPage() {
     }
   }, []); 
   useEffect(() => {
+    console.log('🔓 DASHBOARD LOADED - UNLOCKING QUEST');
     const questProgress = {
       quest_1: true
     };
     sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
-    console.log('dashboard loaded - quest unlocked');
+    console.log('Saved to sessionStorage:', sessionStorage.getItem('questProgress'));
   }, []);
 
   useEffect(() => {

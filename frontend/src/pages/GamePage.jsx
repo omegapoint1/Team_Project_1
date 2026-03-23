@@ -26,6 +26,7 @@ export default function GamePage() {
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (!document.hidden) {
+                console.log('Page became visible - checking quest progress');
                 checkQuestProgressFromSession();
             }
         };
@@ -37,6 +38,7 @@ export default function GamePage() {
     }, []);
     const checkQuestProgressFromSession = () => {
         const savedProgress = sessionStorage.getItem('questProgress');
+        console.log('checkQuestProgressFromSession - savedProgress:', savedProgress);
         if(savedProgress) {
             const progress = JSON.parse(savedProgress);
             setQuestProgressState(prev => ({ ...prev, ...progress}));
@@ -101,19 +103,24 @@ export default function GamePage() {
     const canCompleteQuest = (quest) => {
         if (quest.id === 1) {
             return questProgressState[`quest_${quest.id}`] === true;
-
+            console.log(`Quest ${quest.id} - isUnlocked:`, isUnlocked, 'questProgressState:', questProgressState);
+            return isunlocked;
         }
         return true;
     };
     const handleQuestAction = (quest, isInProgress) => {
+        console.log('handleQuestAction - quest:', quest.id, 'isInProgress:', isInProgress, 'canComplete:', canCompleteQuest(quest));
         if(isInProgress) {
             if (quest.id === 1 && !canComplateQuest(quest)) {
+                console.log('Requirements NOT met - redirecting to dashboard');
                 sessionStorage.setItem('pendingQuestComplete', quest.id);
                 navigate('/user-dashboard');
             } else {
+                console.log('Requirements met - completing quest');
                 completeQuest(quest.id);
             }
         } else {
+            console.log('Starting quest');
             startQuest(quest.id);
         }
     };
