@@ -146,60 +146,74 @@ const IncidentList = () => {
   };
 
   useEffect(() => {
-    if (!incidents.length) {
-      setFilteredIncidents([]);
-      return;
-    }
-    
-    let filtered = [...incidents];
-    
-    if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter(incident => {
-        const incidentStatus = (incident.status || '').toLowerCase();
-        return filters.status.some(status => 
-          status.toLowerCase() === incidentStatus
-        );
-      });
-    }
-    
-    if (filters.zone && filters.zone !== 'all') {
-      filtered = filtered.filter(incident => 
-        incident.zone === filters.zone
+  if (!incidents.length) {
+    setFilteredIncidents([]);
+    return;
+  }
+  
+  let filtered = [...incidents];
+  
+  if (filters.status && filters.status.length > 0) {
+    filtered = filtered.filter(incident => {
+      const incidentStatus = (incident.status || '').toLowerCase();
+      return filters.status.some(status => 
+        status.toLowerCase() === incidentStatus
       );
-    }
+    });
+  }
+  
+  if (filters.zone && filters.zone !== 'all') {
+    filtered = filtered.filter(incident => 
+      incident.zone === filters.zone
+    );
+  }
+  
+  if (filters.severity && filters.severity !== 'all') {
+    const severityNum = parseInt(filters.severity);
+    filtered = filtered.filter(incident => {
+      const incidentSeverity = parseInt(incident.severity);
+      return incidentSeverity === severityNum;
+    });
+  }
+  
+  if (filters.timeRange && filters.timeRange !== 'all') {
+    const now = new Date();
+    const cutoff = new Date();
     
-    if (filters.severity && filters.severity !== 'all') {
-      const severityNum = parseInt(filters.severity);
+    const timeRanges = {
+      '1d': 1,
+      '7d': 7,
+      '30d': 30,
+      '90d': 90
+    };
+    
+    const days = timeRanges[filters.timeRange];
+    if (days) {
+      cutoff.setDate(now.getDate() - days);
       filtered = filtered.filter(incident => {
-        const incidentSeverity = parseInt(incident.severity);
-        return incidentSeverity === severityNum;
+        const incidentDate = new Date(incident.datetime || incident.created_at || incident.createdAt);
+        return incidentDate >= cutoff;
       });
     }
-    
-    if (filters.timeRange && filters.timeRange !== 'all') {
-      const now = new Date();
-      const cutoff = new Date();
+  }
+  
+  if (filters.tag && filters.tag !== 'all') {
+    filtered = filtered.filter(incident => {
+      const tags = incident.tags || [];
       
-      const timeRanges = {
-        '1d': 1,
-        '7d': 7,
-        '30d': 30,
-        '90d': 90
-      };
-      
-      const days = timeRanges[filters.timeRange];
-      if (days) {
-        cutoff.setDate(now.getDate() - days);
-        filtered = filtered.filter(incident => {
-          const incidentDate = new Date(incident.datetime || incident.created_at || incident.createdAt);
-          return incidentDate >= cutoff;
-        });
+      if (filters.tag === 'sensor') {
+        return tags.some(tag => tag.toLowerCase().includes('sensor'));
+      } else if (filters.tag === 'human') {
+        return tags.some(tag => tag.toLowerCase().includes('human'));
       }
-    }
-    
-    setFilteredIncidents(filtered);
-    
-  }, [filters, incidents]);
+      
+      return true;
+    });
+  }
+  
+  setFilteredIncidents(filtered);
+  
+}, [filters, incidents]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);

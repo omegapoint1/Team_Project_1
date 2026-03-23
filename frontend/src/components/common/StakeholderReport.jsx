@@ -1,4 +1,3 @@
-
 /**
   StakeholderReport component that generates comprehensive PDF reports combining incident data,
   noise hotspots, overview statistics, mitigation scenarios, and intervention plans some by fetching data from server/local services and
@@ -116,8 +115,9 @@ const StakeholderReport = ({
     try {
       const doc = new jsPDF();
       let yPosition = 15;
+      let sectionNumber = 1;
 
-      //title
+      // Title
       doc.setFontSize(24);
       doc.text('Stakeholder Report', 14, yPosition);
       yPosition += 10;
@@ -127,9 +127,10 @@ const StakeholderReport = ({
       yPosition += 15;
 
       // 1. Overview stats section
-      if (overviewStats) {
+      if (overviewStats && (overviewStats.reports24h !== undefined || overviewStats.reports7d !== undefined)) {
         doc.setFontSize(16);
-        doc.text('1. Overview Statistics', 14, yPosition);
+        doc.text(`${sectionNumber}. Overview Statistics`, 14, yPosition);
+        sectionNumber++;
         yPosition += 8;
         
         doc.setFontSize(11);
@@ -151,7 +152,8 @@ const StakeholderReport = ({
         }
         
         doc.setFontSize(16);
-        doc.text('2. Top Noise Hotspots', 14, yPosition);
+        doc.text(`${sectionNumber}. Top Noise Hotspots`, 14, yPosition);
+        sectionNumber++;
         yPosition += 8;
         
         const hotspotRows = hotspots.slice(0, 10).map((hotspot, idx) => [
@@ -180,7 +182,8 @@ const StakeholderReport = ({
         }
         
         doc.setFontSize(16);
-        doc.text('3. Incident Summary', 14, yPosition);
+        doc.text(`${sectionNumber}. Incident Summary`, 14, yPosition);
+        sectionNumber++;
         yPosition += 8;
         
         const pendingCount = incidentData.filter(i => i.status === 'Pending').length;
@@ -218,7 +221,7 @@ const StakeholderReport = ({
         yPosition = doc.lastAutoTable.finalY + 15;
       }
 
-      // 4. scenarios sction
+      // 4. scenarios section
       if (scenarios && scenarios.length > 0) {
         if (yPosition > doc.internal.pageSize.height - 60) {
           doc.addPage();
@@ -226,7 +229,8 @@ const StakeholderReport = ({
         }
         
         doc.setFontSize(16);
-        doc.text('4. Mitigation Scenarios', 14, yPosition);
+        doc.text(`${sectionNumber}. Mitigation Scenarios`, 14, yPosition);
+        sectionNumber++;
         yPosition += 8;
         
         const scenarioRows = scenarios.map(scenario => [
@@ -257,7 +261,8 @@ const StakeholderReport = ({
         }
         
         doc.setFontSize(16);
-        doc.text('5. Intervention Plans', 14, yPosition);
+        doc.text(`${sectionNumber}. Intervention Plans`, 14, yPosition);
+        sectionNumber++;
         yPosition += 8;
         
         const planRows = plans.map(plan => [
@@ -282,7 +287,15 @@ const StakeholderReport = ({
         yPosition = doc.lastAutoTable.finalY + 15;
       }
 
-      //Footer with page numbers
+      // Add note if no data sections available
+      if (sectionNumber === 1) {
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text('No data available to display in this report.', 14, yPosition);
+        doc.setTextColor(0, 0, 0);
+      }
+
+      // Footer with page numbers
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);

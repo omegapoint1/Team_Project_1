@@ -99,10 +99,6 @@ const PlansList = ({ plans, onViewPlan, onUpdateStatus, onDeletePlan }) => {
                     </p>
                 </div>
                 <div className="header-actions">
-                    <button className="export-button" onClick={() => alert('Export feature coming soon!')}>
-                        <span className="export-icon">📊</span>
-                        Export Plans
-                    </button>
                 </div>
             </div>
 
