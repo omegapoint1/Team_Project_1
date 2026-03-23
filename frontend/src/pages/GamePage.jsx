@@ -106,11 +106,13 @@ export default function GamePage() {
         return true;
     };
     const handleQuestAction = (quest, isInProgress) => {
-        if (quest.id === 1 && isInProgress) {
-            sessionStorage.setItem(`pendingQuestComplete`, quest.id);
-            navigate('/user-dashboard');
-        } else if (isInProgress) {
-            completeQuest(quest.id);
+        if(isInProgress) {
+            if (quest.id === 1 && !canComplateQuest(quest)) {
+                sessionStorage.setItem('pendingQuestComplete', quest.id);
+                navigate('/user-dashboard');
+            } else {
+                completeQuest(quest.id);
+            }
         } else {
             startQuest(quest.id);
         }
