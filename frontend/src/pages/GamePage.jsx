@@ -3,26 +3,28 @@ import "./GamePage.css";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function GamePage() {
-    const navigate = useNavigate();
-    const [showBadges, setShowBadges] = useState(false);
-    const [userXP, setUserXP] = useState(0);
+    const navigate = useNavigate(); //navigation hook for redirection
+    const [showBadges, setShowBadges] = useState(false); 
+    const [userXP, setUserXP] = useState(0); //Progression data
     const [maxXP, setMaxXP] = useState(1000);
     const [userLevel, setUserLevel] = useState(1);
     const [quests,setQuests] = useState([]);
-    const [ userQuests, setUserQuests ] = useState([]);
-    const [progression, setProgression] = useState(null);
+    const [ userQuests, setUserQuests ] = useState([]); //available quests
+    const [progression, setProgression] = useState(null); //users quest progress
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(""); // search/filter states
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [sortBy, setSortBy] = useState("default");
     const [questProgressState, setQuestProgressState] = useState({});
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem('user') || '{}'); //user ID 
     const userId = user.id;
-    if (!userId) {
+    //redirect to login if not logged in
+    if (!userId) { 
         window.location.href = '/login';
         return null;
     }
+    //checks for quest progress when page is visible
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (!document.hidden) {
@@ -36,6 +38,7 @@ export default function GamePage() {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
+    //reads quest progress from session storage
     const checkQuestProgressFromSession = () => {
         const savedProgress = sessionStorage.getItem('questProgress');
         console.log('checkQuestProgressFromSession - savedProgress:', savedProgress);
@@ -45,6 +48,7 @@ export default function GamePage() {
             sessionStorage.removeItem('questProgress');
         }
     };
+    //gets quests from back end
     const fetchQuests = async () =>{
         try {
             const response = await fetch('/api/quests');
@@ -55,6 +59,7 @@ export default function GamePage() {
             setError(err.message);
         }
     };
+    //gets users started quests
     const fetchUserQuests = async () => {
         try {
             const response = await fetch(`/api/user/quests/${userId}`);
@@ -65,6 +70,7 @@ export default function GamePage() {
             setError(err.message);
         }
     };
+    //gets users progression... XP and level
     const fetchUserProgression = async () => {
         try {
             const response = await fetch(`/api/user/progression/${userId}`);
@@ -77,7 +83,7 @@ export default function GamePage() {
             setError(err.message);
         }
     };
-
+    //starts quests
     const startQuest = async (questId) => {
         try {
             const response = await fetch('/api/quests/start', {
@@ -96,34 +102,45 @@ export default function GamePage() {
             setError(err.message);
         }
     };
+    //calculates XP for current level
     const getCurrentLevelXP = (totalXP, level) => {
         const previousLevelXP = (level - 1) * 1000;
         return totalXP - previousLevelXP;
     };
+    //checks if quests can be completed
     const canCompleteQuest = (quest) => {
-        if (quest.id === 1) {
+        const completableQuests = [1,2,5];
+        if (completableQuests.includes(quest.id)) {
             return questProgressState[`quest_${quest.id}`] === true;
             console.log(`Quest ${quest.id} - isUnlocked:`, isUnlocked, 'questProgressState:', questProgressState);
             return isunlocked;
         }
+        return false;
+    };
+
+    const canStartQuest = (quest) => {
         return true;
     };
+
     const handleQuestAction = (quest, isInProgress) => {
         console.log('handleQuestAction - quest:', quest.id, 'isInProgress:', isInProgress, 'canComplete:', canCompleteQuest(quest));
         if(isInProgress) {
-            if (quest.id === 1 && !canCompleteQuest(quest)) {
-                console.log('Requirements NOT met - redirecting to dashboard');
-                sessionStorage.setItem('pendingQuestComplete', quest.id);
-                navigate('/user-dashboard');
-            } else {
-                console.log('Requirements met - completing quest');
+            if (canCompleteQuest(quest)){
+                console.log('requirements met - Completing the quest');
                 completeQuest(quest.id);
+            } else {
+                if(quest.id === 1) {
+                    console.log('Requirements not met - redirecting to dashboard');
+                    sessionStorage.setItem('pendingQuestComplete', quest.id);
+                    navigate('/user-dashboard');
+                } 
             }
         } else {
-            console.log('Starting quest');
+            console.log('starting quest');
             startQuest(quest.id);
         }
     };
+    //quest completion and awards XP
     const completeQuest = async(questId) => {
         try{
             const response = await fetch('/api/quests/complete', {
@@ -167,9 +184,10 @@ export default function GamePage() {
         };
         loadData();
     }, []);
+    //XP progress calculations
     const currentLevelXP = getCurrentLevelXP(userXP, userLevel);
     const xpPercentage = (currentLevelXP / 1000) * 100;
-    const filteredQuests = quests.filter(quest => {
+    const filteredQuests = quests.filter(quest => { //quest filter and search
         const matchesSearch = searchTerm === "" ||
             quest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             quest.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -177,6 +195,7 @@ export default function GamePage() {
             quest.difficulty === selectedDifficulty;
         return matchesSearch && matchesDifficulty;
     });
+    //quest sorter
     const sortedQuests = [...filteredQuests].sort((a,b) => {
         switch(sortBy) {
             case "xp_asc":
@@ -194,12 +213,14 @@ export default function GamePage() {
                 return 0;
         }
     });
+    //loading and error states
     if (loading) return <div className="game-page">Loading Quests...</div>
     if (error) return <div className="game-page">Error: {error}</div>;
 
     return (
         <div className="game-page">
             <div className="user-progress">
+                {/*XP progress bar */}
                 <div className="level-info">
                     <span className="level-badge"> Level {userLevel}</span>
                     <span className="xp-test"> {currentLevelXP}/1000 XP</span>
@@ -211,6 +232,7 @@ export default function GamePage() {
                     ></div>
                 </div>
             </div>
+            {/* search and filter controls */}
             <div className="game-controls-full">
                 <div className="search-section">
                     <input
@@ -220,6 +242,7 @@ export default function GamePage() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+
                 <div className="filter-section">
                     <select
                         className="game-btn"
@@ -258,7 +281,7 @@ export default function GamePage() {
                     </button>
                 </div>
             </div>
-            {/* Section Title */}
+            {/* quest Section Title */}
             <div className="section-header">
                 <div className="game-title">
                     Quests
@@ -289,6 +312,7 @@ export default function GamePage() {
                     const isInProgress = userQuest && userQuest.status === 'in_progress';
                     const isCompleted = userQuest && userQuest.status === 'completed';
                     const requirementsMet = canCompleteQuest(quest);
+                    const canBeCompleted = canCompleteQuest(quest);
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
@@ -304,7 +328,7 @@ export default function GamePage() {
                                 onClick={() => handleQuestAction (quest, isInProgress)}
                                 disabled ={isCompleted || (isInProgress && !requirementsMet)}
                                 >
-                                    {isCompleted ? 'Completed' :
+                                    { isCompleted ? 'Completed' :
                                     (isInProgress ? (requirementsMet ? 'Complete' : 'Complete (Locked)') : 'Accept Quest')}                                
                             </button>
                         </div>

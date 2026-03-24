@@ -33,18 +33,24 @@ function MapModule({
                 const response = await fetch(`/api/user/quests/${userId}`);
                 if (response.ok) {
                     const userQuests = await response.json();
-                    const firstStepsQuest = userQuests.find(q => q.quest_id === 1);
-                    const isAccepted = firstStepsQuest && firstStepsQuest.status === 'in_progress';
-                    if (isAccepted) {
-                        console.log('Quest accepted');
-                        const questProgress = {
-                            quest_1: true
-                        };
+                    const questsToUnlock = [1,2,5];
+                    const questProgress = {};
+                    questsToUnlock.forEach(questId => {
+                        const quest = userQuests.find(q => q.quest_id === questId);
+                        const isAccepted = quest&&quest.status === 'in_progress';
+                        if (isAccepted) {
+                            questProgress[`quest_${questId}`] = true;
+                            console.log(`Quest ${questId} accepted`);
+                        } else {
+                            console.log(`quest ${questId} not accepteed yet`);
+                        }
+                    });
+                    if (Object.keys(questProgress).length >0 ){
                         sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
-                    } else {
-                        console.log('Quest not accepted');
-                    }
+                        console.log('unlocked quests:', questProgress);
+                    }    
                 }
+                
             } catch (error) {
                 console.error('Error checking quest status:', error);
             }

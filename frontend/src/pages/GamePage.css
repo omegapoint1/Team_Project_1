@@ -337,6 +337,7 @@
     border-color: rgb( 62,122,62);
 }
 
+
 .badge-card.locked {
     opactiy: 0.6;
     filter: grayscale(0.5);

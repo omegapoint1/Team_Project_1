@@ -68,29 +68,6 @@ function OverviewPage() {
   const [hotspots, setHotspots] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
 
-  const questProgress = {
-    quest_1: true
-  };
-  sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
-  console.log('Saved to sessionStorage:', sessionStorage.getItem('questProgress'));
-  useEffect(() => {
-    const pendingQuest = sessionStorage.getItem('pendingQuestComplete');
-    if(pendingQuest) {
-      console.log('Quest pending completion', pendingQuest);
-      const questProgress = {
-        quest_1: true
-      };
-      sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
-    }
-  }, []); 
-  useEffect(() => {
-    console.log('🔓 DASHBOARD LOADED - UNLOCKING QUEST');
-    const questProgress = {
-      quest_1: true
-    };
-    sessionStorage.setItem('questProgress', JSON.stringify(questProgress));
-    console.log('Saved to sessionStorage:', sessionStorage.getItem('questProgress'));
-  }, []);
 
   useEffect(() => {
     const fetchNoiseReports = async () => {
