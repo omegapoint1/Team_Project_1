@@ -337,6 +337,17 @@
     border-color: rgb( 62,122,62);
 }
 
+.quest-locked-message {
+    margin-top: 8px;
+    padding: 4px 8px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
 .badge-card.locked {
     opactiy: 0.6;
     filter: grayscale(0.5);

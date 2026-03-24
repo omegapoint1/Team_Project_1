@@ -108,7 +108,15 @@ export default function GamePage() {
         }
         return true;
     };
+    const isQuestLocked = (quest) => {
+        return quest.id !== 1;
+    };
+
     const handleQuestAction = (quest, isInProgress) => {
+        if (isQuestLocked(quest)) {
+            console.log('Quest Locked');
+            return;
+        }
         console.log('handleQuestAction - quest:', quest.id, 'isInProgress:', isInProgress, 'canComplete:', canCompleteQuest(quest));
         if(isInProgress) {
             if (quest.id === 1 && !canCompleteQuest(quest)) {
@@ -289,6 +297,7 @@ export default function GamePage() {
                     const isInProgress = userQuest && userQuest.status === 'in_progress';
                     const isCompleted = userQuest && userQuest.status === 'completed';
                     const requirementsMet = canCompleteQuest(quest);
+                    const isLocked = isQuestLocked(quest);
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
@@ -304,7 +313,7 @@ export default function GamePage() {
                                 onClick={() => handleQuestAction (quest, isInProgress)}
                                 disabled ={isCompleted || (isInProgress && !requirementsMet)}
                                 >
-                                    {isCompleted ? 'Completed' :
+                                    { isLocked ? 'Locked' : isCompleted ? 'Completed' :
                                     (isInProgress ? (requirementsMet ? 'Complete' : 'Complete (Locked)') : 'Accept Quest')}                                
                             </button>
                         </div>
