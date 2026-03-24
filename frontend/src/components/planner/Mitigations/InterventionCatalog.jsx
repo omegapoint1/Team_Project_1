@@ -75,16 +75,29 @@ const InterventionCatalog = ({
         return '0-0 dB';
     };
 
-    // Helper function to format feasibility 
+
     const formatFeasibility = (feasibility) => {
         if (feasibility === undefined || feasibility === null) return '0%';
         if (typeof feasibility === 'number') {
             if (feasibility <= 1) {
                 return `${Math.round(feasibility * 100)}%`;
             }
+            if (feasibility <= 10) {
+                return `${Math.round(feasibility * 10)}%`;
+            }
             return `${Math.round(feasibility)}%`;
         }
         return '0%';
+    };
+
+    const getFeasibilityValue = (feasibility) => {
+        if (feasibility === undefined || feasibility === null) return 0.5;
+        if (typeof feasibility === 'number') {
+            if (feasibility <= 1) return feasibility;
+            if (feasibility <= 10) return feasibility / 10;
+            return 0.5;
+        }
+        return 0.5;
     };
 
     const handleCreate = async (newIntervention) => {
@@ -187,7 +200,7 @@ const InterventionCatalog = ({
     };
 
     const getFeasibilityColor = (feasibility) => {
-        const value = typeof feasibility === 'number' ? (feasibility <= 1 ? feasibility : feasibility / 10) : 0.5;
+        const value = getFeasibilityValue(feasibility);
         if (value >= 0.7) return '#10b981';
         if (value >= 0.4) return '#f59e0b';
         return '#ef4444';
@@ -307,23 +320,6 @@ const InterventionCatalog = ({
                                         ))}
                                     </div>
                                 </div>
-                            )}
-                        </div>
-
-                        <div className="card-actions">
-                            <button 
-                                className="edit-button"
-                                onClick={() => handleEditClick(intervention)}
-                            >
-                                Edit
-                            </button>
-                            {onAddToPlan && (
-                                <button 
-                                    className="add-to-plan-button"
-                                    onClick={() => onAddToPlan(intervention)}
-                                >
-                                    Add to Plan
-                                </button>
                             )}
                         </div>
                     </div>

@@ -291,7 +291,18 @@ const IncidentDetailModal = ({ isOpen, onClose, incident, onUpdateStatus }) => {
               onClick={onClose}
               className="cancel-button"
               disabled={isUpdating}
-            >
+              style={{
+                padding: '10px 24px',
+                backgroundColor: '#ffffff',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: isUpdating ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                opacity: isUpdating ? 0.5 : 1
+              }}            >
               Cancel
             </button>
             <button

@@ -15,10 +15,8 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
     const fetchInterventions = async () => {
       try {
         setLoading(true);
-        // Try server first, fall back to local
         let interventions = await interventionServerService.getAll();
         
-        // If server returns empty, try local
         if (!interventions || interventions.length === 0) {
           interventions = interventionLocalService.getAll();
         }
@@ -28,7 +26,6 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
       } catch (err) {
         console.error('Error fetching interventions:', err);
         setError('Failed to load interventions');
-        // Fallback to local
         setAvailableInterventions(interventionLocalService.getAll());
       } finally {
         setLoading(false);
@@ -46,28 +43,57 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
     }
   };
 
+  // Helper to get numeric cost from intervention (returns average cost)
+  const getNumericCost = (intervention) => {
+    const cost = intervention.cost || intervention.costRange;
+    if (!cost) return 0;
+    if (typeof cost === 'number') return cost;
+    if (Array.isArray(cost)) return (cost[0] + cost[1]) / 2;
+    if (cost.min !== undefined && cost.max !== undefined) return (cost.min + cost.max) / 2;
+    return 0;
+  };
+
+  // Helper to get numeric impact min from intervention
+  const getImpactMin = (intervention) => {
+    const impact = intervention.impact || intervention.impactRange;
+    if (!impact) return 0;
+    if (typeof impact === 'number') return impact;
+    if (Array.isArray(impact)) return impact[0] || 0;
+    if (impact.min !== undefined) return impact.min;
+    return 0;
+  };
+
+  // Helper to get numeric impact max from intervention
+  const getImpactMax = (intervention) => {
+    const impact = intervention.impact || intervention.impactRange;
+    if (!impact) return 0;
+    if (typeof impact === 'number') return impact;
+    if (Array.isArray(impact)) return impact[1] || impact[0] || 0;
+    if (impact.max !== undefined) return impact.max;
+    return 0;
+  };
+
+  // Helper to get numeric feasibility (normalized to 0-10 scale)
+  const getNumericFeasibility = (intervention) => {
+    const feasibility = intervention.feasibility;
+    if (feasibility === undefined || feasibility === null) return 0;
+    if (typeof feasibility === 'number') {
+      if (feasibility <= 1) return feasibility * 10;
+      return feasibility;
+    }
+    return 0;
+  };
+
   const calculateMetrics = () => {
     const selected = availableInterventions.filter(i => selectedInterventions.includes(i.id));
     
-    const totalCost = selected.reduce((sum, int) => sum + (int.cost || 0), 0);
+    const totalCost = selected.reduce((sum, int) => sum + getNumericCost(int), 0);
     
-    // Handle impact which could be object {min, max} or direct values
-    const minImpact = selected.reduce((sum, int) => {
-      if (typeof int.impact === 'object' && int.impact !== null) {
-        return sum + (int.impact.min || 0);
-      }
-      return sum + (int.impact || 0);
-    }, 0);
-    
-    const maxImpact = selected.reduce((sum, int) => {
-      if (typeof int.impact === 'object' && int.impact !== null) {
-        return sum + (int.impact.max || int.impact.min || 0);
-      }
-      return sum + (int.impact || 0);
-    }, 0);
+    const minImpact = selected.reduce((sum, int) => sum + getImpactMin(int), 0);
+    const maxImpact = selected.reduce((sum, int) => sum + getImpactMax(int), 0);
     
     const avgFeasibility = selected.length > 0 
-      ? selected.reduce((sum, int) => sum + (int.feasibility || 0), 0) / selected.length
+      ? selected.reduce((sum, int) => sum + getNumericFeasibility(int), 0) / selected.length
       : 0;
 
     return { totalCost, minImpact, maxImpact, avgFeasibility };
@@ -92,36 +118,50 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
           max: metrics.maxImpact 
         },
         feasibility: metrics.avgFeasibility,
-        timeline: '3-4 weeks'
+        timeline: metrics.avgFeasibility >= 7 ? '2-3 weeks' : metrics.avgFeasibility >= 4 ? '3-6 months' : '12-18 months'
       },
       scores: {
-        cost: Math.max(0, 10 - (metrics.totalCost / 10000)),
-        impact: ((metrics.minImpact + metrics.maxImpact) / 2) * 0.5,
-        feasibility: metrics.avgFeasibility * 10,
-        total: 7.5 // This could be calculated based on weights
+        cost: Math.max(0, Math.min(10, 10 - (metrics.totalCost / 50000))),
+        impact: Math.min(10, ((metrics.minImpact + metrics.maxImpact) / 2) * 0.5),
+        feasibility: metrics.avgFeasibility,
+        total: 0
       },
       createdAt: new Date().toISOString()
     };
+    
+    newScenario.scores.total = (newScenario.scores.cost + newScenario.scores.impact + newScenario.scores.feasibility) / 3;
 
     onSave(newScenario);
   };
 
   const metrics = calculateMetrics();
 
-  // Helper to format cost
-  const formatCost = (cost) => {
-    if (typeof cost === 'object' && cost !== null) {
-      return `£${cost.min}-${cost.max}`;
-    }
+  // Helper to format cost display
+  const formatCostDisplay = (cost) => {
+    if (cost === undefined || cost === null) return '£0';
+    if (typeof cost === 'number') return `£${cost.toLocaleString()}`;
+    if (Array.isArray(cost)) return `£${cost[0].toLocaleString()}-£${cost[1].toLocaleString()}`;
+    if (cost.min !== undefined && cost.max !== undefined) return `£${cost.min.toLocaleString()}-£${cost.max.toLocaleString()}`;
     return `£${cost}`;
   };
 
-  // Helper to format impact
-  const formatImpact = (impact) => {
-    if (typeof impact === 'object' && impact !== null) {
-      return `${impact.min}-${impact.max} dB`;
-    }
+  // Helper to format impact display
+  const formatImpactDisplay = (impact) => {
+    if (impact === undefined || impact === null) return '0 dB';
+    if (typeof impact === 'number') return `${impact} dB`;
+    if (Array.isArray(impact)) return `${impact[0]}-${impact[1]} dB`;
+    if (impact.min !== undefined && impact.max !== undefined) return `${impact.min}-${impact.max} dB`;
     return `${impact} dB`;
+  };
+
+
+  const formatFeasibilityDisplay = (feasibility) => {
+    if (feasibility === undefined || feasibility === null) return '0/10';
+    if (typeof feasibility === 'number') {
+      if (feasibility <= 1) return `${Math.round(feasibility * 10)}/10`;
+      return `${Math.round(feasibility)}/10`;
+    }
+    return `${feasibility}/10`;
   };
 
   if (loading) {
@@ -203,9 +243,9 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
                   <h5>{intervention.name}</h5>
                   <p>{intervention.description}</p>
                   <div className="item-meta">
-                    <span className="cost">{formatCost(intervention.cost)}</span>
-                    <span className="impact">{formatImpact(intervention.impact)}</span>
-                    <span className="feasibility">Feasibility: {intervention.feasibility}/10</span>
+                    <span className="cost">{formatCostDisplay(intervention.cost || intervention.costRange)}</span>
+                    <span className="impact">{formatImpactDisplay(intervention.impact || intervention.impactRange)}</span>
+                    <span className="feasibility">Feasibility: {formatFeasibilityDisplay(intervention.feasibility)}</span>
                   </div>
                   {intervention.tags && intervention.tags.length > 0 && (
                     <div className="item-tags">
@@ -226,15 +266,15 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
             <div className="preview-metrics">
               <div className="metric">
                 <span>Cost:</span>
-                <strong>£{metrics.totalCost.toLocaleString()}</strong>
+                <strong>£{Math.round(metrics.totalCost).toLocaleString()}</strong>
               </div>
               <div className="metric">
                 <span>Impact:</span>
-                <strong>{metrics.minImpact.toFixed(1)}-{metrics.maxImpact.toFixed(1)} dB</strong>
+                <strong>{Math.round(metrics.minImpact)}-{Math.round(metrics.maxImpact)} dB</strong>
               </div>
               <div className="metric">
                 <span>Feasibility:</span>
-                <strong>{metrics.avgFeasibility.toFixed(2)}/10</strong>
+                <strong>{Math.round(metrics.avgFeasibility)}/10</strong>
               </div>
             </div>
           </div>

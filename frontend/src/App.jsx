@@ -91,7 +91,6 @@ function App() {
           <Route path="comparison" element={<ScenarioTab />} />
           {/*<Route path="ExportingReport" element={<Reports />} />*/}
           <Route path="tracker" element={<IncidentManagement />} />
-          <Route path="hotspots" element={<HotspotAnalytics />} />
 
         </Route>
 

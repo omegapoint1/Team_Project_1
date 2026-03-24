@@ -34,6 +34,64 @@ const ComparisonTable = ({ scenarios, weights }) => {
     return '12-18 months';
   };
 
+  const calculateNormalizedScores = () => {
+    if (!scenarios.length) return {};
+    
+    const costs = scenarios.map(s => s.metrics?.totalCost || s.metrics?.cost || 0);
+    const impacts = scenarios.map(s => {
+      const impact = s.metrics?.impact;
+      if (!impact) return 0;
+      if (typeof impact === 'object') {
+        return (impact.min + impact.max) / 2;
+      }
+      return impact;
+    });
+    const feasibilities = scenarios.map(s => s.metrics?.feasibility || 0);
+    
+    const minCost = Math.min(...costs);
+    const maxCost = Math.max(...costs);
+    const maxImpact = Math.max(...impacts);
+    const minImpact = Math.min(...impacts);
+    const maxFeasibility = Math.max(...feasibilities);
+    const minFeasibility = Math.min(...feasibilities);
+    
+    return scenarios.map((scenario, index) => {
+      let normalizedCost = 100;
+      if (maxCost > minCost) {
+        normalizedCost = ((maxCost - costs[index]) / (maxCost - minCost)) * 100;
+      }
+      
+      // Impact
+      let normalizedImpact = 100;
+      if (maxImpact > minImpact) {
+        normalizedImpact = ((impacts[index] - minImpact) / (maxImpact - minImpact)) * 100;
+      }
+      
+      // Feasibility
+      let normalizedFeasibility = 100;
+      if (maxFeasibility > minFeasibility) {
+        normalizedFeasibility = ((feasibilities[index] - minFeasibility) / (maxFeasibility - minFeasibility)) * 100;
+      }
+      
+      // Calculate weighted score
+      const weightedScore = (
+        normalizedCost * (weights?.cost || 40) +
+        normalizedImpact * (weights?.impact || 40) +
+        normalizedFeasibility * (weights?.feasibility || 20)
+      ) / 100;
+      
+      return {
+        id: scenario.id,
+        normalizedCost,
+        normalizedImpact,
+        normalizedFeasibility,
+        weightedScore
+      };
+    });
+  };
+
+  const normalizedScores = calculateNormalizedScores();
+
   return (
     <div className="comparison-table-card">
       <div className="card-header">
@@ -62,41 +120,58 @@ const ComparisonTable = ({ scenarios, weights }) => {
             <tr>
               <td className="metric-label">
                 <strong>Cost</strong>
-                <small>({weights?.cost || 40}% weight)</small>
+                <div className="weight-badge">Weight: {weights?.cost || 40}%</div>
               </td>
-              {scenarios.map(scenario => (
-                <td key={scenario.id} className="metric-value cost-value">
-                  {formatCurrency(scenario.metrics?.totalCost || scenario.metrics?.cost)}
-                </td>
-              ))}
+              {scenarios.map((scenario, index) => {
+                const score = normalizedScores.find(s => s.id === scenario.id);
+                return (
+                  <td key={scenario.id} className="metric-value cost-value">
+                    <div className="metric-main">
+                      {formatCurrency(scenario.metrics?.totalCost || scenario.metrics?.cost)}
+                    </div>
+              
+                  </td>
+                );
+              })}
             </tr>
 
             {/* Impact Row */}
             <tr>
               <td className="metric-label">
                 <strong>Impact</strong>
-                <small>({weights?.impact || 40}% weight)</small>
+                <div className="weight-badge">Weight: {weights?.impact || 40}%</div>
               </td>
-              {scenarios.map(scenario => (
-                <td key={scenario.id} className="metric-value impact-value">
-                  {formatImpact(scenario.metrics?.impact)}
-                </td>
-              ))}
+              {scenarios.map((scenario, index) => {
+                const score = normalizedScores.find(s => s.id === scenario.id);
+                return (
+                  <td key={scenario.id} className="metric-value impact-value">
+                    <div className="metric-main">
+                      {formatImpact(scenario.metrics?.impact)}
+                    </div>
+                  </td>
+                );
+              })}
             </tr>
 
             {/* Feasibility Row */}
             <tr>
               <td className="metric-label">
                 <strong>Feasibility</strong>
-                <small>({weights?.feasibility || 20}% weight)</small>
+                <div className="weight-badge">Weight: {weights?.feasibility || 20}%</div>
               </td>
-              {scenarios.map(scenario => (
-                <td key={scenario.id} className="metric-value feasibility-value">
-                  {formatFeasibility(scenario.metrics?.feasibility)}
-                </td>
-              ))}
+              {scenarios.map((scenario, index) => {
+                const score = normalizedScores.find(s => s.id === scenario.id);
+                return (
+                  <td key={scenario.id} className="metric-value feasibility-value">
+                    <div className="metric-main">
+                      {formatFeasibility(scenario.metrics?.feasibility)}
+                    </div>
+                  </td>
+                );
+              })}
             </tr>
 
+            {/* Timeline row */}
             <tr>
               <td className="metric-label">
                 <strong>Timeline</strong>
@@ -108,6 +183,7 @@ const ComparisonTable = ({ scenarios, weights }) => {
               ))}
             </tr>
 
+            {/* Interventions row */}
             <tr className="info-row">
               <td className="metric-label">
                 <strong>Interventions</strong>
@@ -122,7 +198,6 @@ const ComparisonTable = ({ scenarios, weights }) => {
         </table>
       </div>
 
-      {/* Legend/Notes Section */}
       <div className="table-footer">
         <small className="text-muted">
           * Lower cost = higher score | Higher impact = higher score | Higher feasibility = higher score

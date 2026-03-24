@@ -34,7 +34,7 @@ pub fn report_test() {
   let db = pog.named_connection(pool_name)
   let  report_item = report_json.ReportItem(
     noisetype: "cars",
-    zone: "2",
+    zone: "outside of zones",
     datetime: "12:30",
     severity: "4",
     description: "cars are very loud",

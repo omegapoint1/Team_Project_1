@@ -143,7 +143,6 @@ fn get_zone(lat: String, long: String) -> String {
 }
 
 pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
-  wisp.log_alert(item.noisetype)
   let noisetype = item.noisetype
   let datetime = item.datetime
   let severity = item.severity
@@ -160,7 +159,7 @@ pub fn store_report(item: report_json.ReportItem, db: pog.Connection) -> Int {
       datetime,
       severity,
       description,
-      location_of_noise,
+      noisetype,
       zone,
       lat,
       long,
@@ -316,8 +315,15 @@ pub fn approve_report(item: accept_json.AcceptItem, db: pog.Connection) -> Int {
       time: report_data.datetime,
       category: report_data.noisetype,
     )
-  map_data.store_map_data(db, new_map_data)
-  1
+  case item.accepted{
+    "Accepted" ->  {
+      map_data.store_map_data(db, new_map_data) 
+      1
+      }
+    _ -> 1
+
+  }
+  
 }
 
 //for testing
@@ -348,9 +354,15 @@ pub fn get_report_by_id_testing(
 
 pub fn generate_reports(db: pog.Connection) {
   let reports = generate_reports_list(0, [])
+
   list.map(reports, fn(report) {
     let id = store_report(report, db)
-    let accept_item = accept_json.AcceptItem(id: id, accepted: "Accepted")
+    let accepted = case float.random(){
+      val if val <=. 0.05 -> "Accepted"
+      val if val <. 0.6 -> "Pending"
+      _ -> "Rejected"
+    }
+    let accept_item = accept_json.AcceptItem(id: id, accepted: accepted)
     approve_report(accept_item, db)
   })
 }
@@ -360,6 +372,7 @@ fn generate_reports_list(
   acc: List(report_json.ReportItem),
 ) -> List(report_json.ReportItem) {
   let catagories = ["Traffic", "Music", "Train", "Construction", "Crowd"]
+  
   let zones = [
     "North West",
     "North-Central-West",
@@ -377,7 +390,8 @@ fn generate_reports_list(
     "South-Central-West",
     "South-Central-East",
   ]
-  let tags = ["road", "people", "cars", "industrial","sensor"]
+  let tags = ["road", "people", "cars", "industrial"]
+
   case i {
     10000 -> acc
     _ -> {
@@ -392,14 +406,15 @@ fn generate_reports_list(
       let assert Ok(zone) = list.first(list.sample(zones, 1))
       let tag = case float.random() {
         num if num <. 0.1 -> ["sensor"]
-        _ -> list.sample(tags, 2)
+        _ -> ["user", ..list.sample(tags, 2)]
       }
 
       let time =
         timestamp.add(
           timestamp.system_time(),
-          duration.hours(-1 * int.random(100)),
+          duration.hours(-1 * int.random(1000)),
         )
+
       let datetime = timestamp.to_rfc3339(time, duration.hours(0))
       let data =
         report_json.ReportItem(
