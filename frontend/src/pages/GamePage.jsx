@@ -109,7 +109,8 @@ export default function GamePage() {
     };
     //checks if quests can be completed
     const canCompleteQuest = (quest) => {
-        if (quest.id === 1) {
+        const completableQuests = [1,2,5];
+        if (completableQuests.includes(quest.id)) {
             return questProgressState[`quest_${quest.id}`] === true;
             console.log(`Quest ${quest.id} - isUnlocked:`, isUnlocked, 'questProgressState:', questProgressState);
             return isunlocked;
