@@ -106,32 +106,32 @@ export default function GamePage() {
             console.log(`Quest ${quest.id} - isUnlocked:`, isUnlocked, 'questProgressState:', questProgressState);
             return isunlocked;
         }
-        return true;
+        return false;
     };
-    const isQuestLocked = (quest) => {
-        return quest.id !== 1;
+
+    const canStartQuest = (quest) => {
+        return true;
     };
 
     const handleQuestAction = (quest, isInProgress) => {
-        if (isQuestLocked(quest)) {
-            console.log('Quest Locked');
-            return;
-        }
         console.log('handleQuestAction - quest:', quest.id, 'isInProgress:', isInProgress, 'canComplete:', canCompleteQuest(quest));
         if(isInProgress) {
-            if (quest.id === 1 && !canCompleteQuest(quest)) {
-                console.log('Requirements NOT met - redirecting to dashboard');
-                sessionStorage.setItem('pendingQuestComplete', quest.id);
-                navigate('/user-dashboard');
-            } else {
-                console.log('Requirements met - completing quest');
+            if (canCompleteQuest(quest)){
+                console.log('requirements met - Completing the quest');
                 completeQuest(quest.id);
+            } else {
+                if(quest.id === 1) {
+                    console.log('Requirements not met - redirecting to dashboard');
+                    sessionStorage.setItem('pendingQuestComplete', quest.id);
+                    navigate('/user-dashboard');
+                } 
             }
         } else {
-            console.log('Starting quest');
+            console.log('starting quest');
             startQuest(quest.id);
         }
     };
+
     const completeQuest = async(questId) => {
         try{
             const response = await fetch('/api/quests/complete', {
@@ -297,7 +297,7 @@ export default function GamePage() {
                     const isInProgress = userQuest && userQuest.status === 'in_progress';
                     const isCompleted = userQuest && userQuest.status === 'completed';
                     const requirementsMet = canCompleteQuest(quest);
-                    const isLocked = isQuestLocked(quest);
+                    const canBeCompleted = canCompleteQuest(quest);
                     return (
                         <div key={quest.id} className="game-card">
                             <div className="game-meta">
@@ -313,7 +313,7 @@ export default function GamePage() {
                                 onClick={() => handleQuestAction (quest, isInProgress)}
                                 disabled ={isCompleted || (isInProgress && !requirementsMet)}
                                 >
-                                    { isLocked ? 'Locked' : isCompleted ? 'Completed' :
+                                    { isCompleted ? 'Completed' :
                                     (isInProgress ? (requirementsMet ? 'Complete' : 'Complete (Locked)') : 'Accept Quest')}                                
                             </button>
                         </div>
