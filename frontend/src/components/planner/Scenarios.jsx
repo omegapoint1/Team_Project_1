@@ -1,3 +1,13 @@
+/*
+  ScenarioTab module - Provides a comprehensive scenario comparison interface for intervention strategies.
+ 
+ Features:
+ Load and manage multiple scenarios (server + local storage fallback )
+ Select 2-3 scenarios for side-by-side comparison
+ This module collects all the relevant component and adds the logic to combine into the main scenario comparison tab as a component
+ */
+
+
 import React, { useState, useEffect } from 'react';
 import './Scenario.css';
 

@@ -3,7 +3,7 @@
  * Supports creating, updating, deleting, and retrieving scenarios with intervention tracking and metric calculations.
  */
 
-const SCENARIO_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const SCENARIO_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const SCENARIO_ENDPOINT = '/scenario';
 const SCENARIO_STORAGE_KEY = 'scenarios';
 

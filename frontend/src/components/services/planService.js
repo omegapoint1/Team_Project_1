@@ -3,7 +3,7 @@
  Supports creating, updating retrieving intervention plans 
  */
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const PLANS_ENDPOINT = '/intervention-plan';
 const STORAGE_KEY = 'intervention-plan';
 

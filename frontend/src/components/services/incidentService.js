@@ -2,7 +2,7 @@
  Incident service module providing crud operations for noise incident reports with both server API and local storage persistence.
  */
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const INCIDENTS_ENDPOINT = '/report';
 const STORAGE_KEY = 'reports';
 

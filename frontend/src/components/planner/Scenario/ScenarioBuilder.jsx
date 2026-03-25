@@ -43,7 +43,7 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
     }
   };
 
-  // Helper to get numeric cost from intervention (returns average cost)
+  // Helper to get numeric cost from intervention , returns average cost
   const getNumericCost = (intervention) => {
     const cost = intervention.cost || intervention.costRange;
     if (!cost) return 0;
@@ -73,7 +73,7 @@ const ScenarioBuilder = ({ onSave, onClose }) => {
     return 0;
   };
 
-  // Helper to get numeric feasibility (normalized to 0-10 scale)
+  // Helper to get numeric feasibility (normalized 0-10)
   const getNumericFeasibility = (intervention) => {
     const feasibility = intervention.feasibility;
     if (feasibility === undefined || feasibility === null) return 0;
