@@ -25,9 +25,9 @@ const ScenarioSelector = ({ scenarios, selectedIds, onSelect, onAddNew, onDelete
   // Helper to handle selection with validation
   const handleSelect = (id) => {
     if (selectedIds.includes(id)) {
-      onSelect(id); // Deselect
+      onSelect(id); 
     } else if (selectedIds.length < 3) {
-      onSelect(id); // Select
+      onSelect(id); 
     } else {
       alert('You can only compare up to 3 scenarios at a time');
     }

@@ -54,10 +54,6 @@ export const calculateCombinedImpact = (interventions) => {
     const count = interventions.length;
     
     // Diminishing returns factor: sqrt(n)/n
-    // 1 intervention: 1.0
-    // 2 interventions: 0.71
-    // 3 interventions: 0.58
-    // 4 interventions: 0.5
     const diminishingFactor = Math.sqrt(count) / count;
     
     // Calculate individual impacts
